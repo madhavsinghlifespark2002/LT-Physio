@@ -55,5 +55,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.firebase.functions.ktx)
     debugImplementation(libs.compose.ui.tooling)
 }

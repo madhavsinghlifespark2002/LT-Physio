@@ -28,23 +28,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.lsphysio.Greeting
+import com.example.lsphysio.getPlatform
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import com.google.firebase.functions.functions
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-// InputFields.kt
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun InputFields() {
-    var assessmentData by remember { mutableStateOf(AssessmentData()) }
+fun InputFields(onSubmit: () -> Unit) {
+    var patientData by remember { mutableStateOf(PatientData()) }
     var expanded by remember { mutableStateOf(false) }
+    var allFieldsFilled by remember { mutableStateOf(false) }
     val genderOptions = listOf("Male", "Female", "Other")
 
     val currentDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
     var currentTime = LocalTime.now().format(DateTimeFormatter.ISO_TIME).substring(0, 5)
+
+    fun checkAllFieldsFilled() {
+        allFieldsFilled = patientData.name.isNotEmpty() &&
+                patientData.gender.isNotEmpty() &&
+                patientData.age.isNotEmpty() &&
+                patientData.primaryDiagnosis.isNotEmpty()
+    }
 
     Column(
         modifier = Modifier
@@ -53,8 +63,11 @@ fun InputFields() {
             .imePadding(),
     ) {
         TextField(
-            value = assessmentData.name,
-            onValueChange = { assessmentData = assessmentData.copy(name = it) },
+            value = patientData.name,
+            onValueChange = {
+                patientData = patientData.copy(name = it)
+                checkAllFieldsFilled()
+            },
             label = { Text("Name") },
             modifier = Modifier.fillMaxWidth(),
             maxLines = 1,
@@ -68,7 +81,7 @@ fun InputFields() {
                 .wrapContentSize(Alignment.TopStart)
         ) {
             Text(
-                text = assessmentData.gender.ifEmpty { "Select Gender" },
+                text = patientData.gender.ifEmpty { "Select Gender" },
                 modifier = Modifier.padding(16.dp),
             )
             DropdownMenu(
@@ -79,8 +92,9 @@ fun InputFields() {
                     DropdownMenuItem(
                         text = { Text(gender) },
                         onClick = {
-                            assessmentData = assessmentData.copy(gender = gender)
+                            patientData = patientData.copy(gender = gender)
                             expanded = false
+                            checkAllFieldsFilled()
                         }
                     )
                 }
@@ -88,10 +102,11 @@ fun InputFields() {
         }
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
-            value = assessmentData.age,
+            value = patientData.age,
             onValueChange = {
                 if (it.all { char -> char.isDigit() }) {
-                    assessmentData = assessmentData.copy(age = it)
+                    patientData = patientData.copy(age = it)
+                    checkAllFieldsFilled()
                 }
             },
             label = { Text("Age") },
@@ -117,8 +132,11 @@ fun InputFields() {
         )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
-            value = assessmentData.primaryDiagnosis,
-            onValueChange = { assessmentData = assessmentData.copy(primaryDiagnosis = it) },
+            value = patientData.primaryDiagnosis,
+            onValueChange = {
+                patientData = patientData.copy(primaryDiagnosis = it)
+                checkAllFieldsFilled()
+            },
             label = { Text("Primary Diagnosis") },
             modifier = Modifier.fillMaxWidth(),
             maxLines = 1,
@@ -131,23 +149,27 @@ fun InputFields() {
                 // Handle form submission
                 val db = Firebase.firestore
                 val assessment = hashMapOf(
-                    "name" to assessmentData.name,
-                    "gender" to assessmentData.gender,
-                    "age" to assessmentData.age,
-                    "dateOfAssessment" to currentDate,
-                    "timeOfAssessment" to currentTime,
-                    "primaryDiagnosis" to assessmentData.primaryDiagnosis
+                    "name" to patientData.name,
+                    "gender" to patientData.gender,
+                    "age" to patientData.age,
+                    "date" to currentDate,
+                    "time" to currentTime,
+                    "primary" to patientData.primaryDiagnosis
                 )
-                db.collection(Firebase.auth.currentUser?.email.toString())
+
+                db.collection(Firebase.auth.currentUser?.uid.toString())
                     .add(assessment)
                     .addOnSuccessListener { documentReference ->
                         println("DocumentSnapshot added with ID: ${documentReference.id}")
+                        Greeting.name = documentReference.id
+                        onSubmit()
                     }
                     .addOnFailureListener { e ->
                         println("Error adding document: $e")
                     }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = allFieldsFilled
         ) {
             Text("Submit")
         }

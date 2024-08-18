@@ -1,7 +1,7 @@
 package com.example.lsphysio
 
 interface Platform {
-    val name: String
+    var name: String
 }
 
 expect fun getPlatform(): Platform
