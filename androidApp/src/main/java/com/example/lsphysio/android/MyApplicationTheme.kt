@@ -4,6 +4,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -26,18 +27,22 @@ fun MyApplicationTheme(
             primary = Color("#2CBA9D".toColorInt()),
             secondary = Color("#105749".toColorInt()),
             tertiary = Color("#FFFFFF".toColorInt()),
-            background = Color("#1A1A1A".toColorInt()),
+//            background = Color("#1A1A1A".toColorInt()),
         )
 
     } else {
         lightColorScheme(
             primary = Color("#105749".toColorInt()),
             secondary = Color("#2CBA9D".toColorInt()),
-            tertiary = Color("#FFFFFF".toColorInt()),
+//            tertiary = Color("#FFFFFF".toColorInt()),
             background = Color("#FFFFFF".toColorInt())
 
         )
     }
+
+    val textFieldColors = TextFieldDefaults.colors(
+        unfocusedContainerColor = Color.Green
+    )
     val typography = Typography(
         bodyMedium = TextStyle(
             fontFamily = FontFamily.Default,
