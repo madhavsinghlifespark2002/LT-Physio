@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "573734632631",
+    "project_id": "lsphysio-f00ba",
+    "storage_bucket": "lsphysio-f00ba.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:573734632631:android:8e1907a8759b1aab3ba132",
+        "android_client_info": {
+          "package_name": "com.example.lsphysio.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsYAWdzy4GnNkOVv-aJGW2yvCVI5tB9VA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
