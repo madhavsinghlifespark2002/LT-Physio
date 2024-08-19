@@ -26,14 +26,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.lsphysio.Greeting
 import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FOG() {
+fun FOG(navController: NavHostController) {
     val labels = listOf(
         "Sit to Stand Transition",
         "4m straight walk",
@@ -48,14 +49,14 @@ fun FOG() {
         "(Dual task) 4m straight walk",
         "(Dual task) Stand to Sit Transition"
     )
-
     var without by remember { mutableStateOf(List(labels.size) { "" }) }
     var with by remember { mutableStateOf(List(labels.size) { "" }) }
     var allCellsFilled by remember { mutableStateOf(false) }
+    var summary by remember { mutableStateOf("") }
 
     // Function to check if all cells are filled
     fun checkAllCellsFilled() {
-        allCellsFilled = without.all { it.isNotEmpty() } && with.all { it.isNotEmpty() }
+        allCellsFilled = without.all { it.isNotEmpty() } && with.all { it.isNotEmpty() } && summary.isNotEmpty()
     }
 
     LazyColumn(
@@ -127,22 +128,45 @@ fun FOG() {
             }
         }
         item {
+            TextField(
+                value = summary,
+                onValueChange = { summary = it
+                    checkAllCellsFilled()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                label = { Text("Summary") }
+            )
+        }
+        item {
             Button(
                 onClick = {
                     // Handle form submission
                     val db = Firebase.firestore
                     // Hash map of [label, without, with]
                     val patientData = hashMapOf<String, Any>()
+                    var counter=0;
+                    var total_without=0;
+                    var total_with=0;
                     for (i in labels.indices) {
                         patientData[i.toString()] = hashMapOf(
                             "without" to without[i], "with" to with[i]
                         )
+                        if(without[i].isNotEmpty()&&with[i].isNotEmpty()){
+                            total_without+=without[i].toInt()
+                            total_with+=with[i].toInt()
+                        }
+                        counter++;
                     }
-//                    patientData["name"] = Greeting.name
-                    db.collection(Firebase.auth.currentUser?.uid.toString()).document(Greeting.name)
+
+                    patientData["total_without"]=total_without
+                        patientData["total_with"]=total_with
+                        patientData["summary"] = summary
+                    db.collection("reports").document(Greeting.name)
                         .update(patientData)
                         .addOnSuccessListener {
-                            println("DocumentSnapshot updated")
+                            navController.navigate("Home")
                         }.addOnFailureListener { e ->
                             println("Error adding document: $e")
                         }

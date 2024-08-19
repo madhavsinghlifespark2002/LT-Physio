@@ -1,8 +1,11 @@
 package com.example.lsphysio.android
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
@@ -20,8 +23,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,7 +37,8 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.firestore
-import com.google.firebase.functions.functions
+import com.google.firebase.storage.storage
+import java.io.File
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -69,13 +75,17 @@ fun AppNavigation(navController: NavHostController) {
         composable("Home") { Home(navController) }
         composable("TestSelection") { TestSelection(navController) }
         composable("Reports") { Reports(navController) }
-        composable("FOG Test") { FOG() }
+        composable("FOG Test") { FOG(navController) }
     }
 }
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Home(navController: NavHostController) {
+    BackHandler(true) {
+
+    }
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -125,9 +135,10 @@ fun TestSelection(navController: NavHostController) {
 @Composable
 fun Reports(navController: NavHostController) {
     var reports by remember { mutableStateOf<List<DocumentSnapshot>>(emptyList()) }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        Firebase.firestore.collection(Firebase.auth.currentUser!!.uid).get()
+        Firebase.firestore.collection("reports").whereEqualTo("clinic", Firebase.auth.currentUser?.uid).get()
             .addOnSuccessListener { querySnapshot ->
                 reports = querySnapshot.documents
             }
@@ -141,13 +152,32 @@ fun Reports(navController: NavHostController) {
         Text("Reports")
         reports.forEach { report ->
             Button(onClick = {
-                Firebase.functions.getHttpsCallable("getReport").call(report.id)
-                // Navigate to the test
-                // navController.navigate("Report")
+                report.data?.let {
+                    var file=Firebase.storage.getReferenceFromUrl("gs://lsphysio-f00ba.appspot.com/reports/${report.id}.pdf")
+
+                    val localFile = File.createTempFile("report", ".pdf")
+                    file.getFile(localFile).addOnSuccessListener {
+                        //show the pdf
+                        println(localFile.path)
+                        val uri: Uri = FileProvider.getUriForFile(
+                            context,
+                            "${context.packageName}.provider",
+                            localFile
+                        )
+                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                            setDataAndType(uri, "application/pdf")
+                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        }
+                        context.startActivity(intent)
+//                        navController.navigate("pdfView")
+                    }.addOnFailureListener {
+                    }
+
+                }
             }, modifier = Modifier
                 .padding(8.dp)
                 .fillMaxWidth()) {
-                Text(report.data?.get("name").toString()+ " "+report.data?.get("date").toString(), modifier = Modifier.padding(8.dp))
+                Text(report.data?.get("Name").toString()+ " "+report.data?.get("date").toString(), modifier = Modifier.padding(8.dp))
             }
         }
     }

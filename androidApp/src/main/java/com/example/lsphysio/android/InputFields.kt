@@ -3,6 +3,7 @@ package com.example.lsphysio.android
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,11 +14,19 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,7 +36,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import com.example.lsphysio.Greeting
 import com.example.lsphysio.getPlatform
 import com.google.firebase.Firebase
@@ -37,13 +48,13 @@ import com.google.firebase.functions.functions
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun InputFields(onSubmit: () -> Unit) {
     var patientData by remember { mutableStateOf(PatientData()) }
     var expanded by remember { mutableStateOf(false) }
     var allFieldsFilled by remember { mutableStateOf(false) }
+    var genderSearch by remember { mutableStateOf("") }
     val genderOptions = listOf("Male", "Female", "Other")
 
     val currentDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
@@ -74,29 +85,47 @@ fun InputFields(onSubmit: () -> Unit) {
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next)
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expanded = true }
-                .wrapContentSize(Alignment.TopStart)
-        ) {
-            Text(
-                text = patientData.gender.ifEmpty { "Select Gender" },
-                modifier = Modifier.padding(16.dp),
-            )
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                genderOptions.forEach { gender ->
-                    DropdownMenuItem(
-                        text = { Text(gender) },
-                        onClick = {
-                            patientData = patientData.copy(gender = gender)
-                            expanded = false
-                            checkAllFieldsFilled()
+        Box {
+            Column {
+                TextField(
+                    value = genderSearch,
+                    onValueChange = {
+                        expanded = true
+                    },
+                    colors = TextFieldDefaults.colors(),
+                    label = { Text("Gender") },
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 1,
+                    trailingIcon = {
+                        IconButton(
+                            onClick = {
+                                expanded = true
+                            }
+                        ) {
+                            Icon(Icons.Filled.ArrowDropDown, contentDescription = "Dropdown")
                         }
-                    )
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next)
+                )
+
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+
+                    genderOptions.filter { it.contains(genderSearch, ignoreCase = true) }.forEach { gender ->
+                        DropdownMenuItem(
+                            text = { Text(gender) },
+                            onClick = {
+                                patientData = patientData.copy(gender = gender)
+                                genderSearch = gender
+                                expanded = false
+                                checkAllFieldsFilled()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
         }
@@ -149,15 +178,16 @@ fun InputFields(onSubmit: () -> Unit) {
                 // Handle form submission
                 val db = Firebase.firestore
                 val assessment = hashMapOf(
-                    "name" to patientData.name,
+                    "Name" to patientData.name,
                     "gender" to patientData.gender,
                     "age" to patientData.age,
                     "date" to currentDate,
                     "time" to currentTime,
-                    "primary" to patientData.primaryDiagnosis
+                    "primary" to patientData.primaryDiagnosis,
+                    "clinic" to Firebase.auth.currentUser?.uid.toString()
                 )
 
-                db.collection(Firebase.auth.currentUser?.uid.toString())
+                db.collection("reports")
                     .add(assessment)
                     .addOnSuccessListener { documentReference ->
                         println("DocumentSnapshot added with ID: ${documentReference.id}")
@@ -172,6 +202,21 @@ fun InputFields(onSubmit: () -> Unit) {
             enabled = allFieldsFilled
         ) {
             Text("Submit")
+        }
+    }
+}
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview
+@Composable
+fun DefaultPreview2() {
+    MyApplicationTheme(false) {
+        Surface(
+            modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
+        ) {
+            InputFields {
+
+            }
+//                Keyboard()
         }
     }
 }
