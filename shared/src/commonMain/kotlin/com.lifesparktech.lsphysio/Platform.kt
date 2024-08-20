@@ -1,4 +1,4 @@
-package com.example.lsphysio
+package com.lifesparktech.lsphysio
 
 interface Platform {
     var name: String

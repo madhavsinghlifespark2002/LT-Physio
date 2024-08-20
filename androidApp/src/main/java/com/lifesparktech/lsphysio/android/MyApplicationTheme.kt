@@ -1,4 +1,4 @@
-package com.example.lsphysio.android
+package com.lifesparktech.lsphysio.android
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape

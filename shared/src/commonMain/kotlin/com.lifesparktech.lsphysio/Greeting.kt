@@ -1,4 +1,4 @@
-package com.example.lsphysio
+package com.lifesparktech.lsphysio
 
 class Greeting {
     private val platform: Platform = getPlatform()

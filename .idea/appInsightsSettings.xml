@@ -22,8 +22,8 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.example.lsphysio.android" />
-                  <option name="mobileSdkAppId" value="1:573734632631:android:8e1907a8759b1aab3ba132" />
+                  <option name="appId" value="com.lifesparktech.lsphysio.android" />
+                  <option name="mobileSdkAppId" value="1:573734632631:android:c78531838bab88ca3ba132" />
                   <option name="projectId" value="lsphysio-f00ba" />
                   <option name="projectNumber" value="573734632631" />
                 </ConnectionSetting>

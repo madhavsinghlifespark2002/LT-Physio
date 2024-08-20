@@ -1,4 +1,4 @@
-package com.example.lsphysio.android
+package com.lifesparktech.lsphysio.android
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +12,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,8 +30,10 @@ import com.google.firebase.auth.auth
 
 @Composable
 fun LoginScreen(onLoginSuccess: () -> Unit) {
-    if (Firebase.auth.currentUser != null) {
-        rememberNavController().navigate("Home")
+    LaunchedEffect(Unit ) {
+        if (Firebase.auth.currentUser != null) {
+            onLoginSuccess()
+        }
     }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }

@@ -1,4 +1,4 @@
-package com.example.lsphysio.android
+package com.lifesparktech.lsphysio.android
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -27,8 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.lsphysio.Greeting
+import com.lifesparktech.lsphysio.Greeting
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 

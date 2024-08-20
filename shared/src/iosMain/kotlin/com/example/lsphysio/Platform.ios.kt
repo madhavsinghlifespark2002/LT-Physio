@@ -1,5 +1,6 @@
 package com.example.lsphysio
 
+import com.lifesparktech.lsphysio.Platform
 import platform.UIKit.UIDevice
 
 class IOSPlatform: Platform {

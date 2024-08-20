@@ -1,4 +1,4 @@
-package com.example.lsphysio.android
+package com.lifesparktech.lsphysio.android
 
 import android.content.Intent
 import android.net.Uri
@@ -31,7 +31,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.lsphysio.getPlatform
+import com.lifesparktech.lsphysio.getPlatform
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.auth
@@ -70,9 +70,9 @@ fun AppNavigation(navController: NavHostController) {
         StartDestination = "Home"
     }
     NavHost(navController, startDestination = StartDestination) {
+        composable("Home") { Home(navController) }
         composable("login") { LoginScreen(onLoginSuccess = { navController.navigate("Home") }) }
         composable("inputFields") { InputFields(onSubmit = { navController.navigate("TestSelection") }) }
-        composable("Home") { Home(navController) }
         composable("TestSelection") { TestSelection(navController) }
         composable("Reports") { Reports(navController) }
         composable("FOG Test") { FOG(navController) }

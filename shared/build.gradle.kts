@@ -35,7 +35,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.example.lsphysio"
+    namespace = "com.lifesparktech.lsphysio"
     compileSdk = 34
     defaultConfig {
         minSdk = 24
