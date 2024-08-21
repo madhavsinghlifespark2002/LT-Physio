@@ -8,5 +8,6 @@ class Greeting {
 
     companion object {
         var name = ""
+
     }
 }

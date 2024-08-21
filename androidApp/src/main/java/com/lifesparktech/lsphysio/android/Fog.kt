@@ -3,8 +3,10 @@ package com.lifesparktech.lsphysio.android
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,6 +20,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,36 +32,26 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.lifesparktech.lsphysio.Greeting
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import com.lifesparktech.lsphysio.FogTest.labels
+import com.lifesparktech.lsphysio.PatientData.CurrentPatient.patientData
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun FOG(navController: NavHostController) {
-    val labels = listOf(
-        "Sit to Stand Transition",
-        "4m straight walk",
-        "360 degree turn clockwise",
-        "540 degree turn anticlockwise",
-        "2 rounds in cluttered maze",
-        "Passing through door",
-        "(Dual task) Passing through door",
-        "(Dual task) 2 rounds in cluttered maze",
-        "(Dual task) 540 degree turn clockwise",
-        "(Dual task) 360 degree turn anti clockwise",
-        "(Dual task) 4m straight walk",
-        "(Dual task) Stand to Sit Transition"
-    )
+
     var without by remember { mutableStateOf(List(labels.size) { "" }) }
     var with by remember { mutableStateOf(List(labels.size) { "" }) }
-    var allCellsFilled by remember { mutableStateOf(false) }
     var summary by remember { mutableStateOf("") }
+    var allCellsFilled by remember { mutableStateOf(false) }
 
     // Function to check if all cells are filled
     fun checkAllCellsFilled() {
-        allCellsFilled = without.all { it.isNotEmpty() } && with.all { it.isNotEmpty() } && summary.isNotEmpty()
+        allCellsFilled = without.all { it.isNotEmpty() } && with.all { it.isNotEmpty() }
     }
+
 
     LazyColumn(
         modifier = Modifier
@@ -70,35 +63,32 @@ fun FOG(navController: NavHostController) {
         }
         items(labels) { label ->
             val index = labels.indexOf(label)
-
             Row(
                 modifier = Modifier
                     .padding(8.dp)
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = label, modifier = Modifier
+                    text = label,
+                    modifier = Modifier
                         .weight(1f)
-                        .padding(end = 8.dp)
+                        .padding(end = 8.dp),
                 )
-                TextField(
-                    colors = TextFieldDefaults.colors(
-//                        unfocusedContainerColor = MaterialTheme.colorScheme.se,
-//                        focusedIndicatorColor = MaterialTheme.colorScheme.primary
-                    ),
+                TextField(colors = TextFieldDefaults.colors(
+                ),
                     value = without[index],
                     onValueChange = { newValue ->
-                        // Update the `without` list
-                        if(newValue.isDigitsOnly()&&newValue.isNotEmpty()) {
-                            if (newValue.toInt()  <5) {
+                        if (newValue.isDigitsOnly() && newValue.isNotEmpty()) {
+                            if (newValue.toInt() < 4) {
                                 without = without.toMutableList().apply { this[index] = newValue }
                                 checkAllCellsFilled()
                             }
                         }
-                        if(newValue.isEmpty()) {
+                        if (newValue.isEmpty()) {
                             without = without.toMutableList().apply { this[index] = newValue }
-                            checkAllCellsFilled()
                         }
+                        checkAllCellsFilled()
+
                     },
                     modifier = Modifier
                         .weight(1f)
@@ -108,18 +98,15 @@ fun FOG(navController: NavHostController) {
                         keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
                     )
                 )
-                TextField(
-                    value = with[index],
+                TextField(value = with[index],
                     onValueChange = { newValue ->
-                        // Update the `with` list
-                        if(newValue.isDigitsOnly()&&newValue.isNotEmpty()) {
-                            if (newValue.toInt()  <5) {
-
+                        if (newValue.isDigitsOnly() && newValue.isNotEmpty()) {
+                            if (newValue.toInt() < 4) {
                                 with = with.toMutableList().apply { this[index] = newValue }
                                 checkAllCellsFilled()
                             }
                         }
-                        if(newValue.isEmpty()) {
+                        if (newValue.isEmpty()) {
                             with = with.toMutableList().apply { this[index] = newValue }
                             checkAllCellsFilled()
                         }
@@ -132,54 +119,16 @@ fun FOG(navController: NavHostController) {
                 )
             }
         }
-        item {
-            TextField(
-                value = summary,
-                onValueChange = { summary = it
-                    checkAllCellsFilled()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                label = { Text("Summary") }
-            )
-        }
+
         item {
             Button(
                 onClick = {
-                    // Handle form submission
-                    val db = Firebase.firestore
-                    // Hash map of [label, without, with]
-                    val patientData = hashMapOf<String, Any>()
-                    var counter=0;
-                    var total_without=0;
-                    var total_with=0;
-                    for (i in labels.indices) {
-                        patientData[i.toString()] = hashMapOf(
-                            "without" to without[i], "with" to with[i]
-                        )
-                        if(without[i].isNotEmpty()&&with[i].isNotEmpty()){
-                            total_without+=without[i].toInt()
-                            total_with+=with[i].toInt()
-                        }
-                        counter++;
-                    }
-
-                    patientData["total_without"]=total_without
-                        patientData["total_with"]=total_with
-                        patientData["summary"] = summary
-                    db.collection("reports").document(Greeting.name)
-                        .update(patientData)
-                        .addOnSuccessListener {
-                            navController.navigate("Home")
-                        }.addOnFailureListener { e ->
-                            println("Error adding document: $e")
-                        }
-                },
-                modifier = Modifier
+                    patientData.totalWithout = without.sumOf { it.toInt() }
+                    patientData.totalWith = with.sumOf { it.toInt() }
+                    navController.navigate("Confirm")
+                }, modifier = Modifier
                     .fillMaxWidth()
-                    .imePadding(),
-                enabled = allCellsFilled
+                    .imePadding(), enabled = allCellsFilled
             ) {
                 Text("Submit")
             }
@@ -187,15 +136,89 @@ fun FOG(navController: NavHostController) {
     }
 }
 
+@Composable
+fun Confirm()
+{
+    var summary by remember { mutableStateOf("") }
+    var allCellsFilled by remember { mutableStateOf(false) }
+    fun checkAllCellsFilled() {
+        allCellsFilled = patientData.summary.isNotEmpty()
+    }
+    LazyColumn {
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "Total Score without device",
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
+                )
+                Text(
+                    text = patientData.totalWithout.toString(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "Total Score with device",
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
+                )
+                Text(
+                    text = patientData.totalWith.toString(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
+                )
+            }
+        }
+
+        item {
+            TextField(value = summary, onValueChange = {
+                patientData.summary = it
+                summary = it
+                checkAllCellsFilled()
+            }, modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp).height(100.dp)
+                , label = { Text("Summary") })
+        }
+        item {
+            Button(
+                onClick = {
+                }, modifier = Modifier
+                    .fillMaxWidth()
+                    .imePadding(), enabled = allCellsFilled
+            ) {
+                Text("Submit")
+            }
+        }
+    }
+}
+
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun DefaultPreview1() {
-    MyApplicationTheme(false) {
+    MyApplicationTheme(true) {
         Surface(
             modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
         ) {
-            FOG(rememberNavController())
+            Confirm()
         }
     }
 }

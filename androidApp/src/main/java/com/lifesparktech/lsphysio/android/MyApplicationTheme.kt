@@ -27,6 +27,7 @@ fun MyApplicationTheme(
             primary = Color("#2CBA9D".toColorInt()),
             secondary = Color("#105749".toColorInt()),
             tertiary = Color("#000000".toColorInt()),
+
         )
 
     } else {
@@ -34,7 +35,7 @@ fun MyApplicationTheme(
             primary = Color("#105749".toColorInt()),
             secondary = Color("#2CBA9D".toColorInt()),
 //            tertiary = Color("#".toColorInt()),
-            background = Color("#FFFFFF".toColorInt()),
+//            background = Color("#FFFFFF".toColorInt()),
 
         )
     }

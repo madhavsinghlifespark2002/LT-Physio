@@ -76,6 +76,7 @@ fun AppNavigation(navController: NavHostController) {
         composable("TestSelection") { TestSelection(navController) }
         composable("Reports") { Reports(navController) }
         composable("FOG Test") { FOG(navController) }
+        composable("Confirm") { Confirm() }
     }
 }
 
@@ -138,7 +139,7 @@ fun Reports(navController: NavHostController) {
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        Firebase.firestore.collection("reports").whereEqualTo("clinic", Firebase.auth.currentUser?.uid).get()
+        Firebase.firestore.collection("reports").whereEqualTo("doctor_id", Firebase.auth.currentUser?.uid).get()
             .addOnSuccessListener { querySnapshot ->
                 reports = querySnapshot.documents
             }
@@ -172,7 +173,6 @@ fun Reports(navController: NavHostController) {
 //                        navController.navigate("pdfView")
                     }.addOnFailureListener {
                     }
-
                 }
             }, modifier = Modifier
                 .padding(8.dp)
@@ -187,22 +187,13 @@ fun Reports(navController: NavHostController) {
 @Preview
 @Composable
 fun DefaultPreview() {
-    MyApplicationTheme(true) {
+    MyApplicationTheme(false) {
         Surface(
             modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
         ) {
-            Reports(navController = rememberNavController())
+            Home(rememberNavController())
 //                Keyboard()
         }
     }
 }
-
-data class PatientData(
-    var name: String = "",
-    var gender: String = "",
-    var age: String = "",
-    var dateOfAssessment: String = "",
-    var timeOfAssessment: String = "",
-    var primaryDiagnosis: String = ""
-)
 
