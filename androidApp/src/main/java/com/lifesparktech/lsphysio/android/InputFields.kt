@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -140,13 +141,27 @@ fun InputFields(onSubmit: () -> Unit) {
             label = { Text("Date of Assessment") },
             modifier = Modifier.fillMaxWidth(),
             readOnly = true,
+            colors = TextFieldDefaults.colors(
+                unfocusedLabelColor = Color.Gray,
+                unfocusedTextColor = Color.Gray,
+                unfocusedContainerColor = Color.LightGray
+            ),
             singleLine = true,
+
         )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
             value = currentTime,
             onValueChange = { },
             label = { Text("Time of Assessment") },
+            colors = TextFieldDefaults.colors(
+                unfocusedLabelColor = Color.Gray,
+                unfocusedTextColor = Color.Gray,
+                unfocusedContainerColor = Color.LightGray,
+                focusedContainerColor = Color.LightGray,
+                focusedTextColor = Color.Gray,
+
+            ),
             modifier = Modifier.fillMaxWidth(),
             readOnly = true
         )
@@ -200,7 +215,7 @@ fun InputFields(onSubmit: () -> Unit) {
 @Preview
 @Composable
 fun DefaultPreview2() {
-    MyApplicationTheme(false) {
+    MyApplicationTheme(true) {
         Surface(
             modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
         ) {

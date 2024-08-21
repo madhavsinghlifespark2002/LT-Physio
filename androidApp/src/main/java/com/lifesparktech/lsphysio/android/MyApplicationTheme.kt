@@ -27,28 +27,26 @@ fun MyApplicationTheme(
             primary = Color("#2CBA9D".toColorInt()),
             secondary = Color("#105749".toColorInt()),
             tertiary = Color("#FFFFFF".toColorInt()),
-//            background = Color("#1A1A1A".toColorInt()),
         )
 
     } else {
         lightColorScheme(
             primary = Color("#105749".toColorInt()),
             secondary = Color("#2CBA9D".toColorInt()),
-//            tertiary = Color("#FFFFFF".toColorInt()),
-            background = Color("#FFFFFF".toColorInt())
+//            tertiary = Color("#".toColorInt()),
+            background = Color("#FFFFFF".toColorInt()),
 
         )
     }
 
-    val textFieldColors = TextFieldDefaults.colors(
-        unfocusedContainerColor = Color.Green
-    )
     val typography = Typography(
         bodyMedium = TextStyle(
             fontFamily = FontFamily.Default,
             fontWeight = FontWeight.Normal,
-            fontSize = 16.sp
+            fontSize = 16.sp,
+//            color = Color.White
         )
+
     )
     val shapes = Shapes(
         small = RoundedCornerShape(4.dp),
@@ -60,6 +58,7 @@ fun MyApplicationTheme(
         colorScheme = colors,
         typography = typography,
         shapes = shapes,
-        content = content
+        content = content,
+
     )
 }

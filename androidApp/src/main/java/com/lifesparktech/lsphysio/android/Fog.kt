@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.lifesparktech.lsphysio.Greeting
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -80,6 +82,10 @@ fun FOG(navController: NavHostController) {
                         .padding(end = 8.dp)
                 )
                 TextField(
+                    colors = TextFieldDefaults.colors(
+//                        unfocusedContainerColor = MaterialTheme.colorScheme.se,
+//                        focusedIndicatorColor = MaterialTheme.colorScheme.primary
+                    ),
                     value = without[index],
                     onValueChange = { newValue ->
                         // Update the `without` list
@@ -181,6 +187,7 @@ fun FOG(navController: NavHostController) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun DefaultPreview1() {
@@ -188,7 +195,7 @@ fun DefaultPreview1() {
         Surface(
             modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
         ) {
-//            FOG()
+            FOG(rememberNavController())
         }
     }
 }

@@ -112,7 +112,7 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="previewDensity" value="mdpi" />
+                                      <entry key="previewDensity" value="xxhdpi" />
                                       <entry key="showSafeZone" value="false" />
                                     </map>
                                   </option>
@@ -281,7 +281,7 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="previewDensity" value="mdpi" />
+                                      <entry key="previewDensity" value="xxhdpi" />
                                       <entry key="showSafeZone" value="false" />
                                     </map>
                                   </option>
