@@ -2,14 +2,18 @@ package com.lifesparktech.lsphysio.android
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -28,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
@@ -77,48 +82,39 @@ fun InputFields(onSubmit: () -> Unit) {
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next)
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Box {
-            Column {
-                TextField(
-                    value = genderSearch,
-                    onValueChange = {
-                        expanded = true
-                    },
-                    colors = TextFieldDefaults.colors(),
-                    label = { Text("Gender") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 1,
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {
-                                expanded = true
-                            }
-                        ) {
-                            Icon(Icons.Filled.ArrowDropDown, contentDescription = "Dropdown")
+        Row(
+            modifier = Modifier
+//                .fillMaxWidth()
+                .clickable { expanded = true }
+                .wrapContentSize(Alignment.TopStart)
+                .background(MaterialTheme.colorScheme.secondaryContainer)
+        )
+        {
+            Text(
+                text = genderSearch.ifEmpty { "Select Gender" },
+                modifier = Modifier.padding(16.dp),
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            DropdownMenu(
+
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                genderOptions.forEach { gender ->
+                    DropdownMenuItem(
+                        text = { Text(gender) },
+                        onClick = {
+                            genderSearch =  gender
+                            expanded = false
                         }
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next)
-                )
-
-
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-
-                    genderOptions.filter { it.contains(genderSearch, ignoreCase = true) }.forEach { gender ->
-                        DropdownMenuItem(
-                            text = { Text(gender) },
-                            onClick = {
-                                patientData = patientData.copy(gender = gender)
-                                genderSearch = gender
-                                expanded = false
-                                checkAllFieldsFilled()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                    )
                 }
+            }
+            IconButton(
+                onClick = { expanded = true },
+//                modifier = Modifier.wrapContentSize(Alignment.)
+            ) {
+                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Expand dropdown")
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -144,7 +140,9 @@ fun InputFields(onSubmit: () -> Unit) {
             colors = TextFieldDefaults.colors(
                 unfocusedLabelColor = Color.Gray,
                 unfocusedTextColor = Color.Gray,
-                unfocusedContainerColor = Color.LightGray
+                unfocusedContainerColor = Color.LightGray,
+                focusedContainerColor = Color.LightGray,
+                focusedTextColor = Color.Gray,
             ),
             singleLine = true,
 

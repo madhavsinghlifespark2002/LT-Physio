@@ -26,7 +26,7 @@ fun MyApplicationTheme(
         darkColorScheme(
             primary = Color("#2CBA9D".toColorInt()),
             secondary = Color("#105749".toColorInt()),
-            tertiary = Color("#FFFFFF".toColorInt()),
+            tertiary = Color("#000000".toColorInt()),
         )
 
     } else {
