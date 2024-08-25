@@ -75,10 +75,14 @@ fun AppNavigation(navController: NavHostController) {
         composable("inputFields") { InputFields(onSubmit = { navController.navigate("TestSelection") }) }
         composable("TestSelection") { TestSelection(navController) }
         composable("Reports") { Reports(navController) }
+        //FOG
         composable("FOG Test") { FOG(navController) }
-        composable("Confirm") { Confirm() }
+        composable("ConfirmFOG") { Confirm(navController) }
+        composable("fogScoringGuide") { FogScoringGuide(onSubmit = { navController.navigate("FOG Test") }) }
+        composable("fogForm") { FogForm(navController) }
     }
 }
+
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -139,7 +143,7 @@ fun Reports(navController: NavHostController) {
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        Firebase.firestore.collection("reports").whereEqualTo("doctor_id", Firebase.auth.currentUser?.uid).get()
+        Firebase.firestore.collection("reports").whereEqualTo("doctorId", Firebase.auth.currentUser?.uid).get()
             .addOnSuccessListener { querySnapshot ->
                 reports = querySnapshot.documents
             }
@@ -154,8 +158,7 @@ fun Reports(navController: NavHostController) {
         reports.forEach { report ->
             Button(onClick = {
                 report.data?.let {
-                    var file=Firebase.storage.getReferenceFromUrl("gs://lsphysio-f00ba.appspot.com/reports/${report.id}.pdf")
-
+                    val file=Firebase.storage.getReferenceFromUrl("gs://lsphysio-f00ba.appspot.com/reports/${report.id}.pdf")
                     val localFile = File.createTempFile("report", ".pdf")
                     file.getFile(localFile).addOnSuccessListener {
                         //show the pdf
@@ -177,7 +180,7 @@ fun Reports(navController: NavHostController) {
             }, modifier = Modifier
                 .padding(8.dp)
                 .fillMaxWidth()) {
-                Text(report.data?.get("Name").toString()+ " "+report.data?.get("date").toString(), modifier = Modifier.padding(8.dp))
+                Text(report.data?.get("name").toString()+ " "+report.data?.get("dateOfAssessment").toString(), modifier = Modifier.padding(8.dp))
             }
         }
     }
@@ -191,7 +194,8 @@ fun DefaultPreview() {
         Surface(
             modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
         ) {
-            Home(rememberNavController())
+            FogScoringGuide () {
+            }
 //                Keyboard()
         }
     }

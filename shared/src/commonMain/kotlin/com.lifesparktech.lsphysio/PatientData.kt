@@ -1,5 +1,8 @@
 package com.lifesparktech.lsphysio
 
+//import com.google.firebase.auth.auth
+
+
 data class PatientData(
     var name: String = "",
     var age: String = "",
@@ -13,14 +16,19 @@ data class PatientData(
     var freezingWith: String = "",
     var freezingWithout: String = "",
     var totalWith: Int = 0,
-    var totalWithout: Int = 0
+    var totalWithout: Int = 0,
+    var eligibility:String=""
 //    var withScore
 ) {
+
     companion object CurrentPatient {
         var patientData  = PatientData()
             set(value) = run {
                 field = value
             }
+        fun uploadReport(patientData: PatientData) {
+//            println(Firebase.auth.currentUser!!.uid)
+        }
     }
     fun toMap(): Map<String, Any> {
         return mapOf(

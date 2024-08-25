@@ -198,27 +198,9 @@ fun InputFields(onSubmit: () -> Unit) {
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-//                val db = Firebase.firestore
-//                val assessment = hashMapOf(
-//                    "Name" to patientData.name,
-//                    "gender" to patientData.gender,
-//                    "age" to patientData.age,
-//                    "date" to currentDate,
-//                    "time" to currentTime,
-//                    "primary" to patientData.primaryDiagnosis,
-//                    "doctor_id" to Firebase.auth.currentUser?.uid.toString(),
-//                    "hnyScore" to patientData.hnyScore,
-//                )
-//                db.collection("reports")
-//                    .add(assessment)
-//                    .addOnSuccessListener { documentReference ->
-//                        println("DocumentSnapshot added with ID: ${documentReference.id}")
-//                        Greeting.name = documentReference.id
+                PatientData.uploadReport(patientData)
+
                 onSubmit()
-//                    }
-//                    .addOnFailureListener { e ->
-//                        println("Error adding document: $e")
-//                    }
             }, modifier = Modifier.fillMaxWidth(), enabled = allFieldsFilled
         ) {
             Text("Submit")
