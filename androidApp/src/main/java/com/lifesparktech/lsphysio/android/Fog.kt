@@ -146,7 +146,7 @@ fun FogForm(navController: NavHostController) {
                 onClick = {
                     patientData.totalWithout = without.sumOf { it.toInt() }
                     patientData.totalWith = with.sumOf { it.toInt() }
-                    patientData.scoreMap = with.zip(without).toMap()
+                    patientData.scoreMap = with.zip(without)
                     navController.navigate("ConfirmFOG")
                 }, modifier = Modifier
                     .fillMaxWidth()

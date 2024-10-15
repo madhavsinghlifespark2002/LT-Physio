@@ -18,7 +18,7 @@ data class PatientData(
     var totalWith: Int = 0,
     var totalWithout: Int = 0,
     var eligibility:String="",
-    var scoreMap: Map<String, String> = mapOf()
+    var scoreMap: List<Pair<String, String>> = emptyList(),
 //    var withScore
 ) {
 
