@@ -146,6 +146,7 @@ fun FogForm(navController: NavHostController) {
                 onClick = {
                     patientData.totalWithout = without.sumOf { it.toInt() }
                     patientData.totalWith = with.sumOf { it.toInt() }
+                    patientData.scoreMap = with.zip(without).toMap()
                     navController.navigate("ConfirmFOG")
                 }, modifier = Modifier
                     .fillMaxWidth()
@@ -321,9 +322,11 @@ fun Confirm(navController: NavHostController) {
                     patientData.freezingWith =
                         if (patientData.totalWith < 12) "Minor Freezing" else if (patientData.totalWith in 12..24) "Moderate Freezing" else "Severe Freezing"
                     patientData.summary =
-                        "During  the assessment, it was observed that patient has  ${FogTest.hnyScore[patientData.hnyScore.toDouble()]}, FOG test was conducted with and without device and on the basis of that, we conclude that the patient will be ${patientData.eligibility} for the stimulation from the WALK Device.\n\nDoctor's Notes: $summary"
+                        "During  the assessment, it was observed that patient has  ${FogTest.hnyScore[patientData.hnyScore.toDouble()]}.\n FOG test was conducted with and without device and on the basis of that, we conclude that the patient will be ${patientData.eligibility} for the stimulation from the WALK Device.\n\n\n Doctor's Notes:\n $summary"
+
                     Firebase.firestore.collection("reports").add(patientData)
                         .addOnSuccessListener { navController.navigate("Reports") }
+
                 }, modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)

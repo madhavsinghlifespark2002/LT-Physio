@@ -17,7 +17,8 @@ data class PatientData(
     var freezingWithout: String = "",
     var totalWith: Int = 0,
     var totalWithout: Int = 0,
-    var eligibility:String=""
+    var eligibility:String="",
+    var scoreMap: Map<String, String> = mapOf()
 //    var withScore
 ) {
 
