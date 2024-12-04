@@ -58,4 +58,5 @@ dependencies {
     implementation(libs.firebase.functions.ktx)
     implementation(libs.firebase.storage.ktx)
     debugImplementation(libs.compose.ui.tooling)
+    implementation("com.benasher44:uuid:0.7.0")
 }

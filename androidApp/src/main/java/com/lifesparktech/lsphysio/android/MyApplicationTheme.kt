@@ -25,7 +25,7 @@ fun MyApplicationTheme(
     val colors = if (darkTheme) {
         darkColorScheme(
             primary = Color("#2CBA9D".toColorInt()),
-            secondary = Color("#105749".toColorInt()),
+            secondary = Color("#43958F".toColorInt()),
             tertiary = Color("#000000".toColorInt()),
 
         )
@@ -34,6 +34,7 @@ fun MyApplicationTheme(
         lightColorScheme(
             primary = Color("#105749".toColorInt()),
             secondary = Color("#2CBA9D".toColorInt()),
+            background = Color("#EBF4F3".toColorInt())
 //            tertiary = Color("#".toColorInt()),
 //            background = Color("#FFFFFF".toColorInt()),
 
