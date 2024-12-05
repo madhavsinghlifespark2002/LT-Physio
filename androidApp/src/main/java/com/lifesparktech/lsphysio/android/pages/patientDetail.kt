@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -108,7 +109,7 @@ fun PatientDetail(navController: NavController, patientId: String) {
                 Spacer(modifier = Modifier.height(70.dp))
             }
             item {
-                Row(modifier = Modifier.fillMaxWidth().border(width = 1.dp,color = Color.Black)){
+                Row(modifier = Modifier.fillMaxWidth()){
                     Card(
                         modifier = Modifier.padding(12.dp).height(700.dp).fillMaxWidth(0.35f),
                         elevation = CardDefaults.cardElevation(4.dp),
@@ -171,17 +172,73 @@ fun PatientDetail(navController: NavController, patientId: String) {
                             Column(modifier = Modifier.fillMaxHeight().padding(12.dp)){
                                 Text(text = "Medical History", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.Black)
                                 Spacer(modifier = Modifier.height(12.dp))
-                                PatientItemDetail(res = R.drawable.gender, label = "Chronic disease", content = "IHD Obesity, Chronic thyriod disorder")
-                                PatientItemDetail(res = R.drawable.dob, label = "Diabetes Emergencies", content = "Diabetic Ketoacidosis")
-                                PatientItemDetail(res = R.drawable.phone, label = "Sugery", content = "Liposuction")
-                                PatientItemDetail(res = R.drawable.mail, label = "Family Disease", content = "Obesity (Father)")
-                                PatientItemDetail(res = R.drawable.location, label = "Related Complication", content = "Nephropathy, Neuropathy, Retinopathy, Diabetic Foot")
-
-
-
+                                PatientItemDetail(res = R.drawable.heart, label = "Chronic disease", content = "IHD Obesity, Chronic thyriod disorder")
+                                PatientItemDetail(res = R.drawable.healing, label = "Diabetes Emergencies", content = "Diabetic Ketoacidosis")
+                                PatientItemDetail(res = R.drawable.vaccines, label = "Sugery", content = "Liposuction")
+                                PatientItemDetail(res = R.drawable.family, label = "Family Disease", content = "Obesity (Father)")
+                                PatientItemDetail(res = R.drawable.medical, label = "Related Complication", content = "Nephropathy, Neuropathy, Retinopathy, Diabetic Foot")
+                                PatientItemDetail(res = R.drawable.liver, label = "Hepatic Issues", content = "Hepatitis B, Fatty Liver Disease")
+                                PatientItemDetail(res = R.drawable.stomach, label = "Digestive Disorders", content = "GERD, Irritable Bowel Syndrome")
                             }
 
                         }
+                    }
+                }
+                Card(
+                    modifier = Modifier.padding(12.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White // Set the card's background color
+                    )
+                ) {
+                    Column(
+                        // verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(12.dp).fillMaxSize()
+                    ) {
+                        Spacer(modifier = Modifier.height(18.dp))
+                        Column(modifier = Modifier.fillMaxHeight().padding(12.dp)){
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ){
+                                Text(text = "Medical Info", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.Black)
+                                Row{
+                                    Text(text = "Last Updated on ", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Color.Gray)
+                                    Text(text = "15 Jun 2024, 10:45 AM", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.DarkGray)
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Column(
+                               // modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ){
+                                PatientItemDetailInfo(res = R.drawable.heart, label = "Body Height", content = "${patient?.height} CM")
+                                PatientItemDetailInfo(res = R.drawable.healing, label = "Body Weight", content = "70 KG")
+                                PatientItemDetailInfo(res = R.drawable.vaccines, label = "Body Mass index", content = "135 lbs")
+                            }
+                            Column(
+                                // modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ){
+                                PatientItemDetailInfo(res = R.drawable.family, label = "Blood Group", content = "A+")
+                                PatientItemDetailInfo(res = R.drawable.medical, label = "Blood Pressure", content = "120/80 mmHG")
+                                PatientItemDetailInfo(res = R.drawable.liver, label = "Blood Sugar", content = "90 mg/dL")
+                            }
+                            Column(
+                                // modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ){
+                                PatientItemDetailInfo(res = R.drawable.stomach, label = "Heart Rate", content = "72 bpm")
+                                PatientItemDetailInfo(res = R.drawable.stomach, label = "Allergies", content = "Food Allergies")
+                                PatientItemDetailInfo(res = R.drawable.stomach, label = "14 g/dL", content = "Homoglobin")
+                            }
+                        }
+
                     }
                 }
             }
@@ -190,10 +247,10 @@ fun PatientDetail(navController: NavController, patientId: String) {
 
 }
 @Composable
-fun PatientItemDetail(@DrawableRes res: Int, label: String, content: String){
+fun PatientItemDetail(@DrawableRes res: Int, label: String, content: String, isfullwidth: Boolean = true){
     Spacer(modifier = Modifier.height(12.dp))
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = if(isfullwidth == true) Modifier.fillMaxWidth() else Modifier,
         verticalAlignment = Alignment.CenterVertically,
     ){
         Image(
@@ -211,4 +268,38 @@ fun PatientItemDetail(@DrawableRes res: Int, label: String, content: String){
         Text(text = "${content}",  fontSize = 18.sp, fontWeight = FontWeight.Bold)
     }
     Spacer(modifier = Modifier.height(12.dp))
+}
+
+@Composable
+fun PatientItemDetailInfo(@DrawableRes res: Int, label: String, content: String){
+    Column{
+        Spacer(modifier = Modifier.height(12.dp))
+        Row(
+//        modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ){
+            Box(
+                modifier = Modifier.clip(RoundedCornerShape(12.dp))
+                .background(color = Color(0xFFD6E7EE))
+                .padding(12.dp)
+            ){
+                Image(
+                    painter = painterResource(id = res),
+                    contentDescription = "$label",
+                    modifier = Modifier
+                        .width(32.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start
+            ){
+                Text(text = "${label}", fontWeight = FontWeight.SemiBold, fontSize = 16.sp, color = Color.Gray)
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = "${content}",  fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+
+    }
 }
