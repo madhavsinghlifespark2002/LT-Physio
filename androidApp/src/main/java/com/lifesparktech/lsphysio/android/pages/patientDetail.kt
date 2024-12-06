@@ -44,8 +44,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -63,6 +65,7 @@ fun PatientDetail(navController: NavController, patientId: String) {
     LaunchedEffect(patientId) {
         val loadedPatient = fetchPatientById(patientId) // fetchPatientById is not a Flow
         patient = loadedPatient
+
     }
 //    if (patient != null) {
 //        Text(text = "Name: ${patient!!.name}")
@@ -172,7 +175,7 @@ fun PatientDetail(navController: NavController, patientId: String) {
                             Column(modifier = Modifier.fillMaxHeight().padding(12.dp)){
                                 Text(text = "Medical History", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.Black)
                                 Spacer(modifier = Modifier.height(12.dp))
-                                PatientItemDetail(res = R.drawable.heart, label = "Chronic disease", content = "IHD Obesity, Chronic thyriod disorder")
+                                PatientItemDetail(res = R.drawable.ecg_heart, label = "Chronic disease", content = "IHD Obesity, Chronic thyriod disorder")
                                 PatientItemDetail(res = R.drawable.healing, label = "Diabetes Emergencies", content = "Diabetic Ketoacidosis")
                                 PatientItemDetail(res = R.drawable.vaccines, label = "Sugery", content = "Liposuction")
                                 PatientItemDetail(res = R.drawable.family, label = "Family Disease", content = "Obesity (Father)")
@@ -196,7 +199,7 @@ fun PatientDetail(navController: NavController, patientId: String) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.padding(12.dp).fillMaxSize()
                     ) {
-                        Spacer(modifier = Modifier.height(18.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
                         Column(modifier = Modifier.fillMaxHeight().padding(12.dp)){
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -210,42 +213,126 @@ fun PatientDetail(navController: NavController, patientId: String) {
                                 }
                             }
                             Spacer(modifier = Modifier.height(12.dp))
-                            Column(
-                               // modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ){
-                                PatientItemDetailInfo(res = R.drawable.heart, label = "Body Height", content = "${patient?.height} CM")
-                                PatientItemDetailInfo(res = R.drawable.healing, label = "Body Weight", content = "70 KG")
-                                PatientItemDetailInfo(res = R.drawable.vaccines, label = "Body Mass index", content = "135 lbs")
+                                Column(
+                                    // modifier = Modifier.fillMaxWidth(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.Start
+                                ){
+                                    PatientItemDetailInfo(res = R.drawable.height, label = "Body Height", content = "${patient?.height} CM")
+                                    Spacer(modifier = Modifier.height(14.dp))
+                                    PatientItemDetailInfo(res = R.drawable.bloodtype, label = "Blood Group", content = "A+")
+                                    Spacer(modifier = Modifier.height(14.dp))
+                                    PatientItemDetailInfo(res = R.drawable.ecg_heart, label = "Heart Rate", content = "72 bpm")
+
+                                }
+                                Column(
+                                    // modifier = Modifier.fillMaxWidth(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.Start
+                                ){
+                                    PatientItemDetailInfo(res = R.drawable.monitor_weight, label = "Body Weight", content = "70 KG")
+
+                                    Spacer(modifier = Modifier.height(14.dp))
+                                    PatientItemDetailInfo(res = R.drawable.blood_pressure, label = "Blood Pressure", content = "120/80 mmHG")
+                                    Spacer(modifier = Modifier.height(14.dp))
+                                    PatientItemDetailInfo(res = R.drawable.allergies, label = "Allergies", content = "Food Allergies")
+                                }
+                                Column(
+                                    // modifier = Modifier.fillMaxWidth(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.Start
+                                ){
+                                    PatientItemDetailInfo(res = R.drawable.monitor_weight, label = "Body Mass index", content = "135 lbs")
+                                    Spacer(modifier = Modifier.height(14.dp))
+                                    PatientItemDetailInfo(res = R.drawable.glucose, label = "Blood Sugar", content = "90 mg/dL")
+                                    Spacer(modifier = Modifier.height(14.dp))
+                                    PatientItemDetailInfo(res = R.drawable.humidity_low, label = "Hemoglobin", content = "14 g/dL")
+                                }
                             }
-                            Column(
-                                // modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ){
-                                PatientItemDetailInfo(res = R.drawable.family, label = "Blood Group", content = "A+")
-                                PatientItemDetailInfo(res = R.drawable.medical, label = "Blood Pressure", content = "120/80 mmHG")
-                                PatientItemDetailInfo(res = R.drawable.liver, label = "Blood Sugar", content = "90 mg/dL")
-                            }
-                            Column(
-                                // modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ){
-                                PatientItemDetailInfo(res = R.drawable.stomach, label = "Heart Rate", content = "72 bpm")
-                                PatientItemDetailInfo(res = R.drawable.stomach, label = "Allergies", content = "Food Allergies")
-                                PatientItemDetailInfo(res = R.drawable.stomach, label = "14 g/dL", content = "Homoglobin")
-                            }
+
                         }
 
                     }
                 }
+                Row{
+                    Card(
+                        modifier = Modifier.padding(12.dp).height(660.dp).fillMaxWidth(0.45f),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White // Set the card's background color
+                        )
+                    ) {
+                        Column(
+                            // verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(12.dp).fillMaxSize()
+                        ) {
+                            Column(modifier = Modifier.fillMaxHeight().padding(12.dp)){
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text(text = "Appointments", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = Color.Black)
+                                Spacer(modifier = Modifier.height(20.dp))
+                                AppointmentsDetail(res = R.drawable.radio_button, label = "Post-Surgical Care", date = "12 Oct 2024", content = "Drg.Marvin McKinney")
+                                Spacer(modifier = Modifier.height(16.dp))
+                                AppointmentsDetail(res = R.drawable.radio_button, label = "Post-Surgical Care",date = "22 Sept 2024", content = "Drg.Marvin McKinney")
+                                Spacer(modifier = Modifier.height(16.dp))
+                                AppointmentsDetail(res = R.drawable.radio_button, label = "Post-Surgical Care",date = "2 Aug 2024", content = "Drg.Marvin McKinney")
+                                Spacer(modifier = Modifier.height(16.dp))
+                                AppointmentsDetail(res = R.drawable.radio_button, label = "Post-Surgical Care",date = "14 July 2024", content = "Drg.Marvin McKinney")
+                                Spacer(modifier = Modifier.height(22.dp))
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End){
+                                    Text("See All", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF43958F))
+                                }
+
+                            }
+                        }
+                    }
+                    Card(
+                        modifier = Modifier.padding(12.dp).height(660.dp),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White // Set the card's background color
+                        )
+                    ) {
+                        Column(
+                            // verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(12.dp).fillMaxSize()
+                        ) {
+                            Column(modifier = Modifier.fillMaxHeight().padding(12.dp)){
+                                Text(text = "Reports", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = Color.Black)
+                                Spacer(modifier = Modifier.height(16.dp))
+                                ReportItemDetailInfo(res = R.drawable.report_zip, label = "Chest X-Ray Report", date = "12 Oct 2024")
+                                Spacer(modifier = Modifier.height(16.dp))
+                                ReportItemDetailInfo(res = R.drawable.report_zip, label = "Electrocardiogram",date = "22 Sept 2024")
+                                Spacer(modifier = Modifier.height(16.dp))
+                                ReportItemDetailInfo(res = R.drawable.report_zip, label = "Blood Glucose Test Report",date = "2 Aug 2024")
+                                Spacer(modifier = Modifier.height(16.dp))
+                                ReportItemDetailInfo(res = R.drawable.report_zip, label = "Pathology Lab Results Report",date = "21 July 2024")
+                                Spacer(modifier = Modifier.height(16.dp))
+                                ReportItemDetailInfo(res = R.drawable.report_zip, label = "Surgical Procedure Summary",date = "12 July 2024")
+                                Spacer(modifier = Modifier.height(16.dp))
+                                ReportItemDetailInfo(res = R.drawable.report_zip, label = "Chronic Condition Management Report",date = "14 June 2024")
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End){
+                                    Text("See All", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF43958F))
+                                }
+
+                            }
+                        }
+                    }
+                }
+
             }
+
         }
     }
 
 }
+
 @Composable
 fun PatientItemDetail(@DrawableRes res: Int, label: String, content: String, isfullwidth: Boolean = true){
     Spacer(modifier = Modifier.height(12.dp))
@@ -271,7 +358,50 @@ fun PatientItemDetail(@DrawableRes res: Int, label: String, content: String, isf
 }
 
 @Composable
+fun AppointmentsDetail(@DrawableRes res: Int, date: String,label: String, content: String){
+    Column(
+    ){
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ){
+            Image(
+                painter = painterResource(id = res),
+                contentDescription = "$label",
+                modifier = Modifier
+                    .width(24.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = "${date}", fontWeight = FontWeight.SemiBold, fontSize = 16.sp, color = Color.Gray)
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Row{
+            Spacer(modifier = Modifier.width(26.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                //elevation = CardDefaults.cardElevation(4.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFF2F2F2) // Set the card's background color
+                )
+            ){
+                Column(
+                   modifier = Modifier.padding(12.dp)
+                ){
+                    Text(text = "${label}", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(text = "${content}",  fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
+                }
+            }
+
+        }
+
+    }
+}
+
+@Composable
 fun PatientItemDetailInfo(@DrawableRes res: Int, label: String, content: String){
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+    println("the ScreenWidth: $screenWidth")
     Column{
         Spacer(modifier = Modifier.height(12.dp))
         Row(
@@ -301,5 +431,42 @@ fun PatientItemDetailInfo(@DrawableRes res: Int, label: String, content: String)
             }
         }
 
+    }
+}
+@Composable
+fun ReportItemDetailInfo(@DrawableRes res: Int, date: String, label: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        //elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFF2F2F2) // Set the card's background color
+        )
+    ) {
+        Row( // Wrap content in a Row for proper layout
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = res),
+                contentDescription = label,
+                modifier = Modifier
+                    .width(24.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text(
+                    text = label,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = date,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Gray
+                )
+            }
+        }
     }
 }

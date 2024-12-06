@@ -59,4 +59,5 @@ dependencies {
     implementation(libs.firebase.storage.ktx)
     debugImplementation(libs.compose.ui.tooling)
     implementation("com.benasher44:uuid:0.7.0")
+    implementation("com.google.accompanist:accompanist-flowlayout:0.36.0")
 }

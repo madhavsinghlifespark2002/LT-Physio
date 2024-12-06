@@ -79,10 +79,6 @@ fun ProfileScreen(navController: NavController) {
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    val iconColors =
-        listOf(Color(0xFF008000), Color(0xFF991f00), Color(0xFF1f3d7a), Color(0xFFe68a00), Color(0xFFffbb33))
-    val scope = MainScope()
-    var showDeleteConfirmation by remember { mutableStateOf(false) }
     var patients by remember { mutableStateOf<List<Patient>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     val coroutineScope = rememberCoroutineScope()
