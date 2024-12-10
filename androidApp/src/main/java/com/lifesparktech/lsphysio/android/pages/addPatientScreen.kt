@@ -1,8 +1,10 @@
 package com.lifesparktech.lsphysio.android.pages
 
 
+import android.graphics.fonts.Font
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -24,6 +26,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -84,6 +87,9 @@ fun AddPatientScreen(navController: NavController) {
     fun validateName() {
         nameError = if (name.trim().isEmpty()) "Name is required." else ""
     }
+    fun validateAddress() {
+        addressError = if (address.trim().isEmpty()) "Address is required." else ""
+    }
     fun validateAge() {
         ageError = if (age.trim().isEmpty()) {
             "Age is required"
@@ -134,501 +140,508 @@ fun AddPatientScreen(navController: NavController) {
     fun validateGender() {
         genderError = if (gender.trim().isEmpty()) "Gender is required." else ""
     }
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().background(color = Color.White),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ){
-                        Text(text = "Add New Patient")
-                        IconButton(onClick = {
-                            showDialog = true
-                        }) {
+        Card(
+            modifier = Modifier.padding(12.dp),//.height(700.dp).fillMaxWidth(0.35f),
+            elevation = CardDefaults.cardElevation(4.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White // Set the card's background color
+            )
+        ){
+                LazyColumn(
+                    modifier = Modifier
+                       // .weight(1f)
+                        .padding(16.dp)
+                        .imePadding()
+                ) {
+                    item{
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ){
                             Icon(
-                                imageVector = Icons.Filled.Add,
-                                contentDescription = "Add"
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = "Back",
+                                modifier = Modifier.clickable{navController.popBackStack() }
                             )
+                            Text(text = "Add New Patient", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF222429))
+                            IconButton(onClick = {
+                                showDialog = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Add,
+                                    contentDescription = "Add"
+                                )
+                            }
                         }
                     }
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
+                    item{
+                        Divider(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            color = Color(0xFFD6D6D6),
+                            thickness = 1.dp
                         )
                     }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.White // Set your desired color here
-                )
-            )
-        },
-        containerColor = Color.White
-    ){
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .imePadding()
-//            .nestedScroll(rememberImeNestedScrollConnection())
-        ) {
-            item {
-                Spacer(modifier = Modifier.height(50.dp))
-                CommonTextField(
-                    value = name,
-                    onValueChange = {
-                        name = it
-                        validateName()
-                    },
-                    label = "Name"
-                )
-                if (nameError.isNotEmpty()) {
-                    Text(
-                        text = nameError,
-                        color = Color.Red,
-                        style = TextStyle(fontSize = 14.sp)
-                    )
-                }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Box(modifier = Modifier.weight(1f)) {
-                        Column {
-                            CommonTextField(
-                                value = age,
-                                onValueChange = {
-                                    age = it
-                                    validateAge()
-                                },
-                                label = "Age",
-                                isNumeric = true,
-                                maxLength = 2,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    item {
+                        //  Spacer(modifier = Modifier.height(50.dp))
+                        CommonTextField(
+                            value = name,
+                            onValueChange = {
+                                name = it
+                                validateName()
+                            },
+                            label = "Name"
+                        )
+                        if (nameError.isNotEmpty()) {
+                            Text(
+                                text = nameError,
+                                color = Color.Red,
+                                style = TextStyle(fontSize = 14.sp)
                             )
-                            if (ageError.isNotEmpty()) {
-                                Text(
-                                    text = ageError,
-                                    color = Color.Red,
-                                    style = TextStyle(fontSize = 14.sp)
-                                )
+                        }
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                Column {
+                                    CommonTextField(
+                                        value = age,
+                                        onValueChange = {
+                                            age = it
+                                            validateAge()
+                                        },
+                                        label = "Age",
+                                        isNumeric = true,
+                                        maxLength = 2,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                    )
+                                    if (ageError.isNotEmpty()) {
+                                        Text(
+                                            text = ageError,
+                                            color = Color.Red,
+                                            style = TextStyle(fontSize = 14.sp)
+                                        )
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Box(modifier = Modifier.weight(1f)) {
+                                Column {
+                                    Text(text = "Gender", style = TextStyle(fontSize = 16.sp))
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    ExposedDropdownMenuBox(
+                                        expanded = expanded,
+                                        onExpandedChange = { expanded = !expanded }
+                                    ) {
+                                        OutlinedTextField(
+                                            value = selectedOption,
+                                            onValueChange = {},
+                                            readOnly = true,
+                                            trailingIcon = {
+                                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                                            },
+                                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                                focusedBorderColor =  Color(0xFFf9f9f8),
+                                                unfocusedBorderColor =  Color(0xFFf9f9f8),
+                                            ),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .menuAnchor()
+                                        )
+                                        ExposedDropdownMenu(
+                                            expanded = expanded,
+                                            onDismissRequest = { expanded = false }
+                                        ) {
+                                            options.forEach { option ->
+                                                DropdownMenuItem(
+                                                    text = { Text(option) },
+                                                    onClick = {
+                                                        gender = option
+                                                        selectedOption = option
+                                                        expanded = false
+                                                        validateGender()
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Box(modifier = Modifier.weight(1f)) {
-                        Column {
-                            Text(text = "Gender", style = TextStyle(fontSize = 16.sp))
-                            Spacer(modifier = Modifier.height(8.dp))
-                            ExposedDropdownMenuBox(
-                                expanded = expanded,
-                                onExpandedChange = { expanded = !expanded }
+
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            // Weight Field
+                            Box(
+                                modifier = Modifier.weight(1f)
                             ) {
-                                OutlinedTextField(
-                                    value = selectedOption,
-                                    onValueChange = {},
-                                    readOnly = true,
-                                    trailingIcon = {
-                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                                    },
-                                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                                        focusedBorderColor =  Color(0xFFf9f9f8),
-                                        unfocusedBorderColor =  Color(0xFFf9f9f8),
-                                    ),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .menuAnchor()
-                                )
-                                ExposedDropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false }
-                                ) {
-                                    options.forEach { option ->
-                                        DropdownMenuItem(
-                                            text = { Text(option) },
-                                            onClick = {
-                                                gender = option
-                                                selectedOption = option
-                                                expanded = false
-                                                validateGender()
-                                            }
+                                Column {
+                                    CommonTextField(
+                                        value = weight,
+                                        onValueChange = {
+                                            weight = it
+                                            validateWeight()
+                                        },
+                                        label = "Weight (kg)",
+                                        isNumeric = true,
+                                        maxLength = 3,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                    )
+                                    if (weightError.isNotEmpty()) {
+                                        Text(
+                                            text = weightError,
+                                            color = Color.Red,
+                                            style = TextStyle(fontSize = 13.sp)
+                                        )
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            // Height Field
+                            Box(modifier = Modifier.weight(1f)) {
+                                Column {
+                                    CommonTextField(
+                                        value = height,
+                                        onValueChange = {
+                                            height = it
+                                            validateHeight()
+                                        },
+                                        label = "Height (cm)",
+                                        isNumeric = true,
+                                        maxLength = 3,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                    )
+                                    if (heightError.isNotEmpty()) {
+                                        Text(
+                                            text = heightError,
+                                            color = Color.Red,
+                                            style = TextStyle(fontSize = 13.sp)
                                         )
                                     }
                                 }
                             }
                         }
                     }
-                }
-            }
 
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    // Weight Field
-                    Box(modifier = Modifier.weight(1f)) {
-                        Column {
-                            CommonTextField(
-                                value = weight,
-                                onValueChange = {
-                                    weight = it
-                                    validateWeight()
-                                },
-                                label = "Weight (kg)",
-                                isNumeric = true,
-                                maxLength = 3,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        CommonTextField(
+                            value = email,
+                            onValueChange = {
+                                email = it.trim()
+                                validateEmail()
+                            },
+                            label = "Email",
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                        )
+                        if (emailError.isNotEmpty()) {
+                            Text(
+                                text = emailError,
+                                color = Color.Red,
+                                style = TextStyle(fontSize = 14.sp)
                             )
-                            if (weightError.isNotEmpty()) {
-                                Text(
-                                    text = weightError,
-                                    color = Color.Red,
-                                    style = TextStyle(fontSize = 13.sp)
-                                )
-                            }
                         }
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
 
-                    // Height Field
-                    Box(modifier = Modifier.weight(1f)) {
-                        Column {
-                            CommonTextField(
-                                value = height,
-                                onValueChange = {
-                                    height = it
-                                    validateHeight()
-                                },
-                                label = "Height (cm)",
-                                isNumeric = true,
-                                maxLength = 3,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                            )
-                            if (heightError.isNotEmpty()) {
-                                Text(
-                                    text = heightError,
-                                    color = Color.Red,
-                                    style = TextStyle(fontSize = 13.sp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
 
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-
-                CommonTextField(
-                    value = email,
-                    onValueChange = {
-                        email = it.trim()
-                        validateEmail()
-                    },
-                    label = "Email",
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-                )
-                if (emailError.isNotEmpty()) {
-                    Text(
-                        text = emailError,
-                        color = Color.Red,
-                        style = TextStyle(fontSize = 14.sp)
-                    )
-                }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Box(modifier = Modifier.weight(0.35f)) {
-                        Column {
-                            Text(text = "Countries", style = TextStyle(fontSize = 16.sp))
-                            Spacer(modifier = Modifier.height(8.dp))
-                            ExposedDropdownMenuBox(
-                                expanded = expandedCountries,
-                                onExpandedChange = { expandedCountries = !expandedCountries }
-                            ) {
-                                OutlinedTextField(
-                                    value = "+$selectedOptionCountries",
-                                    onValueChange = {},
-                                    readOnly = true,
-                                    trailingIcon = {
-                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCountries)
-                                    },
-                                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                                        focusedBorderColor = Color(0xFFf9f9f8),
-                                        unfocusedBorderColor = Color(0xFFf9f9f8),
-                                    ),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .menuAnchor()
-                                )
-                                ExposedDropdownMenu(
-                                    expanded = expandedCountries,
-                                    onDismissRequest = { expandedCountries = false }
-                                ) {
-                                    countries.forEach { option ->
-                                        DropdownMenuItem(
-                                            text = { Text("+$option") },
-                                            onClick = {
-                                                countrycode = option
-                                                selectedOptionCountries = option
-                                                expandedCountries = false
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Box(modifier = Modifier.weight(0.35f)) {
+                                Column {
+                                    Text(text = "Countries", style = TextStyle(fontSize = 16.sp))
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    ExposedDropdownMenuBox(
+                                        expanded = expandedCountries,
+                                        onExpandedChange = { expandedCountries = !expandedCountries }
+                                    ) {
+                                        OutlinedTextField(
+                                            value = "+$selectedOptionCountries",
+                                            onValueChange = {},
+                                            readOnly = true,
+                                            trailingIcon = {
+                                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCountries)
+                                            },
+                                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                                focusedBorderColor = Color(0xFFf9f9f8),
+                                                unfocusedBorderColor = Color(0xFFf9f9f8),
+                                            ),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .menuAnchor()
+                                        )
+                                        ExposedDropdownMenu(
+                                            expanded = expandedCountries,
+                                            onDismissRequest = { expandedCountries = false }
+                                        ) {
+                                            countries.forEach { option ->
+                                                DropdownMenuItem(
+                                                    text = { Text("+$option") },
+                                                    onClick = {
+                                                        countrycode = option
+                                                        selectedOptionCountries = option
+                                                        expandedCountries = false
+                                                    }
+                                                )
                                             }
+                                        }
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Box(modifier = Modifier.weight(0.75f)) {
+                                Column {
+                                    CommonTextField(
+                                        value = contact,
+                                        onValueChange = {
+                                            contact = it
+                                            validateContact()
+                                        },
+                                        label = "Contact",
+                                        isNumeric = true,
+                                        maxLength = 10,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                                    )
+                                    if (contactError.isNotEmpty()) {
+                                        Text(
+                                            text = contactError,
+                                            color = Color.Red,
+                                            style = TextStyle(fontSize = 14.sp)
                                         )
                                     }
                                 }
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Box(modifier = Modifier.weight(0.75f)) {
-                        Column {
-                            CommonTextField(
-                                value = contact,
-                                onValueChange = {
-                                    contact = it
-                                    validateContact()
-                                },
-                                label = "Contact",
-                                isNumeric = true,
-                                maxLength = 10,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                    item {
+                        Spacer(modifier = Modifier.height(50.dp))
+                        CommonTextField(
+                            value = address,
+                            onValueChange = {
+                                address = it
+                                validateAddress()
+                            },
+                            label = "Address"
+                        )
+                        if (addressError.isNotEmpty()) {
+                            Text(
+                                text = addressError,
+                                color = Color.Red,
+                                style = TextStyle(fontSize = 14.sp)
                             )
-                            if (contactError.isNotEmpty()) {
-                                Text(
-                                    text = contactError,
-                                    color = Color.Red,
-                                    style = TextStyle(fontSize = 14.sp)
-                                )
-                            }
                         }
                     }
-                }
-            }
-            item {
-                Spacer(modifier = Modifier.height(50.dp))
-                CommonTextField(
-                    value = address,
-                    onValueChange = {
-                        address = it
-                        validateName()
-                    },
-                    label = "Address"
-                )
-                if (addressError.isNotEmpty()) {
-                    Text(
-                        text = addressError,
-                        color = Color.Red,
-                        style = TextStyle(fontSize = 14.sp)
-                    )
-                }
-            }
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "Diagnosis", style = TextStyle(fontSize = 16.sp))
-                Spacer(modifier = Modifier.height(8.dp))
-                Column{
-                    MultiSelectExposedDropdownMenu(
-                        items = items,
-                        selectedItems = selectedItems.value,
-                        onSelectionChange = { newSelection ->
-                            selectedItems.value = newSelection
-                            validateCondition()
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = "Diagnosis", style = TextStyle(fontSize = 16.sp))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Column{
+                            MultiSelectExposedDropdownMenu(
+                                items = items,
+                                selectedItems = selectedItems.value,
+                                onSelectionChange = { newSelection ->
+                                    selectedItems.value = newSelection
+                                    validateCondition()
+                                }
+                            )
                         }
-                    )
-                }
-                if (conditionError.isNotEmpty()) {
-                    Text(
-                        text = conditionError,
-                        color = Color.Red,
-                        style = TextStyle(fontSize = 14.sp)
-                    )
-                }
-            }
-            item {
-                textFields.forEachIndexed { index, (label, value) -> // Destructure the pair into label and value
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(modifier = Modifier.weight(0.75f)) {
-                            OutlinedTextField(
-                                value = value,
-                                onValueChange = { newText ->
-                                    // Update the specific field's value
-                                    textFields[index] = textFields[index].copy(second = newText)
-                                },
-                                label = { Text(label) }, // Show the corresponding label
-                                modifier = Modifier,
-                                maxLines =1
+                        if (conditionError.isNotEmpty()) {
+                            Text(
+                                text = conditionError,
+                                color = Color.Red,
+                                style = TextStyle(fontSize = 14.sp)
+                            )
+                        }
+                    }
+                    item {
+                        textFields.forEachIndexed { index, (label, value) -> // Destructure the pair into label and value
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(modifier = Modifier.weight(0.75f)) {
+                                    OutlinedTextField(
+                                        value = value,
+                                        onValueChange = { newText ->
+                                            // Update the specific field's value
+                                            textFields[index] = textFields[index].copy(second = newText)
+                                        },
+                                        label = { Text(label) }, // Show the corresponding label
+                                        modifier = Modifier,
+                                        maxLines =1
 
-                            )
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                IconButton(
+                                    onClick = { textFields.removeAt(index) },  // Remove the specific text field pair
+                                    modifier = Modifier.weight(0.1f)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Delete,
+                                        contentDescription = "Delete",
+                                        tint = Color(0XFFA91101)
+                                    )
+                                }
+                            }
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        IconButton(
-                            onClick = { textFields.removeAt(index) },  // Remove the specific text field pair
-                            modifier = Modifier.weight(0.1f)
+                    }
+//                    item{
+//                        Spacer(modifier = Modifier.height(200.dp))
+//                    }
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                validateName()
+                                validateAge()
+                                validateEmail()
+                                validateContact()
+                                validateWeight()
+                                validateHeight()
+                                validateCondition()
+                                validateGender()
+                                if (
+                                    nameError.isEmpty() && ageError.isEmpty() && emailError.isEmpty()
+                                    && contactError.isEmpty() && weightError.isEmpty() &&
+                                    heightError.isEmpty() && conditionError.isEmpty() && genderError.isEmpty()
+                                ) {
+                                    val extraDetailsList = textFields.map { (label, value) -> "$label: $value" }
+                                    val patient = Patient(
+                                        id = uuid4().toString(),
+                                        clinicId = Firebase.auth.currentUser?.uid ?: "",
+                                        name = name,
+                                        age = age.toInt(),
+                                        gender = gender,
+                                        contact = "$countrycode$contact",
+                                        address = address,
+                                        email = email,
+                                        height = height.toInt(),
+                                        weight = weight.toInt(),
+                                        diagnostics = selectedItems.value.toList(),
+                                        extraDetails = extraDetailsList
+                                    )
+                                    scope.launch {
+                                        addPatient(patient)
+                                        navController.popBackStack()
+                                    }
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(Color(0xFF43958F)),
+                            modifier = Modifier
+                                .height(60.dp)
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(4.dp))
+                                .imePadding(),
+                            shape = RoundedCornerShape(4.dp),
                         ) {
-                            Icon(
-                                imageVector = Icons.Filled.Delete,
-                                contentDescription = "Delete",
-                                tint = Color(0XFFA91101)
-                            )
+                            Text(text = "Add")
                         }
                     }
                 }
-            }
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = {
-                        validateName()
-                        validateAge()
-                        validateEmail()
-                        validateContact()
-                        validateWeight()
-                        validateHeight()
-                        validateCondition()
-                        validateGender()
-                        if (
-                            nameError.isEmpty() && ageError.isEmpty() && emailError.isEmpty()
-                            && contactError.isEmpty() && weightError.isEmpty() &&
-                            heightError.isEmpty() && conditionError.isEmpty() && genderError.isEmpty()
-                        ) {
-                            val extraDetailsList = textFields.map { (label, value) -> "$label: $value" }
-                            val patient = Patient(
-                                id = uuid4().toString(),
-                                clinicId = Firebase.auth.currentUser?.uid ?: "",
-                                name = name,
-                                age = age.toInt(),
-                                gender = gender,
-                                contact = "$countrycode$contact",
-                                address = address,
-                                email = email,
-                                height = height.toInt(),
-                                weight = weight.toInt(),
-                                diagnostics = selectedItems.value.toList(),
-                                extraDetails = extraDetailsList
-                            )
-                            scope.launch {
-                                addPatient(patient)
-                                navController.popBackStack()
-                            }
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(Color(0xFF43958F)),
-                    modifier = Modifier
-                        .height(60.dp)
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(4.dp))
-                        .imePadding(),
-                    shape = RoundedCornerShape(4.dp),
+
+                @Composable
+                fun LabelAndTextField(
+                    newLabel: String,
+                    onLabelChange: (String) -> Unit,
+                    newText: String,
+                    onTextChange: (String) -> Unit
                 ) {
-                    Text(text = "Add")
+                    Column {
+                        TextField(
+                            value = newLabel,
+                            onValueChange = onLabelChange,
+                            label = { Text("Label") },
+                            modifier = Modifier.fillMaxWidth(),
+                            maxLines = 1,
+                            colors = TextFieldDefaults.textFieldColors(
+                                containerColor = Color.White,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            ),
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextField(
+                            value = newText,
+                            onValueChange = onTextChange,
+                            label = { Text("Text") },
+                            modifier = Modifier.fillMaxWidth(),
+                            maxLines=1,
+                            colors = TextFieldDefaults.textFieldColors(
+                                containerColor = Color.White,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            ),
+                        )
+                    }
                 }
-            }
-        }
-        @Composable
-        fun LabelAndTextField(
-            newLabel: String,
-            onLabelChange: (String) -> Unit,
-            newText: String,
-            onTextChange: (String) -> Unit
-        ) {
-            Column {
-                TextField(
-                    value = newLabel,
-                    onValueChange = onLabelChange,
-                    label = { Text("Label") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 1,
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = Color.White,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                TextField(
-                    value = newText,
-                    onValueChange = onTextChange,
-                    label = { Text("Text") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines=1,
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = Color.White,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                )
-            }
-        }
 
-        if (showDialog) {
-            AlertDialog(
-                onDismissRequest = { showDialog = false },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            // Add new text field to the mutable list
-                            textFields.add(Pair(newLabel, newText))
-                            newLabel = ""
-                            newText = ""
-                            showDialog = false
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    // Add new text field to the mutable list
+                                    textFields.add(Pair(newLabel, newText))
+                                    newLabel = ""
+                                    newText = ""
+                                    showDialog = false
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color(0xFF43958F))
+                                    .then(Modifier) // Ensure proper chaining
+                            ) {
+                                Text("Add", color = Color.White)
+                            }
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFF43958F))
-                            .then(Modifier) // Ensure proper chaining
-                    ) {
-                        Text("Add", color = Color.White)
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = { showDialog = false },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .border(
-                                width = 1.dp,
-                                color = Color(0xFF43958F),
-                                shape = RoundedCornerShape(8.dp)
+                        dismissButton = {
+                            TextButton(
+                                onClick = { showDialog = false },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .border(
+                                        width = 1.dp,
+                                        color = Color(0xFF43958F),
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                            ) {
+                                Text("Cancel", color = Color(0xFF43958F))
+                            }
+                        },
+                        containerColor = Color(0xFFF4F4F4),
+                        title = { Text("Add New Text Field") },
+                        text = {
+                            LabelAndTextField(
+                                newLabel = newLabel,
+                                onLabelChange = { newLabel = it },
+                                newText = newText,
+                                onTextChange = { newText = it }
                             )
-                    ) {
-                        Text("Cancel", color = Color(0xFF43958F))
-                    }
-                },
-                containerColor = Color(0xFFF4F4F4),
-                title = { Text("Add New Text Field") },
-                text = {
-                    LabelAndTextField(
-                        newLabel = newLabel,
-                        onLabelChange = { newLabel = it },
-                        newText = newText,
-                        onTextChange = { newText = it }
+                        }
                     )
                 }
-            )
         }
-    }
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

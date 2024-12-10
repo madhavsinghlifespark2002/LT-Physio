@@ -13,6 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,6 +37,7 @@ fun CommonTextField(
                 .border(width = 2.dp, color = Color(0xFFf9f9f8), shape = RoundedCornerShape(8.dp)) // Add border
         ) {
             TextField(
+
                 value = value,
                 readOnly = isRead,
                 onValueChange = { newValue ->
@@ -56,5 +59,36 @@ fun CommonTextField(
                 maxLines = 1
             )
         }
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CommonTextFieldgrey(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    isRead: Boolean = false,
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    isNumeric: Boolean = false,
+    maxLength: Int = Int.MAX_VALUE // Optional: Pass a maxLength argument if needed
+) {
+    Column(modifier = modifier) {
+        Text(text = label, style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.SemiBold))
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = value,
+            onValueChange = { newValue ->
+                onValueChange(newValue) },
+            //label = { Text("Your Text") },
+            placeholder = { Text("Enter ${label}") },
+            keyboardOptions = keyboardOptions,
+            modifier = Modifier.fillMaxWidth(),
+            colors =  TextFieldDefaults.textFieldColors(
+                containerColor = Color(0xFFf2f4f5),
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            )
+        )
     }
 }

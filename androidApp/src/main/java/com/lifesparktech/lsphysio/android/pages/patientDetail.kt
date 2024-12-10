@@ -67,14 +67,6 @@ fun PatientDetail(navController: NavController, patientId: String) {
         patient = loadedPatient
 
     }
-//    if (patient != null) {
-//        Text(text = "Name: ${patient!!.name}")
-//        Text(text = "Age: ${patient!!.age}")
-//        Text(text = "Gender: ${patient!!.gender}")
-//        Text(text = "Contact: ${patient!!.contact}")
-//    } else {
-//        Text(text = "Loading patient details...")
-//    }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(

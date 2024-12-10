@@ -23,6 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.lifesparktech.lsphysio.android.models.Patient
+import com.lifesparktech.lsphysio.android.pages.AccountScreen
 import com.lifesparktech.lsphysio.android.pages.AddPatientScreen
 import com.lifesparktech.lsphysio.android.pages.AddedScreen
 import com.lifesparktech.lsphysio.android.pages.HomeScreen
@@ -99,6 +100,7 @@ fun currentRoute(navController: NavHostController): String? {
 fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(navController = navController, startDestination = Screen.Home.route, modifier = modifier) {
         composable("addpatientscreen") { AddPatientScreen(navController) }
+        composable("accountScreen"){AccountScreen(navController)}
         composable("PatientDetail/{patientId}"){ backStackEntry ->
             val PatientId = backStackEntry.arguments?.getString("patientId")
             if (PatientId != null) {

@@ -49,9 +49,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -65,15 +70,13 @@ import kotlinx.coroutines.launch
 
 data class NavigationItem(
     val title: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-    val badgeCount: Int? = null
+    val selectedIcon: Painter,
+    val route: String
 )
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-
             MyMaterial3App()
         }
     }
@@ -85,22 +88,57 @@ fun MyMaterial3App() {
     val navController = rememberNavController()
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    // TODO for Refactor
     val items = listOf(
         NavigationItem(
-            title = "All",
-            selectedIcon = Icons.Filled.Home,
-            unselectedIcon = Icons.Outlined.Home,
+            title = "Dashboard",
+            selectedIcon = painterResource(id = R.drawable.dashboard),
+            route = "home"
         ),
         NavigationItem(
-            title = "Urgent",
-            selectedIcon = Icons.Filled.Info,
-            unselectedIcon = Icons.Outlined.Info,
-            badgeCount = 45
+            title = "Your Account",
+            selectedIcon = painterResource(id = R.drawable.account),
+            route = "accountScreen"
         ),
         NavigationItem(
-            title = "Settings",
-            selectedIcon = Icons.Filled.Settings,
-            unselectedIcon = Icons.Outlined.Settings,
+            title = "Doctor",
+            selectedIcon = painterResource(id = R.drawable.doctors),
+            route = "doctorscreen"
+        ),
+        NavigationItem(
+            title = "Patient",
+            selectedIcon = painterResource(id = R.drawable.patients),
+            route = "patientscreen"
+        ),
+        NavigationItem(
+            title = "Departments",
+            selectedIcon = painterResource(id = R.drawable.department),
+            route = "departmentscreen"
+        ),
+        NavigationItem(
+            title = "Schedule",
+            selectedIcon = painterResource(id = R.drawable.schedule),
+            route = "schedulescreen"
+        ),
+        NavigationItem(
+            title = "Appointment",
+            selectedIcon = painterResource(id = R.drawable.appointment),
+            route = "appointmentscreen"
+        ),
+        NavigationItem(
+            title = "Report",
+            selectedIcon = painterResource(id = R.drawable.reports),
+            route = "reportscreen"
+        ),
+        NavigationItem(
+            title = "Resources",
+            selectedIcon = painterResource(id = R.drawable.resources),
+            route = "resourcescreen"
+        ),
+        NavigationItem(
+            title = "Payment",
+            selectedIcon = painterResource(id = R.drawable.payment),
+            route = "paymentscreen"
         ),
     )
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -110,38 +148,116 @@ fun MyMaterial3App() {
     }
     ModalNavigationDrawer(
         drawerContent = {
-            ModalDrawerSheet {
+            ModalDrawerSheet(
+                drawerContainerColor = Color.White
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp)
+                ){
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "logo",
+                        modifier = Modifier
+                            .width(200.dp)
+                            .height(50.dp)
+                    )
+                }
+                Divider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    color = Color(0xFFD6D6D6),
+                    thickness = 1.dp
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 items.forEachIndexed { index, item ->
                     NavigationDrawerItem(
                         label = {
-                            Text(text = item.title)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                                )
+                            {
+                                Text(text = item.title)
+                            }
+
                         },
                         selected = index == selectedItemIndex,
                         onClick = {
-//                                            navController.navigate(item.route)
                             selectedItemIndex = index
                             scope.launch {
                                 drawerState.close()
                             }
+                            navController.navigate(item.route)
                         },
                         icon = {
-                            Icon(
-                                imageVector = if (index == selectedItemIndex) {
-                                    item.selectedIcon
-                                } else item.unselectedIcon,
-                                contentDescription = item.title
+//                            Icon(
+//                                imageVector =
+//                                    item.selectedIcon,
+//                                contentDescriptionntDescription = item.title
+//                            )
+                            Image(
+                                painter = item.selectedIcon,
+                                contentDescription = "${item.title}",
+                                modifier = Modifier
+                                    .width(26.dp)
                             )
                         },
-                        badge = {
-                            item.badgeCount?.let {
-                                Text(text = item.badgeCount.toString())
-                            }
-                        },
                         modifier = Modifier
-                            .padding(NavigationDrawerItemDefaults.ItemPadding)
+                            .padding(NavigationDrawerItemDefaults.ItemPadding),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            NavigationDrawerItemDefaults.colors(
+                                selectedContainerColor = Color(0xFFD6E7EE), // Background color for selected item
+                                unselectedContainerColor = Color.Transparent, // Background color for unselected item
+                                selectedTextColor = Color(0xFF222429), // Text color for selected item
+                               // unselectedTextColor = Color.Gray, // Text color for unselected item
+                                selectedIconColor = Color(0xFF222429), // Icon color for selected item
+                                unselectedIconColor = Color(0xFF222429) // Icon color for unselected item
+                            )
                     )
                 }
+                Spacer(modifier = Modifier.height(4.dp))
+                Divider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    color = Color(0xFFD6D6D6),
+                    thickness = 1.dp
+                )
+                NavigationDrawerItem(
+                    label = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = "Logout")
+                        }
+                    },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                    },
+                    icon = {
+                        Image(
+                            painter = painterResource(id = R.drawable.logout),
+                            contentDescription = "Logout",
+                            modifier = Modifier
+                                .width(26.dp)
+                        )
+                    },
+                    modifier = Modifier
+                        .padding(NavigationDrawerItemDefaults.ItemPadding),
+                    shape = RoundedCornerShape(12.dp), // Adds rounded corners
+                    colors = NavigationDrawerItemDefaults.colors(
+                        selectedContainerColor = Color(0xFFD6E7EE), // Optional: Customize colors
+                        unselectedContainerColor = Color.Transparent,
+                        selectedTextColor = Color(0xFF222429),
+                        unselectedIconColor = Color(0xFF222429)
+                    )
+                )
             }
         },
         drawerState = drawerState
@@ -155,7 +271,7 @@ fun MyMaterial3App() {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier.padding(12.dp).fillMaxWidth().height(120.dp)
                         ){
-                            TextField(
+                            OutlinedTextField(
                                 value = "",
                                 onValueChange = {  },
                                 modifier = Modifier

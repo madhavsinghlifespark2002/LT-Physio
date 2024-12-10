@@ -1,10 +1,12 @@
 package com.lifesparktech.lsphysio.android.pages
 
+import android.R.attr.maxWidth
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -14,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -28,58 +31,116 @@ fun HomeScreen() {
         modifier = Modifier.fillMaxSize(),
         containerColor = Color(0xFFF4F4F4) // Use `containerColor` for the background
     ) { innerPadding ->
-        FlowRow(
-            modifier = Modifier
-                .fillMaxWidth()
-               // .border(width = 1.dp, color = Color.Black)
-                //.height(500.dp)
-                .padding(12.dp)
-                .padding(innerPadding),
-            mainAxisSpacing = 16.dp,
-            crossAxisSpacing = 16.dp,
-            mainAxisAlignment = MainAxisAlignment.Center
-        ) {
-            DashboardCard(
-                label = "Visitors",
-                subContent = "4,592",
-                sideContent = "↑ +15.9%",
-                content = "Stay informed with real-time data to enhance \n patient care and visitor management.",
-                res = R.drawable.visitors
-            )
-            DashboardCard(
-                label = "physiotherapist",
-                subContent = "42",
-                sideContent = "↑ +4.9%",
-                content = "Stay updated with essential details\n to streamline medical support and management.",
-                res = R.drawable.visitors
-            )
-            DashboardCard(
-                label = "Patient",
-                subContent = "540",
-                sideContent = "↓ -0.9%",
-                content = "Keep track of patient information at a glance, \n with easy access to key details for personalized care.",
-                res = R.drawable.visitors
-            )
-            DashboardCard(
-                label = "Total Sessions",
-                subContent = "540",
-                sideContent = "↓ -0.9%",
-                content = "Keep track of patient information at a glance, \n with easy access to key details for personalized care.",
-                res = R.drawable.visitors
-            )
+        LazyColumn{
+            item{
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        // .border(width = 1.dp, color = Color.Black)
+                        //.height(500.dp)
+                        .padding(12.dp)
+                        .padding(innerPadding),
+                    mainAxisSpacing = 12.dp,
+                    crossAxisSpacing = 8.dp,
+                    mainAxisAlignment = MainAxisAlignment.Center
+                ) {
+                    DashboardCard(
+                        label = "Visitors",
+                        subContent = "4,592",
+                        sideContent = "↑ +15.9%",
+                        content = "Stay informed with real-time data to enhance \n patient care and visitor management.",
+                        res = R.drawable.family,
+                        backgroundColor = Color(0xFFDFF3FE),
+                        //backgroundColor = Color.White
+                    )
+                    DashboardCard(
+                        label = "physiotherapist",
+                        subContent = "42",
+                        sideContent = "↑ +4.9%",
+                        content = "Stay updated with essential details\n to streamline medical support and management.",
+                        res = R.drawable.doctors,
+                        backgroundColor = Color(0xFFEBE1FE),
+//                        backgroundColor = Color.White
+                    )
+                    DashboardCard(
+                        label = "Patient",
+                        subContent = "540",
+                        sideContent = "↓ -0.9%",
+                        content = "Keep track of patient information at a glance, \n with easy access to key details for personalized care.",
+                        res = R.drawable.patients,
+                        backgroundColor = Color(0xFFFFF0D1),
+//                        backgroundColor = Color.White
+                    )
+                    DashboardCard(
+                        label = "Total Sessions",
+                        subContent = "540",
+                        sideContent = "↓ -0.9%",
+                        content = "Keep track of patient information at a glance, \n with easy access to key details for personalized care.",
+                        res = R.drawable.appointment,
+                        backgroundColor = Color(0xFFFFF8F4)
+                       // backgroundColor = Color.White
+                    )
+                }
+            }
+            item{
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceAround,
+                ){
+                    Card(
+                        modifier = Modifier.padding(12.dp).height(275.dp).fillMaxWidth(0.6f),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White // Set the card's background color
+                        )
+                    ){
+
+                    }
+                    Card(
+                        modifier = Modifier.padding(12.dp).height(275.dp).fillMaxWidth(0.9f),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White // Set the card's background color
+                        )
+                    ){
+
+                    }
+                }
+            }
+            item{
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ){
+                    Card(
+                        modifier = Modifier.padding(12.dp).height(300.dp).fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White // Set the card's background color
+                        )
+                    ){
+
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-fun DashboardCard(label: String, subContent: String, sideContent: String, content: String, @DrawableRes res: Int){
+fun DashboardCard(label: String, subContent: String, sideContent: String, content: String, @DrawableRes res: Int, backgroundColor: Color){
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    println("screenWidth $screenWidth")
     Card(
         modifier = Modifier
-            .width(300.dp)
+            .width(if(screenWidth <= 800.0.dp ){ 375.dp } else{ 300.dp})
+            //.width(300.dp)
             .height(200.dp)
             .padding(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White // Set the card's background color
+            containerColor = backgroundColor // Set the card's background color
         ),
         elevation = CardDefaults.cardElevation(4.dp),
         shape = RoundedCornerShape(8.dp)
@@ -96,12 +157,12 @@ fun DashboardCard(label: String, subContent: String, sideContent: String, conten
                     modifier = Modifier
                         .size(32.dp)  // Circle size
                         .clip(CircleShape)  // Makes the icon circular
-                        .background(Color(0xFFD6E7EE))  // Set background color from list
+                        .background(Color.White)  // Set background color from list
                         .padding(8.dp),  // Padding inside the circle
                     contentAlignment = Alignment.Center  // Center the text inside the circle
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.visitors),
+                        painter = painterResource(id = res),
                         contentDescription = "logo",
                         modifier = Modifier
                             .size(32.dp)
