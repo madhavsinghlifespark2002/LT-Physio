@@ -100,7 +100,7 @@ fun currentRoute(navController: NavHostController): String? {
 fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(navController = navController, startDestination = Screen.Home.route, modifier = modifier) {
         composable("addpatientscreen") { AddPatientScreen(navController) }
-        composable("accountScreen"){AccountScreen(navController)}
+        composable("accountScreen"){AccountScreen()}
         composable("PatientDetail/{patientId}"){ backStackEntry ->
             val PatientId = backStackEntry.arguments?.getString("patientId")
             if (PatientId != null) {

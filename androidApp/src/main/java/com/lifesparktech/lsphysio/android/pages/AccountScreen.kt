@@ -1,11 +1,16 @@
 package com.lifesparktech.lsphysio.android.pages
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -44,238 +50,125 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.lsphysio.android.R
+import com.lifesparktech.lsphysio.android.components.AccountInfoItem
+import com.lifesparktech.lsphysio.android.components.AccountInformationCard
 import com.lifesparktech.lsphysio.android.components.CommonTextField
 import com.lifesparktech.lsphysio.android.components.CommonTextFieldgrey
-
 @Composable
-fun AccountScreen(navController: NavController){
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = Color(0xFFf4f4f4)
+fun AccountScreen() {
+    var selectedItem by remember { mutableStateOf<String?>("Basic Personal Details") }
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().background(color = Color(0xFFf4f4f4)),
+        contentPadding = PaddingValues(12.dp)
     ){
-        AccountInfo()
-    }
-}
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AccountInfo(){
-    var text by remember { mutableStateOf("") }
-    var name by remember { mutableStateOf("") }
-    var nameError by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var contact by remember { mutableStateOf("") }
-    var contactError by remember { mutableStateOf("") }
-    var emailError by remember { mutableStateOf("") }
-    var expandedCountries by remember { mutableStateOf(false) }
-    var selectedOptionCountries by remember { mutableStateOf("91") }
-    val countries = listOf("91", "44", "01")
-    var countrycode by remember { mutableStateOf("91") }
-    var address by remember { mutableStateOf("") }
-    var addressError by remember { mutableStateOf("") }
-    fun validateName() {
-        nameError = if (name.trim().isEmpty()) "Name is required." else ""
-    }
-    fun validateAddress() {
-        addressError = if (address.trim().isEmpty()) "Address is required." else ""
-    }
-    fun validateContact() {
-        contactError = if (contact.trim().isEmpty()) {
-            "Number is required"
-        } else if (contact.trim().length != 10) {
-            "Please enter a valid contact number (10 digits)."
-        } else {
-            ""
-        }
-    }
-    fun validateEmail() {
-        val emailPattern =
-            "^[a-zA-Z0-9.a-zA-Z0-9.!#\$%&'*+-/=?^_`{|}~][^ @]+@[a-zA-Z0-9]+\\.[a-zA-Z]+\$".toRegex()
-        emailError = when {
-            email.trim().isEmpty() -> "Email is required."
-            !email.matches(emailPattern) -> "Please enter a valid email."
-            else -> ""
-        }
-    }
-    LazyColumn(modifier = Modifier.fillMaxSize()){
         item{
-            Text(text = "Your Account", fontSize = 28.sp, fontWeight = FontWeight.SemiBold, color = Color(0xff222429), modifier = Modifier.padding(18.dp))
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Card(
-                    modifier = Modifier.padding(12.dp).height(100.dp).fillMaxWidth(0.35f),
-                    elevation = CardDefaults.cardElevation(4.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.White // Set the card's background color
-                    )
-                ) {
+            Row {
+                Text(
+                    text = "Your Account",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xff222429),
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+            }
 
-                }
+            Row(modifier = Modifier.fillMaxWidth()) {
+                // Left Panel with Account Info Items
                 Card(
-                    modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(0.35f),
                     elevation = CardDefaults.cardElevation(4.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.White // Set the card's background color
-                    )
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
                     Column(
-                        modifier = Modifier.padding(12.dp)
-                    ){
-                        Text(text = "Account Information", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
-                        Divider(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            color = Color(0xFFD6D6D6),
-                            thickness = 1.dp
-                        )
-                        Image(
-                            painter = painterResource(id = R.drawable.personimage),
-                            contentDescription = "logo",
-                            modifier = Modifier
-                                .size(50.dp)
-                                .clip(CircleShape)
-                        )
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ){
-                            Box(
-                                modifier = Modifier.weight(1f)
-                            ){
-                                Column{
-                                    CommonTextFieldgrey(
-                                        value = name,
-                                        onValueChange = {
-                                            name = it
-                                            validateName()
-                                        },
-                                        label = "Name"
-                                    )
-                                    if (nameError.isNotEmpty()) {
-                                        Text(
-                                            text = nameError,
-                                            color = Color.Red,
-                                            style = TextStyle(fontSize = 14.sp)
-                                        )
-                                    }
-                                }
-
-                            }
-                            Spacer(
-                                modifier = Modifier.width(12.dp)
-                            )
-                            Box(
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Column {
-                                    CommonTextFieldgrey(
-                                        value = email,
-                                        onValueChange = {
-                                            email = it
-                                            validateEmail()
-                                        },
-                                        label = "Email"
-                                    )
-                                    if (emailError.isNotEmpty()) {
-                                        Text(
-                                            text = emailError,
-                                            color = Color.Red,
-                                            style = TextStyle(fontSize = 14.sp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(18.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp)
+                    ) {
+                        AccountInfoItem(
+                            res = R.drawable.accountinfo,
+                            label = "Basic Personal Details",
+                            isSelected = selectedItem == "Basic Personal Details"
                         ) {
-                            Box(modifier = Modifier.weight(0.35f)) {
-                                Column {
-                                    Text(text = "Countries", style = TextStyle(fontSize = 16.sp))
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    ExposedDropdownMenuBox(
-                                        expanded = expandedCountries,
-                                        onExpandedChange = { expandedCountries = !expandedCountries }
-                                    ) {
-                                        OutlinedTextField(
-                                            value = "+$selectedOptionCountries",
-                                            onValueChange = {},
-                                            readOnly = true,
-                                            trailingIcon = {
-                                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCountries)
-                                            },
-                                            colors =  TextFieldDefaults.textFieldColors(
-                                                containerColor = Color(0xFFf2f4f5),
-                                                focusedIndicatorColor = Color.Transparent,
-                                                unfocusedIndicatorColor = Color.Transparent
-                                            ),
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .menuAnchor()
-                                        )
-                                        ExposedDropdownMenu(
-                                            expanded = expandedCountries,
-                                            onDismissRequest = { expandedCountries = false }
-                                        ) {
-                                            countries.forEach { option ->
-                                                DropdownMenuItem(
-                                                    text = { Text("+$option") },
-                                                    onClick = {
-                                                        countrycode = option
-                                                        selectedOptionCountries = option
-                                                        expandedCountries = false
-                                                    }
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Box(modifier = Modifier.weight(0.75f)) {
-                                Column {
-                                    CommonTextFieldgrey(
-                                        value = contact,
-                                        onValueChange = {
-                                            contact = it
-                                            validateContact()
-                                        },
-                                        label = "Contact",
-                                        isNumeric = true,
-                                        maxLength = 10,
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-                                    )
-                                    if (contactError.isNotEmpty()) {
-                                        Text(
-                                            text = contactError,
-                                            color = Color.Red,
-                                            style = TextStyle(fontSize = 14.sp)
-                                        )
-                                    }
-                                }
-                            }
+                            selectedItem = "Basic Personal Details"
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        CommonTextFieldgrey(
-                            value = address,
-                            onValueChange = {
-                                address = it
-                                validateAddress()
-                            },
-                            label = "Address"
-                        )
-                        if (addressError.isNotEmpty()) {
-                            Text(
-                                text = addressError,
-                                color = Color.Red,
-                                style = TextStyle(fontSize = 14.sp)
-                            )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        AccountInfoItem(
+                            res = R.drawable.clinicinfo,
+                            label = "Clinic Information",
+                            isSelected = selectedItem == "Clinic Information"
+                        ) {
+                            selectedItem = "Clinic Information"
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        AccountInfoItem(
+                            res = R.drawable.professional,
+                            label = "Professional Details",
+                            isSelected = selectedItem == "Professional Details"
+                        ) {
+                            selectedItem = "Professional Details"
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        AccountInfoItem(
+                            res = R.drawable.securityinfo,
+                            label = "Account Security",
+                            isSelected = selectedItem == "Account Security"
+                        ) {
+                            selectedItem = "Account Security"
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        AccountInfoItem(
+                            res = R.drawable.payment,
+                            label = "Payment and Billing",
+                            isSelected = selectedItem == "Payment and Billing"
+                        ) {
+                            selectedItem = "Payment and Billing"
                         }
                     }
+                }
 
+                Spacer(modifier = Modifier.width(12.dp))
+
+                // Right Panel with Selected Item Details
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        when (selectedItem) {
+                            "Basic Personal Details" -> AccountInformationCard()
+                            "Clinic Information" -> ClinicInformationCard()
+                            "Professional Details" -> ProfessionalDetailsCard()
+                            "Account Security" -> AccountSecurityCard()
+                            "Payment and Billing" -> PaymentAndBillingCard()
+                            else -> AccountInformationCard()
+                        }
+                    }
                 }
             }
         }
     }
+
+}
+
+
+
+@Composable
+fun ClinicInformationCard() {
+    Text(text = "Clinic Information Content", fontSize = 16.sp)
+}
+
+@Composable
+fun ProfessionalDetailsCard() {
+    Text(text = "Professional Details Content", fontSize = 16.sp)
+}
+
+@Composable
+fun AccountSecurityCard() {
+    Text(text = "Account Security Content", fontSize = 16.sp)
+}
+
+@Composable
+fun PaymentAndBillingCard() {
+    Text(text = "Payment and Billing Content", fontSize = 16.sp)
 }
