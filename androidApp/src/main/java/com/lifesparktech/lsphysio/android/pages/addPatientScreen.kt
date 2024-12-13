@@ -1,7 +1,4 @@
 package com.lifesparktech.lsphysio.android.pages
-
-
-import android.graphics.fonts.Font
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,21 +7,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -34,16 +26,14 @@ import androidx.navigation.NavController
 import com.benasher44.uuid.uuid4
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.lifesparktech.lsphysio.android.Controller.addPatient
-import com.lifesparktech.lsphysio.android.components.CommonTextField
+import com.lifesparktech.lsphysio.android.components.CommonTextFieldgrey
 import com.lifesparktech.lsphysio.android.models.Patient
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddPatientScreen(navController: NavController) {
-
     var name by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var age by remember { mutableStateOf("") }
@@ -186,7 +176,7 @@ fun AddPatientScreen(navController: NavController) {
                     }
                     item {
                         //  Spacer(modifier = Modifier.height(50.dp))
-                        CommonTextField(
+                        CommonTextFieldgrey(
                             value = name,
                             onValueChange = {
                                 name = it
@@ -211,7 +201,7 @@ fun AddPatientScreen(navController: NavController) {
                         ) {
                             Box(modifier = Modifier.weight(1f)) {
                                 Column {
-                                    CommonTextField(
+                                    CommonTextFieldgrey(
                                         value = age,
                                         onValueChange = {
                                             age = it
@@ -234,7 +224,7 @@ fun AddPatientScreen(navController: NavController) {
                             Spacer(modifier = Modifier.width(16.dp))
                             Box(modifier = Modifier.weight(1f)) {
                                 Column {
-                                    Text(text = "Gender", style = TextStyle(fontSize = 16.sp))
+                                    Text(text = "Gender", style = TextStyle(fontSize = 16.sp), fontWeight = FontWeight.SemiBold)
                                     Spacer(modifier = Modifier.height(8.dp))
                                     ExposedDropdownMenuBox(
                                         expanded = expanded,
@@ -247,9 +237,10 @@ fun AddPatientScreen(navController: NavController) {
                                             trailingIcon = {
                                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                                             },
-                                            colors = TextFieldDefaults.outlinedTextFieldColors(
-                                                focusedBorderColor =  Color(0xFFf9f9f8),
-                                                unfocusedBorderColor =  Color(0xFFf9f9f8),
+                                            colors =  TextFieldDefaults.textFieldColors(
+                                                containerColor = Color(0xFFf2f4f5),
+                                                focusedIndicatorColor = Color.Transparent,
+                                                unfocusedIndicatorColor = Color.Transparent
                                             ),
                                             modifier = Modifier
                                                 .fillMaxWidth()
@@ -257,7 +248,8 @@ fun AddPatientScreen(navController: NavController) {
                                         )
                                         ExposedDropdownMenu(
                                             expanded = expanded,
-                                            onDismissRequest = { expanded = false }
+                                            onDismissRequest = { expanded = false },
+                                            modifier = Modifier.background(color = Color(0xFFf2f4f5))
                                         ) {
                                             options.forEach { option ->
                                                 DropdownMenuItem(
@@ -276,7 +268,6 @@ fun AddPatientScreen(navController: NavController) {
                             }
                         }
                     }
-
                     item {
                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -289,7 +280,7 @@ fun AddPatientScreen(navController: NavController) {
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Column {
-                                    CommonTextField(
+                                    CommonTextFieldgrey(
                                         value = weight,
                                         onValueChange = {
                                             weight = it
@@ -314,7 +305,7 @@ fun AddPatientScreen(navController: NavController) {
                             // Height Field
                             Box(modifier = Modifier.weight(1f)) {
                                 Column {
-                                    CommonTextField(
+                                    CommonTextFieldgrey(
                                         value = height,
                                         onValueChange = {
                                             height = it
@@ -339,7 +330,7 @@ fun AddPatientScreen(navController: NavController) {
 
                     item {
                         Spacer(modifier = Modifier.height(8.dp))
-                        CommonTextField(
+                        CommonTextFieldgrey(
                             value = email,
                             onValueChange = {
                                 email = it.trim()
@@ -366,7 +357,7 @@ fun AddPatientScreen(navController: NavController) {
                         ) {
                             Box(modifier = Modifier.weight(0.35f)) {
                                 Column {
-                                    Text(text = "Countries", style = TextStyle(fontSize = 16.sp))
+                                    Text(text = "Countries", style = TextStyle(fontSize = 16.sp), fontWeight = FontWeight.SemiBold)
                                     Spacer(modifier = Modifier.height(8.dp))
                                     ExposedDropdownMenuBox(
                                         expanded = expandedCountries,
@@ -379,9 +370,10 @@ fun AddPatientScreen(navController: NavController) {
                                             trailingIcon = {
                                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCountries)
                                             },
-                                            colors = TextFieldDefaults.outlinedTextFieldColors(
-                                                focusedBorderColor = Color(0xFFf9f9f8),
-                                                unfocusedBorderColor = Color(0xFFf9f9f8),
+                                            colors =  TextFieldDefaults.textFieldColors(
+                                                containerColor = Color(0xFFf2f4f5),
+                                                focusedIndicatorColor = Color.Transparent,
+                                                unfocusedIndicatorColor = Color.Transparent
                                             ),
                                             modifier = Modifier
                                                 .fillMaxWidth()
@@ -389,7 +381,8 @@ fun AddPatientScreen(navController: NavController) {
                                         )
                                         ExposedDropdownMenu(
                                             expanded = expandedCountries,
-                                            onDismissRequest = { expandedCountries = false }
+                                            onDismissRequest = { expandedCountries = false },
+                                            modifier = Modifier.background(color = Color(0xFFf2f4f5))
                                         ) {
                                             countries.forEach { option ->
                                                 DropdownMenuItem(
@@ -408,7 +401,7 @@ fun AddPatientScreen(navController: NavController) {
                             Spacer(modifier = Modifier.width(16.dp))
                             Box(modifier = Modifier.weight(0.75f)) {
                                 Column {
-                                    CommonTextField(
+                                    CommonTextFieldgrey(
                                         value = contact,
                                         onValueChange = {
                                             contact = it
@@ -431,8 +424,8 @@ fun AddPatientScreen(navController: NavController) {
                         }
                     }
                     item {
-                        Spacer(modifier = Modifier.height(50.dp))
-                        CommonTextField(
+                        Spacer(modifier = Modifier.height(12.dp))
+                        CommonTextFieldgrey(
                             value = address,
                             onValueChange = {
                                 address = it
@@ -450,7 +443,7 @@ fun AddPatientScreen(navController: NavController) {
                     }
                     item {
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = "Diagnosis", style = TextStyle(fontSize = 16.sp))
+                        Text(text = "Diagnosis", style = TextStyle(fontSize = 16.sp), fontWeight = FontWeight.SemiBold)
                         Spacer(modifier = Modifier.height(8.dp))
                         Column{
                             MultiSelectExposedDropdownMenu(
@@ -459,7 +452,8 @@ fun AddPatientScreen(navController: NavController) {
                                 onSelectionChange = { newSelection ->
                                     selectedItems.value = newSelection
                                     validateCondition()
-                                }
+                                },
+                                defaultSelected = "Diseases"
                             )
                         }
                         if (conditionError.isNotEmpty()) {
@@ -480,7 +474,6 @@ fun AddPatientScreen(navController: NavController) {
                                     OutlinedTextField(
                                         value = value,
                                         onValueChange = { newText ->
-                                            // Update the specific field's value
                                             textFields[index] = textFields[index].copy(second = newText)
                                         },
                                         label = { Text(label) }, // Show the corresponding label
@@ -648,34 +641,35 @@ fun AddPatientScreen(navController: NavController) {
 fun MultiSelectExposedDropdownMenu(
     items: List<String>,
     selectedItems: Set<String>,
-    onSelectionChange: (Set<String>) -> Unit
+    onSelectionChange: (Set<String>) -> Unit,
+    defaultSelected: String = ""
 ) {
     var expanded by remember { mutableStateOf(false) } // Tracks dropdown visibility
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = it } // Toggles dropdown state
+        onExpandedChange = { expanded = it },
+        modifier = Modifier.clip(RoundedCornerShape(4.dp)).background(color = Color(0xFFf2f4f5))
     ) {
         // TextField to display selected items
         OutlinedTextField(
-            value = if (selectedItems.isNotEmpty()) selectedItems.joinToString(", ") else "Select Diseases",
+            value = if (selectedItems.isNotEmpty()) selectedItems.joinToString(", ") else "Select $defaultSelected",
             onValueChange = {},
             readOnly = true,
-          //  label = { Text("Select items") },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
             modifier = Modifier.menuAnchor().fillMaxWidth(),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color(0xFFf9f9f8),
-                unfocusedBorderColor = Color(0xFFf9f9f8),
+            colors =  TextFieldDefaults.textFieldColors(
+                containerColor = Color(0xFFf2f4f5),
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
             ),
         )
-
-        // Dropdown menu
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false } // Close the menu when clicked outside
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.background(color = Color(0xFFf2f4f5))
         ) {
             items.forEach { item ->
                 DropdownMenuItem(

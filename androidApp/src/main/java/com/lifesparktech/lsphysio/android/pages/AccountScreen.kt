@@ -52,11 +52,15 @@ import androidx.navigation.NavController
 import com.example.lsphysio.android.R
 import com.lifesparktech.lsphysio.android.components.AccountInfoItem
 import com.lifesparktech.lsphysio.android.components.AccountInformationCard
-import com.lifesparktech.lsphysio.android.components.CommonTextField
+import com.lifesparktech.lsphysio.android.components.ClinicInformationCard
 import com.lifesparktech.lsphysio.android.components.CommonTextFieldgrey
+import com.lifesparktech.lsphysio.android.components.PaymentInformationCard
+import com.lifesparktech.lsphysio.android.components.ProfessionalInformationCard
+import com.lifesparktech.lsphysio.android.components.SecurityInformationCard
+
 @Composable
 fun AccountScreen() {
-    var selectedItem by remember { mutableStateOf<String?>("Basic Personal Details") }
+    var selectedItem by remember { mutableStateOf<String?>("Account Information") }
     LazyColumn(
         modifier = Modifier.fillMaxSize().background(color = Color(0xFFf4f4f4)),
         contentPadding = PaddingValues(12.dp)
@@ -65,7 +69,7 @@ fun AccountScreen() {
             Row {
                 Text(
                     text = "Your Account",
-                    fontSize = 28.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xff222429),
                     modifier = Modifier.padding(vertical = 16.dp)
@@ -86,10 +90,10 @@ fun AccountScreen() {
                     ) {
                         AccountInfoItem(
                             res = R.drawable.accountinfo,
-                            label = "Basic Personal Details",
-                            isSelected = selectedItem == "Basic Personal Details"
+                            label = "Account Information",
+                            isSelected = selectedItem == "Account Information"
                         ) {
-                            selectedItem = "Basic Personal Details"
+                            selectedItem = "Account Information"
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         AccountInfoItem(
@@ -136,11 +140,11 @@ fun AccountScreen() {
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         when (selectedItem) {
-                            "Basic Personal Details" -> AccountInformationCard()
+                            "Account Information" -> AccountInformationCard()
                             "Clinic Information" -> ClinicInformationCard()
-                            "Professional Details" -> ProfessionalDetailsCard()
-                            "Account Security" -> AccountSecurityCard()
-                            "Payment and Billing" -> PaymentAndBillingCard()
+                            "Professional Details" -> ProfessionalInformationCard()
+                            "Account Security" -> SecurityInformationCard()
+                            "Payment and Billing" -> PaymentInformationCard()
                             else -> AccountInformationCard()
                         }
                     }
@@ -148,27 +152,4 @@ fun AccountScreen() {
             }
         }
     }
-
-}
-
-
-
-@Composable
-fun ClinicInformationCard() {
-    Text(text = "Clinic Information Content", fontSize = 16.sp)
-}
-
-@Composable
-fun ProfessionalDetailsCard() {
-    Text(text = "Professional Details Content", fontSize = 16.sp)
-}
-
-@Composable
-fun AccountSecurityCard() {
-    Text(text = "Account Security Content", fontSize = 16.sp)
-}
-
-@Composable
-fun PaymentAndBillingCard() {
-    Text(text = "Payment and Billing Content", fontSize = 16.sp)
 }
