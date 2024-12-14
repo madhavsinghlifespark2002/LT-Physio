@@ -113,7 +113,7 @@ fun MyMaterial3App() {
         NavigationItem(
             title = "Departments",
             selectedIcon = painterResource(id = R.drawable.department),
-            route = "departmentscreen"
+            route = "departmentScreen"
         ),
         NavigationItem(
             title = "Schedule",

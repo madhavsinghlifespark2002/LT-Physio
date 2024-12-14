@@ -29,10 +29,5 @@ val samplePatients = listOf(
     Patient(17, "Ethan Harris", 38, "1986-11-02", "Inactive", "ethan@example.com", "123-456-7806"),
     Patient(18, "Grace Lee", 29, "1995-05-20", "Active", "grace@example.com", "123-456-7807"),
     Patient(19, "Noah Wright", 34, "1990-03-11", "Inactive", "noah@example.com", "123-456-7808"),
-    Patient(20, "Lily Thompson", 27, "1997-12-09", "Active", "lily@example.com", "123-456-7809"),
-//    Patient(21, "Jack Martinez", 40, "1984-09-21", "Inactive", "jack@example.com", "123-456-7810"),
-//    Patient(22, "Chloe Walker", 25, "1999-06-30", "Active", "chloe@example.com", "123-456-7811"),
-//    Patient(23, "Henry Baker", 31, "1993-02-18", "Active", "henry@example.com", "123-456-7812"),
-//    Patient(24, "Sophie Green", 28, "1996-01-03", "Inactive", "sophie@example.com", "123-456-7813"),
-//    Patient(25, "Daniel Evans", 39, "1985-04-17", "Active", "daniel@example.com", "123-456-7814")
+    Patient(20, "Lily Thompson", 27, "1997-12-09", "Active", "lily@example.com", "123-456-7809")
 )
