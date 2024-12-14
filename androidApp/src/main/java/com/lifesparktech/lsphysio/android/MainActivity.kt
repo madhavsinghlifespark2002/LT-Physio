@@ -103,7 +103,7 @@ fun MyMaterial3App() {
         NavigationItem(
             title = "Doctor",
             selectedIcon = painterResource(id = R.drawable.doctors),
-            route = "doctorscreen"
+            route = "doctorScreen"
         ),
         NavigationItem(
             title = "Patient",

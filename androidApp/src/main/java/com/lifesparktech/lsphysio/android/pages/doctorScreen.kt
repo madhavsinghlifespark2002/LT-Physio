@@ -1,6 +1,4 @@
 package com.lifesparktech.lsphysio.android.pages
-
-
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -45,17 +44,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.lsphysio.android.R
+import com.lifesparktech.lsphysio.android.data.sampleDoctors
 import com.lifesparktech.lsphysio.android.data.samplePatients
 @Composable
-fun PatientScreen(navController: NavController) {
+fun DoctorScreen(navController: NavController) {
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFf4f4f4)),
     ) {
-        SimpleTable(navController)
+        SimpleTableDoctor(navController)
     }
 }
 
 @Composable
-fun SimpleTable(navController: NavController) {
+fun SimpleTableDoctor(navController: NavController) {
     Card(
         modifier = Modifier.padding(12.dp),
         elevation = CardDefaults.cardElevation(4.dp),
@@ -70,8 +70,8 @@ fun SimpleTable(navController: NavController) {
                 modifier = Modifier.padding(16.dp).fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                Text(text = "Patients", fontWeight = FontWeight.Bold, fontSize = 24.sp)
+            ){
+                Text(text = "Doctor List", fontWeight = FontWeight.Bold, fontSize = 24.sp)
                 Row{
                     Box(
                         modifier = Modifier.clip(RoundedCornerShape(12.dp)).background(color = Color(0xFFD6E7EE)).padding(12.dp)
@@ -104,7 +104,7 @@ fun SimpleTable(navController: NavController) {
                             horizontalArrangement = Arrangement.SpaceAround
                         ){
                             Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
-                            Text("Add Patient")
+                            Text("Add Doctor")
                         }
 
                     }
@@ -124,37 +124,25 @@ fun SimpleTable(navController: NavController) {
                 LazyColumn(modifier = Modifier) {
                     item{
                         Row(modifier = Modifier.fillMaxWidth()) {
-                            TableCell(text = "No.", modifier = Modifier.weight(0.3f),fontWeight = FontWeight.Bold)
-                            TableCell(text = "NAME", modifier = Modifier.weight(0.7f),fontWeight = FontWeight.Bold)
-                            TableCell(text = "AGE", modifier = Modifier.weight(0.3f),fontWeight = FontWeight.Bold)
-                            TableCell(text = "EMAIL", modifier = Modifier.weight(0.8f),fontWeight = FontWeight.Bold)
-                            TableCell(text = "PHONE", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
-                            TableCell(text = "STATUS", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
+                            TableCellDoctor(text = "NO.", modifier = Modifier.weight(0.3f),fontWeight = FontWeight.Bold)
+                            TableCellDoctor(text = "NAME", modifier = Modifier.weight(0.5f),fontWeight = FontWeight.Bold)
+                            TableCellDoctor(text = "CONTACT", modifier = Modifier.weight(0.75f),fontWeight = FontWeight.Bold)
+                            TableCellDoctor(text = "WORKING DAYS", modifier = Modifier.weight(0.8f), fontWeight = FontWeight.Bold)
+                            TableCellDoctor(text = "DEPARTMENT", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
                         }
                     }
                     item{
-                        samplePatients.forEachIndexed { index, patient ->
+                        sampleDoctors.forEachIndexed { index, doctor ->
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.fillMaxWidth()
                                     .background(if (index % 2 == 0) Color.White else Color(0xFFF8FAFB))
                             ) {
-                                TableCell(text = "${patient.serialNo}", modifier = Modifier.weight(0.3f))
-                                TableCell(text = "${patient.name}", modifier = Modifier.weight(0.7f))
-                                TableCell(text = "${patient.age}", modifier = Modifier.weight(0.3f))
-                                TableCell(text = "${patient.email}", modifier = Modifier.weight(0.8f))
-                                TableCell(text = "${patient.phone}", modifier = Modifier.weight(0.5f))
-                                Box(
-                                    modifier = Modifier.weight(0.5f).clip(RoundedCornerShape(8.dp)),
-                                    contentAlignment = Alignment.Center
-                                ){
-                                    TableCellBadge(
-                                        text = patient.status,
-                                        textColor = if (patient.status == "Active") Color(0xFF0F5132) else Color(0xFFD0312D), // Conditional color
-                                        modifier = Modifier.background(color = Color(0xFFE0F2EE)),
-                                        backgroundColor = if (patient.status == "Active") Color(0xFFD6E7EE) else  Color(0xFFFFCACA)
-                                    )
-                                }
+                                TableCellDoctor(text = "${doctor.serialNo}", modifier = Modifier.weight(0.3f))
+                                TableCellDoctor(text = "${doctor.name}", modifier = Modifier.weight(0.5f))
+                                TableCellDoctor(text = "${doctor.phone}\n ${doctor.email}", modifier = Modifier.weight(0.75f))
+                                TableCellBadgeDoctor(modifier = Modifier.weight(0.8f), workingDays = doctor.workingDays)
+                                TableCellDoctor(text = "${doctor.department}", modifier = Modifier.weight(0.5f))
                                 Spacer(modifier = Modifier.width(4.dp))
                             }
                         }
@@ -200,13 +188,16 @@ fun SimpleTable(navController: NavController) {
 }
 
 @Composable
-fun TableCell(text: String, textColor: Color = MaterialTheme.colorScheme.onSurface, fontWeight: FontWeight = FontWeight.Normal, modifier: Modifier = Modifier) {
+fun TableCellDoctor(
+    text: String,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    fontWeight: FontWeight = FontWeight.Normal,
+    modifier: Modifier = Modifier) {
     Text(
         text = text,
         modifier = modifier
             .padding(8.dp)
             .clip(RoundedCornerShape(12.dp))
-            //.border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
             .padding(8.dp),
         style = MaterialTheme.typography.bodyMedium,
         fontWeight = fontWeight,
@@ -215,33 +206,24 @@ fun TableCell(text: String, textColor: Color = MaterialTheme.colorScheme.onSurfa
 }
 
 @Composable
-fun TableCellBadge(text: String, textColor: Color = MaterialTheme.colorScheme.onSurface, backgroundColor: Color = Color.Transparent, fontWeight: FontWeight = FontWeight.Normal, modifier: Modifier = Modifier) {
-    Box(
+fun TableCellBadgeDoctor( modifier: Modifier = Modifier, workingDays: List<String>) {
+    val allDays = listOf("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+    Row(
         modifier = modifier
-            .width(120.dp)
-            .background(
-                // Color(0xFFE3F2EE)
-                backgroundColor
-            ).padding(horizontal = 12.dp, vertical = 8.dp).clip(RoundedCornerShape(12.dp)),
-    ){
-        Row(
-            // modifier.clip())
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            Image(
-                painter = painterResource(id = if(text =="Active"){ R.drawable.radiogreen } else{ R.drawable.radiored }),
-                contentDescription = "",
-                modifier = Modifier
-                    .size(14.dp)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
+            .border(width = 1.dp, color = Color.Transparent),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        allDays.forEach { day ->
+            val backgroundColor = if (workingDays.contains(day)) Color(0xFFD6E7EE) else Color(0xFFf4f4f4)
             Text(
-                text = text,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = fontWeight,
-                color = textColor
+                text = day.take(1), // Take the first letter of the day (e.g., "S", "M")
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(color = backgroundColor)
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
             )
+            Spacer(modifier = Modifier.width(4.dp))
         }
-
     }
 }
