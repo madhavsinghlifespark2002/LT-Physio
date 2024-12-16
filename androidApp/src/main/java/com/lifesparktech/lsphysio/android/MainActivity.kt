@@ -136,9 +136,9 @@ fun MyMaterial3App() {
             route = "resourceScreen"
         ),
         NavigationItem(
-            title = "Payment",
+            title = "Receipts",
             selectedIcon = painterResource(id = R.drawable.payment),
-            route = "paymentscreen"
+            route = "receiptScreen"
         ),
     )
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
