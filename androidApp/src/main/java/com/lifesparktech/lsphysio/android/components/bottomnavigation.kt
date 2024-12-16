@@ -26,6 +26,7 @@ import com.lifesparktech.lsphysio.android.models.Patient
 import com.lifesparktech.lsphysio.android.pages.AccountScreen
 import com.lifesparktech.lsphysio.android.pages.AddPatientScreen
 import com.lifesparktech.lsphysio.android.pages.AddedScreen
+import com.lifesparktech.lsphysio.android.pages.AppointmentScreen
 import com.lifesparktech.lsphysio.android.pages.DepartmentScreen
 import com.lifesparktech.lsphysio.android.pages.DoctorScreen
 import com.lifesparktech.lsphysio.android.pages.HomeScreen
@@ -33,6 +34,8 @@ import com.lifesparktech.lsphysio.android.pages.PatientDetail
 import com.lifesparktech.lsphysio.android.pages.PatientScreen
 import com.lifesparktech.lsphysio.android.pages.ProfileScreen
 import com.lifesparktech.lsphysio.android.pages.ReportScreen
+import com.lifesparktech.lsphysio.android.pages.ReportsScreen
+import com.lifesparktech.lsphysio.android.pages.ResourceScreen
 import com.lifesparktech.lsphysio.android.pages.ScheduleScreen
 import com.lifesparktech.lsphysio.android.pages.SettingsScreen
 
@@ -109,6 +112,9 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         composable("doctorScreen"){DoctorScreen(navController)}
         composable("departmentScreen"){DepartmentScreen(navController)}
         composable("scheduleScreen"){ScheduleScreen(navController)}
+        composable("appointmentScreen"){AppointmentScreen(navController)}
+        composable("reportsScreen"){ ReportsScreen(navController) }
+        composable("resourceScreen"){ ResourceScreen(navController) }
         composable("PatientDetail/{patientId}"){ backStackEntry ->
             val PatientId = backStackEntry.arguments?.getString("patientId")
             if (PatientId != null) {
@@ -116,7 +122,6 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
             } else {
                 Text(text = "Invalid Patient ID")
             }
-            //PatientDetail()
         }
         composable(Screen.Home.route) { HomeScreen() }
         composable(Screen.Profile.route) { ProfileScreen(navController) }

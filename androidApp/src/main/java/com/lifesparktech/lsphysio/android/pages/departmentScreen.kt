@@ -115,20 +115,18 @@ fun SimpleTableDepartment(navController: NavController) {
                 color = Color(0xFFD6D6D6),
                 thickness = 1.dp
             )
+            Row(modifier = Modifier.fillMaxWidth()) {
+                TableCell(text = "No.", modifier = Modifier.weight(0.3f),fontWeight = FontWeight.Bold)
+                TableCell(text = "NAME", modifier = Modifier.weight(0.5f),fontWeight = FontWeight.Bold)
+                TableCell(text = "DOCTORS", modifier = Modifier.weight(0.4f),fontWeight = FontWeight.Bold)
+                TableCell(text = "PATIENTS", modifier = Modifier.weight(0.4f),fontWeight = FontWeight.Bold)
+                TableCell(text = "HOD", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
+                TableCell(text = "CONTACT", modifier = Modifier.weight(0.7f), fontWeight = FontWeight.Bold)
+            }
             Box(
                 modifier = Modifier.height( if(screenWidth <= 800.0.dp ) { 800.dp } else { 400.dp } )
             ){
                 LazyColumn(modifier = Modifier) {
-                    item{
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            TableCellDepartment(text = "No.", modifier = Modifier.weight(0.3f),fontWeight = FontWeight.Bold)
-                            TableCellDepartment(text = "NAME", modifier = Modifier.weight(0.5f),fontWeight = FontWeight.Bold)
-                            TableCellDepartment(text = "DOCTORS", modifier = Modifier.weight(0.4f),fontWeight = FontWeight.Bold)
-                            TableCellDepartment(text = "PATIENTS", modifier = Modifier.weight(0.4f),fontWeight = FontWeight.Bold)
-                            TableCellDepartment(text = "HOD", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
-                            TableCellDepartment(text = "CONTACT", modifier = Modifier.weight(0.7f), fontWeight = FontWeight.Bold)
-                        }
-                    }
                     item{
                         sampleDepartments.forEachIndexed { index, department ->
                             Row(
@@ -136,12 +134,12 @@ fun SimpleTableDepartment(navController: NavController) {
                                 modifier = Modifier.fillMaxWidth()
                                     .background(if (index % 2 == 0) Color.White else Color(0xFFF8FAFB))
                             ) {
-                                TableCellDepartment(text = "${department.serialNo}", modifier = Modifier.weight(0.3f))
-                                TableCellDepartment(text = "${department.name}", modifier = Modifier.weight(0.5f))
-                                TableCellDepartment(text = "${department.numberOfDoctors}", modifier = Modifier.weight(0.4f))
-                                TableCellDepartment(text = "${department.numberOfPatients}", modifier = Modifier.weight(0.4f))
-                                TableCellDepartment(text = "${department.headOfDepartment}", modifier = Modifier.weight(0.5f))
-                                TableCellDepartment(text = "${department.contactInfo}", modifier = Modifier.weight(0.7f))
+                                TableCell(text = "${department.serialNo}", modifier = Modifier.weight(0.3f))
+                                TableCell(text = "${department.name}", modifier = Modifier.weight(0.5f))
+                                TableCell(text = "${department.numberOfDoctors}", modifier = Modifier.weight(0.4f))
+                                TableCell(text = "${department.numberOfPatients}", modifier = Modifier.weight(0.4f))
+                                TableCell(text = "${department.headOfDepartment}", modifier = Modifier.weight(0.5f))
+                                TableCell(text = "${department.contactInfo}", modifier = Modifier.weight(0.7f))
                             }
                         }
                     }
@@ -185,18 +183,3 @@ fun SimpleTableDepartment(navController: NavController) {
     }
 }
 
-@Composable
-fun TableCellDepartment(text: String, textColor: Color = MaterialTheme.colorScheme.onSurface, fontWeight: FontWeight = FontWeight.Normal, modifier: Modifier = Modifier) {
-    Text(
-        text = text,
-        modifier = modifier
-            .padding(8.dp)
-            .clip(RoundedCornerShape(12.dp))
-            //.border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
-            .padding(8.dp),
-        style = MaterialTheme.typography.bodyMedium,
-        fontWeight = fontWeight,
-        color = textColor,
-       // textAlign = TextAlign.Center
-    )
-}

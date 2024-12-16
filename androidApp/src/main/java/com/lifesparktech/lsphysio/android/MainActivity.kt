@@ -118,22 +118,22 @@ fun MyMaterial3App() {
         NavigationItem(
             title = "Schedule",
             selectedIcon = painterResource(id = R.drawable.schedule),
-            route = "schedulescreen"
+            route = "scheduleScreen"
         ),
         NavigationItem(
             title = "Appointment",
             selectedIcon = painterResource(id = R.drawable.appointment),
-            route = "appointmentscreen"
+            route = "appointmentScreen"
         ),
         NavigationItem(
             title = "Report",
             selectedIcon = painterResource(id = R.drawable.reports),
-            route = "reportscreen"
+            route = "reportsScreen"
         ),
         NavigationItem(
             title = "Resources",
             selectedIcon = painterResource(id = R.drawable.resources),
-            route = "resourcescreen"
+            route = "resourceScreen"
         ),
         NavigationItem(
             title = "Payment",

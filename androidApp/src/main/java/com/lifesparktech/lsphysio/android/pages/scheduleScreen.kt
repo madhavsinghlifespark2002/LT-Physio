@@ -113,21 +113,19 @@ fun SimpleTableSchedule(navController: NavController) {
                 color = Color(0xFFD6D6D6),
                 thickness = 1.dp
             )
+            Row(modifier = Modifier.fillMaxWidth()) {
+                TableCell(text = "No.", modifier = Modifier.weight(0.3f),fontWeight = FontWeight.Bold)
+                TableCell(text = "DOCTOR", modifier = Modifier.weight(0.5f),fontWeight = FontWeight.Bold)
+                TableCell(text = "DEPARTMENT", modifier = Modifier.weight(0.6f),fontWeight = FontWeight.Bold)
+                TableCell(text = "DATE", modifier = Modifier.weight(0.4f),fontWeight = FontWeight.Bold)
+                TableCell(text = "START -\n END TIME", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
+                TableCell(text = "PATIENT", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
+                TableCell(text = "STATUS", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
+            }
             Box(
                 modifier = Modifier.height( if(screenWidth <= 800.0.dp ) { 800.dp } else { 400.dp } )
             ){
                 LazyColumn(modifier = Modifier) {
-                    item{
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            TableCellSchedule(text = "No.", modifier = Modifier.weight(0.3f),fontWeight = FontWeight.Bold)
-                            TableCellSchedule(text = "DOCTOR", modifier = Modifier.weight(0.5f),fontWeight = FontWeight.Bold)
-                            TableCellSchedule(text = "DEPARTMENT", modifier = Modifier.weight(0.6f),fontWeight = FontWeight.Bold)
-                            TableCellSchedule(text = "DATE", modifier = Modifier.weight(0.4f),fontWeight = FontWeight.Bold)
-                            TableCellSchedule(text = "START TIME -\n END TIME", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
-                            TableCellSchedule(text = "PATIENT", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
-                            TableCellSchedule(text = "STATUS", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
-                        }
-                    }
                     item{
                         sampleSchedules.forEachIndexed { index, schedule ->
                             Row(
@@ -135,13 +133,12 @@ fun SimpleTableSchedule(navController: NavController) {
                                 modifier = Modifier.fillMaxWidth()
                                     .background(if (index % 2 == 0) Color.White else Color(0xFFF8FAFB))
                             ) {
-                                TableCellSchedule(text = "${schedule.scheduleId}", modifier = Modifier.weight(0.3f))
-                                TableCellSchedule(text = "${schedule.doctorName}", modifier = Modifier.weight(0.5f))
-                                TableCellSchedule(text = "${schedule.department}", modifier = Modifier.weight(0.6f))
-                                TableCellSchedule(text = "${schedule.date}", modifier = Modifier.weight(0.4f))
-                                TableCellSchedule(text = "${schedule.startTime} -\n ${schedule.endTime}", modifier = Modifier.weight(0.5f))
-                                TableCellSchedule(text = "${schedule.patientName}", modifier = Modifier.weight(0.5f))
-                               // TableCellSchedule(text = "${schedule.status}", modifier = Modifier.weight(0.5f))
+                                TableCell(text = "${schedule.scheduleId}", modifier = Modifier.weight(0.3f))
+                                TableCell(text = "${schedule.doctorName}", modifier = Modifier.weight(0.5f))
+                                TableCell(text = "${schedule.department}", modifier = Modifier.weight(0.6f))
+                                TableCell(text = "${schedule.date}", modifier = Modifier.weight(0.4f))
+                                TableCell(text = "${schedule.startTime} -\n ${schedule.endTime}", modifier = Modifier.weight(0.5f))
+                                TableCell(text = "${schedule.patientName}", modifier = Modifier.weight(0.5f))
                                 Box(
                                     modifier = Modifier.weight(0.5f).clip(RoundedCornerShape(8.dp)),
                                     contentAlignment = Alignment.Center
@@ -209,26 +206,12 @@ fun SimpleTableSchedule(navController: NavController) {
     }
 }
 
-@Composable
-fun TableCellSchedule(text: String, textColor: Color = MaterialTheme.colorScheme.onSurface, fontWeight: FontWeight = FontWeight.Normal, modifier: Modifier = Modifier) {
-    Text(
-        text = text,
-        modifier = modifier
-            .padding(8.dp)
-            .clip(RoundedCornerShape(12.dp))
-            //.border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
-            .padding(8.dp),
-        style = MaterialTheme.typography.bodyMedium,
-        fontWeight = fontWeight,
-        color = textColor
-    )
-}
 // TODO FOR refactor
 @Composable
 fun TableCellBadgeSchedule(text: String, textColor: Color = MaterialTheme.colorScheme.onSurface, backgroundColor: Color = Color.Transparent, fontWeight: FontWeight = FontWeight.Normal, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .width(100.dp)
+            //.width(100.dp)
             .background(
                 backgroundColor
             ).padding(horizontal = 12.dp, vertical = 8.dp).clip(RoundedCornerShape(12.dp)),

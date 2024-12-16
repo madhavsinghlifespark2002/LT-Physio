@@ -118,19 +118,17 @@ fun SimpleTableDoctor(navController: NavController) {
                 color = Color(0xFFD6D6D6),
                 thickness = 1.dp
             )
+            Row(modifier = Modifier.fillMaxWidth()) {
+                TableCell(text = "NO.", modifier = Modifier.weight(0.3f),fontWeight = FontWeight.Bold)
+                TableCell(text = "NAME", modifier = Modifier.weight(0.5f),fontWeight = FontWeight.Bold)
+                TableCell(text = "CONTACT", modifier = Modifier.weight(0.75f),fontWeight = FontWeight.Bold)
+                TableCell(text = "WORKING DAYS", modifier = Modifier.weight(0.8f), fontWeight = FontWeight.Bold)
+                TableCell(text = "DEPARTMENT", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
+            }
             Box(
                 modifier = Modifier.height( if(screenWidth <= 800.0.dp ) { 800.dp } else { 400.dp } )
             ){
                 LazyColumn(modifier = Modifier) {
-                    item{
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            TableCellDoctor(text = "NO.", modifier = Modifier.weight(0.3f),fontWeight = FontWeight.Bold)
-                            TableCellDoctor(text = "NAME", modifier = Modifier.weight(0.5f),fontWeight = FontWeight.Bold)
-                            TableCellDoctor(text = "CONTACT", modifier = Modifier.weight(0.75f),fontWeight = FontWeight.Bold)
-                            TableCellDoctor(text = "WORKING DAYS", modifier = Modifier.weight(0.8f), fontWeight = FontWeight.Bold)
-                            TableCellDoctor(text = "DEPARTMENT", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
-                        }
-                    }
                     item{
                         sampleDoctors.forEachIndexed { index, doctor ->
                             Row(
@@ -138,11 +136,11 @@ fun SimpleTableDoctor(navController: NavController) {
                                 modifier = Modifier.fillMaxWidth()
                                     .background(if (index % 2 == 0) Color.White else Color(0xFFF8FAFB))
                             ) {
-                                TableCellDoctor(text = "${doctor.serialNo}", modifier = Modifier.weight(0.3f))
-                                TableCellDoctor(text = "${doctor.name}", modifier = Modifier.weight(0.5f))
-                                TableCellDoctor(text = "${doctor.phone}\n ${doctor.email}", modifier = Modifier.weight(0.75f))
+                                TableCell(text = "${doctor.serialNo}", modifier = Modifier.weight(0.3f))
+                                TableCell(text = "${doctor.name}", modifier = Modifier.weight(0.5f))
+                                TableCell(text = "${doctor.phone}\n ${doctor.email}", modifier = Modifier.weight(0.75f))
                                 TableCellBadgeDoctor(modifier = Modifier.weight(0.8f), workingDays = doctor.workingDays)
-                                TableCellDoctor(text = "${doctor.department}", modifier = Modifier.weight(0.5f))
+                                TableCell(text = "${doctor.department}", modifier = Modifier.weight(0.5f))
                                 Spacer(modifier = Modifier.width(4.dp))
                             }
                         }
@@ -185,24 +183,6 @@ fun SimpleTableDoctor(navController: NavController) {
             }
         }
     }
-}
-
-@Composable
-fun TableCellDoctor(
-    text: String,
-    textColor: Color = MaterialTheme.colorScheme.onSurface,
-    fontWeight: FontWeight = FontWeight.Normal,
-    modifier: Modifier = Modifier) {
-    Text(
-        text = text,
-        modifier = modifier
-            .padding(8.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .padding(8.dp),
-        style = MaterialTheme.typography.bodyMedium,
-        fontWeight = fontWeight,
-        color = textColor
-    )
 }
 
 @Composable
