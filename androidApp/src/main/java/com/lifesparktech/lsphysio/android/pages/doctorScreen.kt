@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.lsphysio.android.R
 import com.lifesparktech.lsphysio.android.data.sampleDoctors
-import com.lifesparktech.lsphysio.android.data.samplePatients
+//import com.lifesparktech.lsphysio.android.data.samplePatients
 @Composable
 fun DoctorScreen(navController: NavController) {
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFf4f4f4)),

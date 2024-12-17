@@ -27,8 +27,10 @@ import com.benasher44.uuid.uuid4
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.lifesparktech.lsphysio.android.Controller.addPatient
+//import com.lifesparktech.lsphysio.android.Controller.addPatient
 import com.lifesparktech.lsphysio.android.components.CommonTextFieldgrey
-import com.lifesparktech.lsphysio.android.models.Patient
+import com.lifesparktech.lsphysio.android.data.Patient
+//import com.lifesparktech.lsphysio.android.models.Patient
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,14 +43,18 @@ fun AddPatientScreen(navController: NavController) {
     var weight by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf("") }
+    var Status by remember { mutableStateOf("") }
     var condition by remember { mutableStateOf("") }
     var contact by remember { mutableStateOf("") }
     var countrycode by remember { mutableStateOf("91") }
     var expanded by remember { mutableStateOf(false) }
+    var expandedStatus by remember { mutableStateOf(false) }
     var expandedCountries by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("") }
+    var selectedOptionStatus by remember { mutableStateOf("") }
     var selectedOptionCountries by remember { mutableStateOf("91") }
     val options = listOf("Male", "Female", "Other")
+    val Statuss = listOf("Active", "Inactive")
     val countries = listOf("91", "44", "01")
     val scope = MainScope()
     val scrollState = rememberScrollState()
@@ -329,23 +335,76 @@ fun AddPatientScreen(navController: NavController) {
                     }
 
                     item {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        CommonTextFieldgrey(
-                            value = email,
-                            onValueChange = {
-                                email = it.trim()
-                                validateEmail()
-                            },
-                            label = "Email",
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-                        )
-                        if (emailError.isNotEmpty()) {
-                            Text(
-                                text = emailError,
-                                color = Color.Red,
-                                style = TextStyle(fontSize = 14.sp)
-                            )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ){
+                            Box(modifier = Modifier.weight(1f)){
+                                CommonTextFieldgrey(
+                                    value = email,
+                                    onValueChange = {
+                                        email = it.trim()
+                                        validateEmail()
+                                    },
+                                    label = "Email",
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                                )
+                                if (emailError.isNotEmpty()) {
+                                    Text(
+                                        text = emailError,
+                                        color = Color.Red,
+                                        style = TextStyle(fontSize = 14.sp)
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Box(modifier = Modifier.weight(1f)) {
+                                Column {
+                                    Text(text = "Status", style = TextStyle(fontSize = 16.sp), fontWeight = FontWeight.SemiBold)
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    ExposedDropdownMenuBox(
+                                        expanded = expandedStatus,
+                                        onExpandedChange = { expandedStatus = !expandedStatus }
+                                    ) {
+                                        OutlinedTextField(
+                                            value = selectedOptionStatus,
+                                            onValueChange = {},
+                                            readOnly = true,
+                                            trailingIcon = {
+                                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedStatus)
+                                            },
+                                            colors =  TextFieldDefaults.textFieldColors(
+                                                containerColor = Color(0xFFf2f4f5),
+                                                focusedIndicatorColor = Color.Transparent,
+                                                unfocusedIndicatorColor = Color.Transparent
+                                            ),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .menuAnchor()
+                                        )
+                                        ExposedDropdownMenu(
+                                            expanded = expandedStatus,
+                                            onDismissRequest = { expandedStatus = false },
+                                            modifier = Modifier.background(color = Color(0xFFf2f4f5))
+                                        ) {
+                                            Statuss.forEach { option ->
+                                                DropdownMenuItem(
+                                                    text = { Text(option) },
+                                                    onClick = {
+                                                        Status = option
+                                                        selectedOptionStatus = option
+                                                        expandedStatus = false
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                         }
+
                     }
 
                     item {
@@ -355,7 +414,7 @@ fun AddPatientScreen(navController: NavController) {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Box(modifier = Modifier.weight(0.35f)) {
+                            Box(modifier = Modifier.weight(0.2f)) {
                                 Column {
                                     Text(text = "Countries", style = TextStyle(fontSize = 16.sp), fontWeight = FontWeight.SemiBold)
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -516,20 +575,20 @@ fun AddPatientScreen(navController: NavController) {
                                     && contactError.isEmpty() && weightError.isEmpty() &&
                                     heightError.isEmpty() && conditionError.isEmpty() && genderError.isEmpty()
                                 ) {
-                                    val extraDetailsList = textFields.map { (label, value) -> "$label: $value" }
-                                    val patient = Patient(
-                                        id = uuid4().toString(),
+                                     val extraDetailsList = textFields.map { (label, value) -> "$label: $value" }
+                                     val patient = Patient(
+                                        serialNo = uuid4().toString(),
                                         clinicId = Firebase.auth.currentUser?.uid ?: "",
                                         name = name,
                                         age = age.toInt(),
                                         gender = gender,
-                                        contact = "$countrycode$contact",
-                                        address = address,
-                                        email = email,
-                                        height = height.toInt(),
-                                        weight = weight.toInt(),
-                                        diagnostics = selectedItems.value.toList(),
-                                        extraDetails = extraDetailsList
+//                                         phone = "$countrycode$contact",
+//                                        address = address,
+//                                        email = email,
+//                                        height = height.toInt(),
+//                                        weight = weight.toInt(),
+//                                        diagnostics = selectedItems.value.toList(),
+//                                        extraDetails = extraDetailsList
                                     )
                                     scope.launch {
                                         addPatient(patient)

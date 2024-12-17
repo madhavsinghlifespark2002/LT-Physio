@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.lsphysio.android.R
 import com.lifesparktech.lsphysio.android.data.sampleAppointments
-import com.lifesparktech.lsphysio.android.data.samplePatients
+//import com.lifesparktech.lsphysio.android.data.samplePatients
 import com.lifesparktech.lsphysio.android.data.sampleSchedules
 
 @Composable

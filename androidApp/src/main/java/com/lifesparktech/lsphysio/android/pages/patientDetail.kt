@@ -53,19 +53,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.lsphysio.android.R
-import com.lifesparktech.lsphysio.android.Controller.fetchPatientById
-import com.lifesparktech.lsphysio.android.models.Patient
+import com.lifesparktech.lsphysio.android.data.Patient
+//import com.lifesparktech.lsphysio.android.data.samplePatients
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientDetail(navController: NavController, patientId: String) {
     var patient by remember { mutableStateOf<Patient?>(null) }
-
-    // Fetch patient data when the composable is launched
     LaunchedEffect(patientId) {
-        val loadedPatient = fetchPatientById(patientId) // fetchPatientById is not a Flow
-        patient = loadedPatient
-
+        //patient = samplePatients.find { it.serialNo == patientId }
     }
     Scaffold(
         topBar = {
@@ -141,11 +137,12 @@ fun PatientDetail(navController: NavController, patientId: String) {
                                 Spacer(modifier = Modifier.height(12.dp))
                                 PatientItemDetail(res = R.drawable.gender, label = "Gender", content = "${patient?.gender}")
                                 PatientItemDetail(res = R.drawable.dob, label = "Date of birth", content = "${patient?.gender}")
-                                PatientItemDetail(res = R.drawable.phone, label = "Phone Number", content = patient?.contact?.let {
-                                    "+${it.substring(0, 2)}-${it.substring(2)}"
-                                }.toString())
-                                PatientItemDetail(res = R.drawable.mail, label = "Email", content = "${patient?.email}")
-                                PatientItemDetail(res = R.drawable.location, label = "Address", content = "${patient?.address}")
+                               // PatientItemDetail(res = R.drawable.phone, label = "Phone Number", content = "${ patient?.phone }")
+//                                    .let
+//                                { "+${it.substring(0, 2)}-${it.substring(2)}"
+//                                }.toString())
+                            //    PatientItemDetail(res = R.drawable.mail, label = "Email", content = "${patient?.email}")
+                             //   PatientItemDetail(res = R.drawable.location, label = "Address", content = "${patient?.address}")
 
                             }
 
@@ -214,7 +211,7 @@ fun PatientDetail(navController: NavController, patientId: String) {
                                     verticalArrangement = Arrangement.Center,
                                     horizontalAlignment = Alignment.Start
                                 ){
-                                    PatientItemDetailInfo(res = R.drawable.height, label = "Body Height", content = "${patient?.height} CM")
+                                    PatientItemDetailInfo(res = R.drawable.height, label = "Body Height", content = "180 CM")
                                     Spacer(modifier = Modifier.height(14.dp))
                                     PatientItemDetailInfo(res = R.drawable.bloodtype, label = "Blood Group", content = "A+")
                                     Spacer(modifier = Modifier.height(14.dp))

@@ -4,7 +4,6 @@ package com.lifesparktech.lsphysio.android.pages
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,24 +27,25 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.lsphysio.android.R
-import com.lifesparktech.lsphysio.android.data.samplePatients
+import com.lifesparktech.lsphysio.android.Controller.fetchPatients
+import com.lifesparktech.lsphysio.android.data.Patient
+//import com.lifesparktech.lsphysio.android.data.samplePatients
 @Composable
 fun PatientScreen(navController: NavController) {
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFf4f4f4)),
@@ -56,6 +56,11 @@ fun PatientScreen(navController: NavController) {
 
 @Composable
 fun SimpleTable(navController: NavController) {
+    val patients = remember { mutableStateOf<List<Patient>>(emptyList()) }
+    LaunchedEffect(Unit){
+        val result = fetchPatients()
+        patients.value = result
+    }
     Card(
         modifier = Modifier.padding(12.dp),
         elevation = CardDefaults.cardElevation(4.dp),
@@ -130,28 +135,29 @@ fun SimpleTable(navController: NavController) {
                 modifier = Modifier.height( if(screenWidth <= 800.0.dp ) { 800.dp } else { 400.dp } )
             ){
                 LazyColumn(modifier = Modifier) {
+
                     item{
-                        samplePatients.forEachIndexed { index, patient ->
+                        patients.value.forEachIndexed{ index, patient ->
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth().clickable{navController.navigate("PatientDetail/${patient.serialNo}")}
                                     .background(if (index % 2 == 0) Color.White else Color(0xFFF8FAFB))
                             ) {
                                 TableCell(text = "${patient.serialNo}", modifier = Modifier.weight(0.3f))
                                 TableCell(text = "${patient.name}", modifier = Modifier.weight(0.7f))
                                 TableCell(text = "${patient.age}", modifier = Modifier.weight(0.3f))
-                                TableCell(text = "${patient.email}", modifier = Modifier.weight(0.8f))
-                                TableCell(text = "${patient.phone}", modifier = Modifier.weight(0.5f))
+//                                TableCell(text = "${patient.email}", modifier = Modifier.weight(0.8f))
+//                                TableCell(text = "${patient.phone}", modifier = Modifier.weight(0.5f))
                                 Box(
                                     modifier = Modifier.weight(0.5f).clip(RoundedCornerShape(8.dp)),
                                     contentAlignment = Alignment.Center
                                 ){
-                                    TableCellBadge(
-                                        text = patient.status,
-                                        textColor = if (patient.status == "Active") Color(0xFF0F5132) else Color(0xFFD0312D), // Conditional color
-                                        modifier = Modifier.background(color = Color(0xFFE0F2EE)),
-                                        backgroundColor = if (patient.status == "Active") Color(0xFFD6E7EE) else  Color(0xFFFFCACA)
-                                    )
+//                                    TableCellBadge(
+//                                        text = patient.status,
+//                                        textColor = if (patient.status == "Active") Color(0xFF0F5132) else Color(0xFFD0312D), // Conditional color
+//                                        modifier = Modifier.background(color = Color(0xFFE0F2EE)),
+//                                        backgroundColor = if (patient.status == "Active") Color(0xFFD6E7EE) else  Color(0xFFFFCACA)
+//                                    )
                                 }
                                 Spacer(modifier = Modifier.width(4.dp))
                             }

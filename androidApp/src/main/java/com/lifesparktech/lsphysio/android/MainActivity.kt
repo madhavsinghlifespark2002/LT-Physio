@@ -5,6 +5,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -314,13 +315,13 @@ fun MyMaterial3App() {
                                     )
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
-                                Text("John Peters", fontSize = 14.sp)
+                                Text("John Peters", fontSize = 14.sp, modifier = Modifier.clickable{navController.navigate("accountScreen")})
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Image(
                                     painter = painterResource(id = R.drawable.profile_image),
                                     contentDescription = "logo",
                                     modifier = Modifier
-                                        .width(32.dp).clip(CircleShape)
+                                        .width(32.dp).clip(CircleShape).clickable{navController.navigate("accountScreen")}
                                 )
                             }
 

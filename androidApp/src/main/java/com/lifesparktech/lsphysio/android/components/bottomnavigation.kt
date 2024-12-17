@@ -1,5 +1,4 @@
 package com.lifesparktech.lsphysio.android.components
-
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -13,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
@@ -22,32 +20,29 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.lifesparktech.lsphysio.android.models.Patient
 import com.lifesparktech.lsphysio.android.pages.AccountScreen
 import com.lifesparktech.lsphysio.android.pages.AddPatientScreen
-import com.lifesparktech.lsphysio.android.pages.AddedScreen
 import com.lifesparktech.lsphysio.android.pages.AppointmentScreen
 import com.lifesparktech.lsphysio.android.pages.DepartmentScreen
+import com.lifesparktech.lsphysio.android.pages.DeviceControlScreen
 import com.lifesparktech.lsphysio.android.pages.DoctorScreen
+import com.lifesparktech.lsphysio.android.pages.GamesScreen
 import com.lifesparktech.lsphysio.android.pages.HomeScreen
 import com.lifesparktech.lsphysio.android.pages.PatientDetail
 import com.lifesparktech.lsphysio.android.pages.PatientScreen
-import com.lifesparktech.lsphysio.android.pages.ProfileScreen
 import com.lifesparktech.lsphysio.android.pages.ReceiptScreen
-import com.lifesparktech.lsphysio.android.pages.ReportScreen
 import com.lifesparktech.lsphysio.android.pages.ReportsScreen
 import com.lifesparktech.lsphysio.android.pages.ResourceScreen
 import com.lifesparktech.lsphysio.android.pages.ScheduleScreen
-import com.lifesparktech.lsphysio.android.pages.SettingsScreen
+import com.lifesparktech.lsphysio.android.pages.TestScreen
 
 @Composable
 fun Material3BottomNavigationBar(navController: NavHostController) {
     val items = listOf(
         Screen.Home,
-        Screen.Report,
-        Screen.Added,
-        Screen.Settings,
-        Screen.Profile,
+        Screen.Games,
+        Screen.Tests,
+        Screen.DeviceControlScreen
     )
     Surface(
         shadowElevation = 8.dp,
@@ -57,7 +52,6 @@ fun Material3BottomNavigationBar(navController: NavHostController) {
         NavigationBar(
             containerColor = Color.White,
             tonalElevation = 12.dp,
-//            tonalElevation = 80.dp // Add shadow for elevation
         ) {
             val currentRoute = currentRoute(navController)
             items.forEach { screen ->
@@ -66,7 +60,6 @@ fun Material3BottomNavigationBar(navController: NavHostController) {
                         if (screen.icon != null) {
                             Icon(screen.icon, contentDescription = screen.title, modifier = Modifier.size(28.dp))
                         } else {
-                            // Use custom drawable icon
                             Icon(painter = painterResource(id = screen.customIcon), contentDescription = screen.title, modifier = Modifier.size(28.dp))
                         }
                     },
@@ -89,21 +82,17 @@ fun Material3BottomNavigationBar(navController: NavHostController) {
         }
     }
 }
-
-
 sealed class Screen(val route: String, val title: String, val icon: ImageVector? = null, val customIcon: Int = 0) {
     object Home : Screen("home", "Home", customIcon = com.example.lsphysio.android.R.drawable.house)
-    object Profile : Screen("profile", "Profile", customIcon = com.example.lsphysio.android.R.drawable.person)
-    object Settings : Screen("settings", "Settings", customIcon = com.example.lsphysio.android.R.drawable.settings)
-    object Report : Screen("report", "Report", customIcon = com.example.lsphysio.android.R.drawable.report)
-    object Added : Screen("added", "Added", customIcon = com.example.lsphysio.android.R.drawable.added)
+    object Games : Screen("Games", "Games", customIcon = com.example.lsphysio.android.R.drawable.games)
+    object Tests : Screen("Tests", "Tests", customIcon = com.example.lsphysio.android.R.drawable.testss)
+    object DeviceControlScreen : Screen("DeviceControlScreen", "DeviceControlScreen", customIcon = com.example.lsphysio.android.R.drawable.device_control)
 }
 @Composable
 fun currentRoute(navController: NavHostController): String? {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     return navBackStackEntry?.destination?.route
 }
-
 @Composable
 fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(navController = navController, startDestination = Screen.Home.route, modifier = modifier) {
@@ -126,9 +115,8 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
             }
         }
         composable(Screen.Home.route) { HomeScreen() }
-        composable(Screen.Profile.route) { ProfileScreen(navController) }
-        composable(Screen.Settings.route) { SettingsScreen() }
-        composable(Screen.Report.route) { ReportScreen() }
-        composable(Screen.Added.route) { AddedScreen() }
+        composable(Screen.Games.route) { GamesScreen() }
+        composable(Screen.Tests.route) { TestScreen() }
+        composable(Screen.DeviceControlScreen.route) { DeviceControlScreen() }
     }
 }

@@ -1,7 +1,7 @@
 package com.lifesparktech.lsphysio.android.Controller
 
 import com.google.firebase.firestore.FirebaseFirestore
-import com.lifesparktech.lsphysio.android.models.Patient
+import com.lifesparktech.lsphysio.android.data.Patient
 import com.lifesparktech.lsphysio.android.pages.generateRandomStringId
 import kotlinx.coroutines.tasks.await
 
@@ -10,7 +10,7 @@ suspend fun fetchPatients(): List<Patient> {
     return try {
         val snapshot = firestore.collection("Patient").get().await()
         snapshot.documents.mapNotNull { doc ->
-            doc.toObject(Patient::class.java)?.copy(id = doc.id)
+            doc.toObject(Patient::class.java)?.copy(serialNo = doc.id)
         }
     } catch (e: Exception) {
         e.printStackTrace()
@@ -23,13 +23,13 @@ fun addPatient(patient: Patient) {
 //        val clinicId = currentUser?.uid ?: throw IllegalStateException("User not logged in")
     firestore.collection("Patient")
         .document(patientId)
-        .set(patient.copy(id = patientId))
+        .set(patient.copy(serialNo = patientId))
 }
 suspend fun fetchPatientById(patientId: String): Patient? {
     val firestore = FirebaseFirestore.getInstance()
     return try {
         val document = firestore.collection("Patient").document(patientId).get().await()
-        document.toObject(Patient::class.java)?.copy(id = document.id)
+        document.toObject(Patient::class.java)?.copy(serialNo = document.id)
     } catch (e: Exception) {
         e.printStackTrace()
         null // Return null if an error occurs
