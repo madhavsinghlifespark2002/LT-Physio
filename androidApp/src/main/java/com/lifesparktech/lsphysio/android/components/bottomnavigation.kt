@@ -29,6 +29,7 @@ import com.lifesparktech.lsphysio.android.pages.DoctorScreen
 import com.lifesparktech.lsphysio.android.pages.GamesScreen
 import com.lifesparktech.lsphysio.android.pages.HomeScreen
 import com.lifesparktech.lsphysio.android.pages.PatientDetail
+import com.lifesparktech.lsphysio.android.pages.PatientModifiedScreen
 import com.lifesparktech.lsphysio.android.pages.PatientScreen
 import com.lifesparktech.lsphysio.android.pages.ReceiptScreen
 import com.lifesparktech.lsphysio.android.pages.ReportsScreen
@@ -98,6 +99,7 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
     NavHost(navController = navController, startDestination = Screen.Home.route, modifier = modifier) {
         composable("addpatientscreen") { AddPatientScreen(navController) }
         composable("accountScreen"){AccountScreen()}
+        composable("patientmodifiedScreen"){PatientModifiedScreen()}
         composable("patientScreen"){PatientScreen(navController)}
         composable("doctorScreen"){DoctorScreen(navController)}
         composable("departmentScreen"){DepartmentScreen(navController)}

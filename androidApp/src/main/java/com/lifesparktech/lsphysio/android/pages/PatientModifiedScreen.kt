@@ -32,7 +32,7 @@ import com.lifesparktech.lsphysio.android.components.ProfessionalInformationCard
 import com.lifesparktech.lsphysio.android.components.SecurityInformationCard
 
 @Composable
-fun AccountScreen() {
+fun PatientModifiedScreen() {
     var selectedItem by remember { mutableStateOf<String?>("Account Information") }
     LazyColumn(
         modifier = Modifier.fillMaxSize().background(color = Color(0xFFf4f4f4)),
