@@ -125,9 +125,9 @@ fun SimpleTable(navController: NavController) {
             )
             Row(modifier = Modifier.fillMaxWidth()) {
                 TableCell(text = "No.", modifier = Modifier.weight(0.3f),fontWeight = FontWeight.Bold)
-                TableCell(text = "NAME", modifier = Modifier.weight(0.7f),fontWeight = FontWeight.Bold)
+                TableCell(text = "NAME", modifier = Modifier.weight(0.5f),fontWeight = FontWeight.Bold)
                 TableCell(text = "AGE", modifier = Modifier.weight(0.3f),fontWeight = FontWeight.Bold)
-                TableCell(text = "EMAIL", modifier = Modifier.weight(0.8f),fontWeight = FontWeight.Bold)
+                TableCell(text = "EMAIL", modifier = Modifier.weight(0.5f),fontWeight = FontWeight.Bold)
                 TableCell(text = "PHONE", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
                 TableCell(text = "STATUS", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
             }
@@ -135,7 +135,6 @@ fun SimpleTable(navController: NavController) {
                 modifier = Modifier.height( if(screenWidth <= 800.0.dp ) { 800.dp } else { 400.dp } )
             ){
                 LazyColumn(modifier = Modifier) {
-
                     item{
                         patients.value.forEachIndexed{ index, patient ->
                             Row(
@@ -143,21 +142,21 @@ fun SimpleTable(navController: NavController) {
                                 modifier = Modifier.fillMaxWidth().clickable{navController.navigate("PatientDetail/${patient.serialNo}")}
                                     .background(if (index % 2 == 0) Color.White else Color(0xFFF8FAFB))
                             ) {
-                                TableCell(text = "${patient.serialNo}", modifier = Modifier.weight(0.3f))
-                                TableCell(text = "${patient.name}", modifier = Modifier.weight(0.7f))
+                                TableCell(text = "${index + 1}", modifier = Modifier.weight(0.3f))
+                                TableCell(text = "${patient.name}", modifier = Modifier.weight(0.5f))
                                 TableCell(text = "${patient.age}", modifier = Modifier.weight(0.3f))
-//                                TableCell(text = "${patient.email}", modifier = Modifier.weight(0.8f))
-//                                TableCell(text = "${patient.phone}", modifier = Modifier.weight(0.5f))
+                                TableCell(text = "${patient.email}", modifier = Modifier.weight(0.5f))
+                                TableCell(text = "${patient.phone}", modifier = Modifier.weight(0.5f))
                                 Box(
                                     modifier = Modifier.weight(0.5f).clip(RoundedCornerShape(8.dp)),
                                     contentAlignment = Alignment.Center
                                 ){
-//                                    TableCellBadge(
-//                                        text = patient.status,
-//                                        textColor = if (patient.status == "Active") Color(0xFF0F5132) else Color(0xFFD0312D), // Conditional color
-//                                        modifier = Modifier.background(color = Color(0xFFE0F2EE)),
-//                                        backgroundColor = if (patient.status == "Active") Color(0xFFD6E7EE) else  Color(0xFFFFCACA)
-//                                    )
+                                    TableCellBadge(
+                                        text = patient.status,
+                                        textColor = if (patient.status == "Active") Color(0xFF0F5132) else Color(0xFFD0312D), // Conditional color
+                                        modifier = Modifier.background(color = Color(0xFFE0F2EE)),
+                                        backgroundColor = if (patient.status == "Active") Color(0xFFD6E7EE) else  Color(0xFFFFCACA)
+                                    )
                                 }
                                 Spacer(modifier = Modifier.width(4.dp))
                             }

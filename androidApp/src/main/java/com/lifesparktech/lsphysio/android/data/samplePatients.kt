@@ -1,19 +1,23 @@
-package com.lifesparktech.lsphysio.android.data
-data class Patient(
-    val serialNo: String,
-    val clinicId: String = "",
-    val name: String,
-    val age: Int,
-    val gender: String,
-//    val status: String = "pending", // default value
-//    val email: String,
-//    val phone: String,
-//    val address: String,
-//    val height: Int, // Added height
-//    val weight: Int, // Added weight
-//    val diagnostics: List<String> = emptyList(), // Added diagnostics
-//    val extraDetails: List<String> = emptyList() // Added extraDetails
-)
+    package com.lifesparktech.lsphysio.android.data
+
+    import androidx.annotation.Keep
+
+    @Keep
+    data class Patient(
+        val serialNo: String ="",
+        val clinicId: String = "",
+        val name: String = "",
+        val age: Int =0,
+        val gender: String ="",
+        val status: String = "pending", // default value
+        val email: String ="",
+        val phone: String ="",
+        val address: String= "",
+        val height: Int = 0, // Added height
+        val weight: Int= 0, // Added weight
+        val diagnostics: List<String> = emptyList(), // Added diagnostics
+        val extraDetails: List<String> = emptyList() // Added extraDetails
+    )
 //val samplePatients = listOf(
 //    Patient(
 //        serialNo = "1",

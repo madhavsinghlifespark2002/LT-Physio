@@ -582,13 +582,13 @@ fun AddPatientScreen(navController: NavController) {
                                         name = name,
                                         age = age.toInt(),
                                         gender = gender,
-//                                         phone = "$countrycode$contact",
-//                                        address = address,
-//                                        email = email,
-//                                        height = height.toInt(),
-//                                        weight = weight.toInt(),
-//                                        diagnostics = selectedItems.value.toList(),
-//                                        extraDetails = extraDetailsList
+                                         phone = "$countrycode$contact",
+                                        address = address,
+                                        email = email,
+                                        height = height.toInt(),
+                                        weight = weight.toInt(),
+                                        diagnostics = selectedItems.value.toList(),
+                                        extraDetails = extraDetailsList
                                     )
                                     scope.launch {
                                         addPatient(patient)

@@ -9,6 +9,8 @@ suspend fun fetchPatients(): List<Patient> {
     val firestore = FirebaseFirestore.getInstance()
     return try {
         val snapshot = firestore.collection("Patient").get().await()
+        println("this is snapshot: $snapshot")
+        //emptyList()
         snapshot.documents.mapNotNull { doc ->
             doc.toObject(Patient::class.java)?.copy(serialNo = doc.id)
         }
