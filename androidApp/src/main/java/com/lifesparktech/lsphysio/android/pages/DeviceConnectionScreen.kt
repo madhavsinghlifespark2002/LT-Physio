@@ -47,14 +47,16 @@ import com.juul.kable.Filter
 import com.juul.kable.Scanner
 import com.juul.kable.peripheral
 import com.lifesparktech.lsphysio.PeripheralManager
+import com.lifesparktech.lsphysio.PeripheralManager.mainScope
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DeviceConnectionScreen(navController: NavController) {
-      val scope = rememberCoroutineScope()
+       mainScope = CoroutineScope(Dispatchers.Main)
       Column(
             modifier = Modifier.background(color = Color(0xFFf4f4f4)).fillMaxSize().padding(12.dp)
         ){
@@ -112,7 +114,6 @@ fun DeviceConnectionScreen(navController: NavController) {
                       item{
                           Card(
                               modifier = Modifier.width(250.dp).height(100.dp),
-                              elevation = CardDefaults.cardElevation(4.dp),
                               colors = CardDefaults.cardColors(
                                   containerColor = Color.White // Set the card's background color
                               )
@@ -126,7 +127,7 @@ fun DeviceConnectionScreen(navController: NavController) {
                                   Spacer(modifier = Modifier.height(12.dp))
                                   Button(
                                       onClick = {
-                                          ConnectDeviced(scope,navController, context)
+                                          ConnectDeviced(navController, context)
                                       },
                                       shape = RoundedCornerShape(8.dp),
                                       colors = ButtonDefaults.textButtonColors(
@@ -145,17 +146,16 @@ fun DeviceConnectionScreen(navController: NavController) {
 }
 @RequiresApi(Build.VERSION_CODES.O)
 fun ConnectDeviced(
-    scope: CoroutineScope,
     navController: NavController,
     context: Context
 ) {
     val scanner = Scanner {
         filters = listOf(Filter.Name("TEST_2407"))
     }
-    scope.launch {
+    mainScope.launch {
         try {
             val advertisement = scanner.advertisements.onEach { println(it) }.first()
-            val peripheral = scope.peripheral(advertisement)
+            val peripheral = mainScope.peripheral(advertisement)
             peripheral.connect()
             val androidPeripheral = peripheral as AndroidPeripheral
             val service = peripheral.services?.find {
@@ -185,6 +185,7 @@ fun ConnectDeviced(
         }
     }
 }
+
 //    "High Freq" to "-1",
 //    "Swing phase continuous" to "2",
 //    "Swing phase burst" to "3",
