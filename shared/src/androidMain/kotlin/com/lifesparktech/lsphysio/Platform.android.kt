@@ -1,5 +1,11 @@
 package com.lifesparktech.lsphysio
+import com.juul.kable.Peripheral
+import com.juul.kable.Characteristic
 
+object PeripheralManager {
+    var peripheral: Peripheral? = null
+    var charWrite: Characteristic? = null
+}
 class AndroidPlatform : Platform {
     override var name: String = "Android ${android.os.Build.VERSION.SDK_INT}"
 }

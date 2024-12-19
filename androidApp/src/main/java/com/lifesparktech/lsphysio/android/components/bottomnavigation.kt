@@ -1,4 +1,6 @@
 package com.lifesparktech.lsphysio.android.components
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -24,6 +26,7 @@ import com.lifesparktech.lsphysio.android.pages.AccountScreen
 import com.lifesparktech.lsphysio.android.pages.AddPatientScreen
 import com.lifesparktech.lsphysio.android.pages.AppointmentScreen
 import com.lifesparktech.lsphysio.android.pages.DepartmentScreen
+import com.lifesparktech.lsphysio.android.pages.DeviceConnectionScreen
 import com.lifesparktech.lsphysio.android.pages.DeviceControlScreen
 import com.lifesparktech.lsphysio.android.pages.DoctorScreen
 import com.lifesparktech.lsphysio.android.pages.GamesScreen
@@ -43,7 +46,7 @@ fun Material3BottomNavigationBar(navController: NavHostController) {
         Screen.Home,
         Screen.Games,
         Screen.Tests,
-        Screen.DeviceControlScreen
+        Screen.DeviceConnectionScreen
     )
     Surface(
         shadowElevation = 8.dp,
@@ -87,13 +90,14 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
     object Home : Screen("home", "Home", customIcon = com.example.lsphysio.android.R.drawable.house)
     object Games : Screen("Games", "Games", customIcon = com.example.lsphysio.android.R.drawable.games)
     object Tests : Screen("Tests", "Tests", customIcon = com.example.lsphysio.android.R.drawable.testss)
-    object DeviceControlScreen : Screen("DeviceControlScreen", "DeviceControlScreen", customIcon = com.example.lsphysio.android.R.drawable.device_control)
+    object DeviceConnectionScreen : Screen("DeviceConnectionScreen", "DeviceConnectionScreen", customIcon = com.example.lsphysio.android.R.drawable.device_control)
 }
 @Composable
 fun currentRoute(navController: NavHostController): String? {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     return navBackStackEntry?.destination?.route
 }
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(navController = navController, startDestination = Screen.Home.route, modifier = modifier) {
@@ -108,6 +112,7 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         composable("reportsScreen"){ ReportsScreen(navController) }
         composable("resourceScreen"){ ResourceScreen(navController) }
         composable("receiptScreen"){ ReceiptScreen(navController) }
+        composable("DeviceControlScreen") { DeviceControlScreen(navController) }
         composable("PatientDetail/{patientId}"){ backStackEntry ->
             val PatientId = backStackEntry.arguments?.getString("patientId")
             if (PatientId != null) {
@@ -119,6 +124,6 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         composable(Screen.Home.route) { HomeScreen() }
         composable(Screen.Games.route) { GamesScreen() }
         composable(Screen.Tests.route) { TestScreen() }
-        composable(Screen.DeviceControlScreen.route) { DeviceControlScreen() }
+        composable(Screen.DeviceConnectionScreen.route) { DeviceConnectionScreen(navController) }
     }
 }

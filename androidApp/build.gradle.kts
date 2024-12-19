@@ -60,6 +60,6 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
     implementation("com.benasher44:uuid:0.7.0")
     implementation("com.google.accompanist:accompanist-flowlayout:0.36.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0") // Ensure you have the right version
-
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation("com.juul.kable:core:0.32.0")
 }
