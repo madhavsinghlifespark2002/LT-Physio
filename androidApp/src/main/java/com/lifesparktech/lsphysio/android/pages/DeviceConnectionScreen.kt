@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.benasher44.uuid.uuidFrom
 import com.example.lsphysio.android.R
+import com.juul.kable.Advertisement
 import com.juul.kable.AndroidPeripheral
 import com.juul.kable.ConnectionLostException
 import com.juul.kable.Filter
@@ -48,11 +49,20 @@ import com.juul.kable.Scanner
 import com.juul.kable.peripheral
 import com.lifesparktech.lsphysio.PeripheralManager
 import com.lifesparktech.lsphysio.PeripheralManager.mainScope
+import com.lifesparktech.lsphysio.android.components.ConnectDeviced
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.rememberScrollState
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DeviceConnectionScreen(navController: NavController) {
@@ -63,6 +73,8 @@ fun DeviceConnectionScreen(navController: NavController) {
           val configuration = LocalConfiguration.current
           val screenWidth = configuration.screenWidthDp.dp
           var context = LocalContext.current
+          var devices by remember { mutableStateOf<List<Advertisement>>(emptyList()) }
+          var isScanning by remember { mutableStateOf(false) }
           Column{
               Row(
                   modifier = Modifier.padding(16.dp).fillMaxWidth(),
@@ -80,7 +92,12 @@ fun DeviceConnectionScreen(navController: NavController) {
                           .clickable{}
                   ){
                       Row(
-                          modifier = Modifier.width(110.dp),
+                          modifier = Modifier.width(110.dp).clickable{
+                              isScanning = true
+                              scanBluetoothDevices(context,mainScope) { foundDevices ->
+                                  devices = foundDevices
+                                  isScanning = false
+                              } },
                           verticalAlignment = Alignment.CenterVertically,
                           horizontalArrangement = Arrangement.SpaceAround
                       ){
@@ -90,7 +107,7 @@ fun DeviceConnectionScreen(navController: NavController) {
                               modifier = Modifier
                                   .size(24.dp)
                           )
-                          Text("Scanned")
+                          Text(if (isScanning) "Scanning..." else "Start Scan")
                       }
                   }
               }
@@ -110,78 +127,71 @@ fun DeviceConnectionScreen(navController: NavController) {
               Box(
                   modifier = Modifier.height( if(screenWidth <= 800.0.dp ) { 800.dp } else { 400.dp } )
               ){
-                  LazyColumn(modifier = Modifier.padding(vertical = 12.dp, horizontal = 8.dp)) {
-                      item{
-                          Card(
-                              modifier = Modifier.width(250.dp).height(100.dp),
-                              colors = CardDefaults.cardColors(
-                                  containerColor = Color.White // Set the card's background color
-                              )
-                          ) {
-                              Row(
-                                  modifier = Modifier.fillMaxSize().padding(12.dp),
-                                  verticalAlignment = Alignment.CenterVertically,
-                                  horizontalArrangement = Arrangement.SpaceBetween
-                              ){
-                                  Text(text = "TEST_2407")
-                                  Spacer(modifier = Modifier.height(12.dp))
-                                  Button(
-                                      onClick = {
-                                          ConnectDeviced(navController, context)
-                                      },
-                                      shape = RoundedCornerShape(8.dp),
-                                      colors = ButtonDefaults.textButtonColors(
-                                          containerColor = Color(0xFF005749)
+                  if (devices.isNotEmpty()) {
+                      LazyColumn {
+                          item{
+                              devices.forEach{devices ->
+                                  Card(
+                                      modifier = Modifier.padding(12.dp).width(250.dp).height(100.dp),
+                                      colors = CardDefaults.cardColors(
+                                          containerColor = Color.White // Set the card's background color
                                       )
                                   ) {
-                                      Text(text = "Connect", color = Color.White)
+                                      Row(
+                                          modifier = Modifier.fillMaxSize().padding(12.dp),
+                                          verticalAlignment = Alignment.CenterVertically,
+                                          horizontalArrangement = Arrangement.SpaceBetween
+                                      ){
+                                          Text("${devices.name}")
+                                          Spacer(modifier = Modifier.height(12.dp))
+                                          Button(
+                                              onClick = {
+                                                  ConnectDeviced(navController, context, devices.name.toString())
+                                              },
+                                              shape = RoundedCornerShape(8.dp),
+                                              colors = ButtonDefaults.textButtonColors(
+                                                  containerColor = Color(0xFF005749)
+                                              )
+                                          ) {
+                                              Text(text = "Connect", color = Color.White)
+                                          }
+                                      }
                                   }
                               }
                           }
                       }
+                  } else if (!isScanning) {
+                      Text("No devices found. Click 'Start Scan' to search for devices.", modifier = Modifier.padding(start = 12.dp))
                   }
               }
           }
         }
 }
+
 @RequiresApi(Build.VERSION_CODES.O)
-fun ConnectDeviced(
-    navController: NavController,
-    context: Context
-) {
+fun scanBluetoothDevices(context: Context, scope: CoroutineScope, onDevicesFound: (List<Advertisement>) -> Unit) {
     val scanner = Scanner {
-        filters = listOf(Filter.Name("TEST_2407"))
+        filters = listOf(Filter.Service(uuidFrom("0000acf0-0000-1000-8000-00805f9b34fb")))
     }
-    mainScope.launch {
+    val devices = mutableListOf<Advertisement>()
+    val uniqueAddresses = mutableSetOf<String>() // Track unique device addresses
+    scope.launch {
         try {
-            val advertisement = scanner.advertisements.onEach { println(it) }.first()
-            val peripheral = mainScope.peripheral(advertisement)
-            peripheral.connect()
-            val androidPeripheral = peripheral as AndroidPeripheral
-            val service = peripheral.services?.find {
-                it.serviceUuid == uuidFrom("0000abf0-0000-1000-8000-00805f9b34fb")
-            } ?: throw Exception("Service not found for device")
-
-            val char = service.characteristics.find {
-                it.characteristicUuid == uuidFrom("0000abf1-0000-1000-8000-00805f9b34fb")
-            } ?: throw Exception("Read characteristic not found")
-
-            val charWrite = service.characteristics.find {
-                it.characteristicUuid == uuidFrom("0000abf1-0000-1000-8000-00805f9b34fb")
-            } ?: throw Exception("Write characteristic not found")
-            androidPeripheral.requestMtu(512)
-            PeripheralManager.peripheral = peripheral
-            PeripheralManager.charWrite = charWrite
-            navController.navigate("DeviceControlScreen")
-        } catch (e: ConnectionLostException) {
-            println("Connection lost: ${e.message}")
-            // Show Toast for unsuccessful connection
-            Toast.makeText(context, "Failed to connect: ${e.message}", Toast.LENGTH_LONG).show()
+          withTimeout(10_000) { // Scan for 10 seconds
+                scanner.advertisements.collect { advertisement ->
+                    if (uniqueAddresses.add(advertisement.address)) {
+                        println("Found device: ${advertisement.name ?: "Unknown"} - ${advertisement.address}")
+                        devices.add(advertisement)
+                    }
+                }
+          }
+        } catch (e: TimeoutCancellationException) {
+            println("Scanning finished after 10 seconds.")
         } catch (e: Exception) {
-            println("Error: ${e.message}")
-            Toast.makeText(context, "Failed to connect: ${e.message}", Toast.LENGTH_LONG).show()
+            println("Error during scanning: ${e.message}")
+            Toast.makeText(context, "Error during scanning: ${e.message}", Toast.LENGTH_LONG).show()
         } finally {
-            println("Cleaning up resources.")
+            onDevicesFound(devices)
         }
     }
 }
