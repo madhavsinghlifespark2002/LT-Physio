@@ -273,6 +273,21 @@ fun DeviceControlScreen(navController: NavController) {
 
             }
         }
+        Card(
+            modifier = Modifier.padding(12.dp).fillMaxWidth().height(50.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFFf94449)
+            )
+        ){
+            Row{
+                Image(
+                    painter = painterResource(id = R.drawable.device_connection),
+                    contentDescription = "logo",
+                    modifier = Modifier.size(24.dp)
+                )
+                Text("Disconnect", color = Color.White, fontWeight = FontWeight.Bold)
+            }
+        }
     }
 }
 

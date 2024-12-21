@@ -1,10 +1,12 @@
 package com.lifesparktech.lsphysio.android.pages
 import android.content.Context
 import android.os.Build
+import android.os.CountDownTimer
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -63,6 +65,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.CircularProgressIndicator
+import com.google.accompanist.flowlayout.FlowRow
+import com.google.accompanist.flowlayout.MainAxisAlignment
+import com.lifesparktech.lsphysio.android.MainActivity
+import kotlinx.coroutines.delay
+import java.time.format.TextStyle
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DeviceConnectionScreen(navController: NavController) {
@@ -75,6 +84,8 @@ fun DeviceConnectionScreen(navController: NavController) {
           var context = LocalContext.current
           var devices by remember { mutableStateOf<List<Advertisement>>(emptyList()) }
           var isScanning by remember { mutableStateOf(false) }
+          var timerValue by remember { mutableStateOf(10) }
+          val mainActivity = LocalContext.current as MainActivity
           Column{
               Row(
                   modifier = Modifier.padding(16.dp).fillMaxWidth(),
@@ -92,22 +103,41 @@ fun DeviceConnectionScreen(navController: NavController) {
                           .clickable{}
                   ){
                       Row(
-                          modifier = Modifier.width(110.dp).clickable{
-                              isScanning = true
-                              scanBluetoothDevices(context,mainScope) { foundDevices ->
-                                  devices = foundDevices
-                                  isScanning = false
-                              } },
+                          modifier = Modifier
+                              .width(120.dp)
+                              .clickable {
+                                  mainActivity.requestBluetoothPermissions()
+                                  mainActivity.requestLocationPermissions()
+                                  if (!isScanning) {
+                                      isScanning = true
+                                      timerValue = 10 // Reset timer
+                                      val timer = object : CountDownTimer(10000, 1000) { // 10 seconds with 1-second interval
+                                          override fun onTick(millisUntilFinished: Long) {
+                                              timerValue = (millisUntilFinished / 1000).toInt()
+                                          }
+                                          override fun onFinish() {
+                                              isScanning = false
+                                          }
+                                      }
+                                      timer.start()
+                                      scanBluetoothDevices(context, mainScope) { foundDevices ->
+                                          devices = foundDevices
+                                          isScanning = false // Stop scanning after devices are found
+                                      }
+                                  }
+                              },
                           verticalAlignment = Alignment.CenterVertically,
                           horizontalArrangement = Arrangement.SpaceAround
-                      ){
+                      ) {
                           Image(
                               painter = painterResource(id = R.drawable.device_connection),
                               contentDescription = "logo",
-                              modifier = Modifier
-                                  .size(24.dp)
+                              modifier = Modifier.size(24.dp)
                           )
-                          Text(if (isScanning) "Scanning..." else "Start Scan")
+                          Text(
+                              if (isScanning) "Scanning..." else "Start Scan",
+                              // if (isScanning) "Scanning... ($timerValue)" else "Start Scan",
+                          )
                       }
                   }
               }
@@ -128,33 +158,47 @@ fun DeviceConnectionScreen(navController: NavController) {
                   modifier = Modifier.height( if(screenWidth <= 800.0.dp ) { 800.dp } else { 400.dp } )
               ){
                   if (devices.isNotEmpty()) {
-                      LazyColumn {
-                          item{
-                              devices.forEach{devices ->
-                                  Card(
-                                      modifier = Modifier.padding(12.dp).width(250.dp).height(100.dp),
-                                      colors = CardDefaults.cardColors(
-                                          containerColor = Color.White // Set the card's background color
-                                      )
-                                  ) {
-                                      Row(
-                                          modifier = Modifier.fillMaxSize().padding(12.dp),
-                                          verticalAlignment = Alignment.CenterVertically,
-                                          horizontalArrangement = Arrangement.SpaceBetween
-                                      ){
-                                          Text("${devices.name}")
-                                          Spacer(modifier = Modifier.height(12.dp))
-                                          Button(
-                                              onClick = {
-                                                  ConnectDeviced(navController, context, devices.name.toString())
-                                              },
-                                              shape = RoundedCornerShape(8.dp),
-                                              colors = ButtonDefaults.textButtonColors(
-                                                  containerColor = Color(0xFF005749)
-                                              )
-                                          ) {
-                                              Text(text = "Connect", color = Color.White)
-                                          }
+                      FlowRow(
+                          modifier = Modifier
+                              .fillMaxWidth(),
+                          mainAxisSpacing = 2.dp,
+                          crossAxisSpacing = 2.dp,
+                      ) {
+                          devices.forEach{devices ->
+                              Card(
+                                  modifier = Modifier.padding(12.dp).width(225.dp).height(100.dp),
+                                  colors = CardDefaults.cardColors(
+                                      containerColor = Color.White // Set the card's background color
+                                  )
+                              ) {
+                                  Row(
+                                      modifier = Modifier.fillMaxSize().padding(12.dp),
+                                      verticalAlignment = Alignment.CenterVertically,
+                                      horizontalArrangement = Arrangement.SpaceBetween
+                                  ){
+                                      Text("${devices.name}")
+                                      Spacer(modifier = Modifier.height(12.dp))
+                                      Button(
+                                          onClick = {
+                                              mainActivity.requestBluetoothPermissions()
+                                              mainActivity.requestLocationPermissions()
+                                              mainScope.launch {
+                                                  try {
+                                                      ConnectDeviced(context, navController, devices)
+                                                  } catch (e: Exception) {
+                                                      println("Error connecting: ${e.message}")
+                                                      Toast.makeText(context, "Failed to connect: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                  } finally {
+                                                      delay(500)
+                                                  }
+                                              }
+                                          },
+                                          shape = RoundedCornerShape(8.dp),
+                                          colors = ButtonDefaults.textButtonColors(
+                                              containerColor = Color(0xFF005749)
+                                          ),
+                                      ) {
+                                          Text(text = "Connect", color = Color.White)
                                       }
                                   }
                               }
@@ -195,11 +239,3 @@ fun scanBluetoothDevices(context: Context, scope: CoroutineScope, onDevicesFound
         }
     }
 }
-
-//    "High Freq" to "-1",
-//    "Swing phase continuous" to "2",
-//    "Swing phase burst" to "3",
-//    "Stance phase continuous" to "0",
-//    "Stance phase burst" to "1",
-//    "Open loop" to "4",
-//    "Custom" to "14"

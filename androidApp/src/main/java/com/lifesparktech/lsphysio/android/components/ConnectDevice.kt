@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.navigation.NavController
 import com.benasher44.uuid.uuidFrom
+import com.juul.kable.Advertisement
 import com.juul.kable.AndroidPeripheral
 import com.juul.kable.ConnectionLostException
 import com.juul.kable.Filter
@@ -19,16 +20,13 @@ import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun ConnectDeviced(
-    navController: NavController,
     context: Context,
-    deviceName: String
+    navController: NavController,
+    deviceName: Advertisement
 ) {
-    val scanner = Scanner {
-        filters = listOf(Filter.Name(deviceName))
-    }
     mainScope.launch {
         try {
-            val advertisement = scanner.advertisements.onEach { println(it) }.first()
+            val advertisement = deviceName//scanner.advertisements.onEach { println(it) }.first()
             val peripheral = mainScope.peripheral(advertisement)
             peripheral.connect()
             val androidPeripheral = peripheral as AndroidPeripheral
@@ -49,7 +47,7 @@ fun ConnectDeviced(
             navController.navigate("DeviceControlScreen")
         } catch (e: ConnectionLostException) {
             println("Connection lost: ${e.message}")
-            // Show Toast for unsuccessful connection
+
             Toast.makeText(context, "Failed to connect: ${e.message}", Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             println("Error: ${e.message}")

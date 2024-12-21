@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.firebase.functions.ktx)
     implementation(libs.firebase.storage.ktx)
+    implementation(libs.androidx.activity)
     debugImplementation(libs.compose.ui.tooling)
     implementation("com.benasher44:uuid:0.7.0")
     implementation("com.google.accompanist:accompanist-flowlayout:0.36.0")
