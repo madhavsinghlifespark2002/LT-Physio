@@ -42,19 +42,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.lsphysio.android.R
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.Dp
-import com.lifesparktech.lsphysio.PeripheralManager
 import com.lifesparktech.lsphysio.PeripheralManager.mainScope
 import com.lifesparktech.lsphysio.android.components.BatteryIndicator
 import com.lifesparktech.lsphysio.android.components.CommonSlider
+import com.lifesparktech.lsphysio.android.components.disconnectDevice
+import com.lifesparktech.lsphysio.android.components.getBatteryPercentage
+import com.lifesparktech.lsphysio.android.components.modesDictionary
+import com.lifesparktech.lsphysio.android.components.writeCommand
 import kotlinx.coroutines.launch
 import kotlin.math.round
 import kotlin.text.get
@@ -68,7 +65,19 @@ fun DeviceControlScreen(navController: NavController) {
     var selectedOption by remember { mutableStateOf("Select Mode") }
     var mode by remember { mutableStateOf("") }
     val options = listOf("High Freq", "Swing phase continuous", "Swing phase burst", "Stance phase continuous", "Stance phase burst","Open loop")
+    var leftBattery by remember { mutableStateOf(0) } // Default battery percentage
+    var rightBattery by remember { mutableStateOf(0) }
+    LaunchedEffect(Unit) {
+        mainScope.launch {
+            val batteryValues = getBatteryPercentage()
+            if (batteryValues != null) {
+                leftBattery = batteryValues.first.toFloat().toInt() ?: 0
+                rightBattery = batteryValues.second.toFloat().toInt()?: 0
+            }
+        }
+    }
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFf4f4f4)).padding(12.dp),
+
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -122,7 +131,7 @@ fun DeviceControlScreen(navController: NavController) {
 
                         }
                         Spacer(modifier = Modifier.height(16.dp))
-                        BatteryIndicator(batteryPercentage = 75)
+                        BatteryIndicator(batteryPercentage = leftBattery)
 
                     }
                 }
@@ -148,7 +157,7 @@ fun DeviceControlScreen(navController: NavController) {
 
                         }
                         Spacer(modifier = Modifier.height(16.dp))
-                        BatteryIndicator(batteryPercentage = 75)
+                        BatteryIndicator(batteryPercentage = rightBattery)
                     }
                 }
             }
@@ -212,7 +221,7 @@ fun DeviceControlScreen(navController: NavController) {
             Column(modifier = Modifier.fillMaxSize().padding(12.dp)){
                 Text("Frequency", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                 CommonSlider(
-                    label = "Frequency",
+                    label = "Frequency \n Steps/min",
                     initialValue = 18,
                     onValueChanged = {   /* Handle value change */ },
                     valueRange = 18f..120f,
@@ -276,43 +285,26 @@ fun DeviceControlScreen(navController: NavController) {
         Card(
             modifier = Modifier.padding(12.dp).fillMaxWidth().height(50.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFf94449)
+                containerColor = Color(0xFFFFA9A9)
             )
         ){
-            Row{
+            Row(
+                modifier = Modifier.fillMaxSize().clickable{
+                    mainScope.launch{
+                        disconnectDevice(navController)
+                    }},
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+
+            ){
                 Image(
                     painter = painterResource(id = R.drawable.device_connection),
                     contentDescription = "logo",
                     modifier = Modifier.size(24.dp)
                 )
-                Text("Disconnect", color = Color.White, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.width(18.dp))
+                Text("Disconnect", fontWeight = FontWeight.Bold)
             }
         }
     }
 }
-
-suspend fun writeCommand(command: String) {
-    val peripheral = PeripheralManager.peripheral
-    val charWrite = PeripheralManager.charWrite
-
-    if (peripheral != null && charWrite != null) {
-        try {
-            print("this is command: $command")
-            peripheral.write(charWrite, command.encodeToByteArray())
-            println("Command sent: $command")
-        } catch (e: Exception) {
-            println("Error writing command: ${e.message}")
-        }
-    } else {
-        println("Peripheral or characteristic not initialized.")
-    }
-}
-
-val modesDictionary = mapOf(
-    "High Freq" to "-1",
-    "Swing phase continuous" to "2",
-    "Swing phase burst" to "3",
-    "Stance phase continuous" to "0",
-    "Stance phase burst" to "1",
-    "Open loop" to "4"
-)

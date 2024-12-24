@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.firebase.storage.ktx)
     implementation(libs.androidx.activity)
     debugImplementation(libs.compose.ui.tooling)
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation("com.benasher44:uuid:0.7.0")
     implementation("com.google.accompanist:accompanist-flowlayout:0.36.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")

@@ -6,7 +6,6 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,17 +18,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,19 +40,13 @@ import androidx.navigation.NavController
 import com.benasher44.uuid.uuidFrom
 import com.example.lsphysio.android.R
 import com.juul.kable.Advertisement
-import com.juul.kable.AndroidPeripheral
-import com.juul.kable.ConnectionLostException
 import com.juul.kable.Filter
 import com.juul.kable.Scanner
-import com.juul.kable.peripheral
-import com.lifesparktech.lsphysio.PeripheralManager
 import com.lifesparktech.lsphysio.PeripheralManager.mainScope
 import com.lifesparktech.lsphysio.android.components.ConnectDeviced
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
@@ -84,6 +74,7 @@ fun DeviceConnectionScreen(navController: NavController) {
           var context = LocalContext.current
           var devices by remember { mutableStateOf<List<Advertisement>>(emptyList()) }
           var isScanning by remember { mutableStateOf(false) }
+          var isConnecting by remember { mutableStateOf(false) }
           var timerValue by remember { mutableStateOf(10) }
           val mainActivity = LocalContext.current as MainActivity
           Column{
@@ -166,7 +157,7 @@ fun DeviceConnectionScreen(navController: NavController) {
                       ) {
                           devices.forEach{devices ->
                               Card(
-                                  modifier = Modifier.padding(12.dp).width(225.dp).height(100.dp),
+                                  modifier = Modifier.padding(12.dp).width(250.dp).height(100.dp),
                                   colors = CardDefaults.cardColors(
                                       containerColor = Color.White // Set the card's background color
                                   )
@@ -183,13 +174,15 @@ fun DeviceConnectionScreen(navController: NavController) {
                                               mainActivity.requestBluetoothPermissions()
                                               mainActivity.requestLocationPermissions()
                                               mainScope.launch {
+                                                  isConnecting = true
                                                   try {
+                                                      delay(2000)
                                                       ConnectDeviced(context, navController, devices)
                                                   } catch (e: Exception) {
                                                       println("Error connecting: ${e.message}")
                                                       Toast.makeText(context, "Failed to connect: ${e.message}", Toast.LENGTH_SHORT).show()
                                                   } finally {
-                                                      delay(500)
+                                                      isConnecting = false
                                                   }
                                               }
                                           },
@@ -198,7 +191,7 @@ fun DeviceConnectionScreen(navController: NavController) {
                                               containerColor = Color(0xFF005749)
                                           ),
                                       ) {
-                                          Text(text = "Connect", color = Color.White)
+                                          Text(text = if(isConnecting) { "Connecting..."} else {"Connect"}, color = Color.White)
                                       }
                                   }
                               }
@@ -211,7 +204,6 @@ fun DeviceConnectionScreen(navController: NavController) {
           }
         }
 }
-
 @RequiresApi(Build.VERSION_CODES.O)
 fun scanBluetoothDevices(context: Context, scope: CoroutineScope, onDevicesFound: (List<Advertisement>) -> Unit) {
     val scanner = Scanner {

@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="LSPhysio.androidApp">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-12-18T09:15:17.674190Z">
+        <DropdownSelection timestamp="2024-12-21T10:44:08.335102Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=/Users/madhavsingh/.android/avd/Medium_Tablet_API_35.avd" />

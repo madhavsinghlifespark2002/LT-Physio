@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.lsphysio.android.R
 import com.lifesparktech.lsphysio.android.Controller.fetchPatients
+//import com.lifesparktech.lsphysio.android.Controller.fetchPatients
 import com.lifesparktech.lsphysio.android.data.Patient
 //import com.lifesparktech.lsphysio.android.data.samplePatients
 @Composable
@@ -161,12 +162,14 @@ fun SimpleTable(navController: NavController) {
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.fillMaxWidth().clickable{navController.navigate("PatientDetail/${patient.serialNo}")}
                                         .background(if (index % 2 == 0) Color.White else Color(0xFFF8FAFB))
+
+
                                 ) {
                                     TableCell(text = "${index + 1}", modifier = Modifier.weight(0.3f))
-                                    TableCell(text = "${patient.name}", modifier = Modifier.weight(0.5f))
+                                    TableCell(text = patient.name, modifier = Modifier.weight(0.5f))
                                     TableCell(text = "${patient.age}", modifier = Modifier.weight(0.3f))
-                                    TableCell(text = "${patient.email}", modifier = Modifier.weight(0.5f))
-                                    TableCell(text = "${patient.phone}", modifier = Modifier.weight(0.5f))
+                                    TableCell(text = patient.email, modifier = Modifier.weight(0.5f))
+                                    TableCell(text = patient.phone, modifier = Modifier.weight(0.5f))
                                     Box(
                                         modifier = Modifier.weight(0.5f).clip(RoundedCornerShape(8.dp)),
                                         contentAlignment = Alignment.Center

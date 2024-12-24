@@ -14,5 +14,18 @@ data class Patient(
     val height: Int = 0, // Added height // done
     val weight: Int= 0, // Added weight // done
     val diagnostics: List<String> = emptyList(), // Added diagnostics
-    val extraDetails: List<String> = emptyList() // Added extraDetails // not done
+    val extraDetails: List<String> = emptyList(),
+    val bloodGroup: String="", // Add this field
+    val allergies: String="",  // Add this field
+    val bodymassindex: Double=0.0, // Add this field
+    val bloodPressure: String="",
+    val chronicdisease: String="",
+    val diabetesemergencies: String="",
+    val surgery: String="",
+    val relatedcomplication: String="",
+    val  familydisease: String="",
+    val hepaticIssues: String="",
+    val hemoglobin: String="",
+    val bloodsugar: String="",
+    val heartrate: String=""
 )

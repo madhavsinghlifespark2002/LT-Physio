@@ -20,10 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.lsphysio.android.R
+import com.google.accompanist.flowlayout.FlowRow
 import com.lifesparktech.lsphysio.android.components.AccountInfoItem
 import com.lifesparktech.lsphysio.android.components.AccountInformationCard
 import com.lifesparktech.lsphysio.android.components.ClinicInformationCard
@@ -34,6 +36,9 @@ import com.lifesparktech.lsphysio.android.components.SecurityInformationCard
 @Composable
 fun AccountScreen() {
     var selectedItem by remember { mutableStateOf<String?>("Account Information") }
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    println("this is screenWidth: $screenWidth")
     LazyColumn(
         modifier = Modifier.fillMaxSize().background(color = Color(0xFFf4f4f4)),
         contentPadding = PaddingValues(12.dp)
@@ -48,11 +53,15 @@ fun AccountScreen() {
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
             }
-
-            Row(modifier = Modifier.fillMaxWidth()) {
-                // Left Panel with Account Info Items
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                mainAxisSpacing = 2.dp,
+                crossAxisSpacing = 2.dp,
+            ) {
                 Card(
-                    modifier = Modifier.fillMaxWidth(0.35f),
+                   modifier = if (screenWidth > 500.dp) { Modifier.fillMaxWidth(0.35f)} else {
+                       Modifier.fillMaxWidth()},
                     elevation = CardDefaults.cardElevation(4.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
@@ -102,12 +111,9 @@ fun AccountScreen() {
                         }
                     }
                 }
-
                 Spacer(modifier = Modifier.width(12.dp))
-
-                // Right Panel with Selected Item Details
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =   if (screenWidth > 500.dp) {Modifier.fillMaxWidth(0.65f) } else {Modifier.fillMaxWidth()},
                     elevation = CardDefaults.cardElevation(4.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {

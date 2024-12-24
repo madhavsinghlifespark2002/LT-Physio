@@ -1,10 +1,4 @@
 package com.lifesparktech.lsphysio.android.pages
-// no.
-// patient name.
-// doctor name.
-// department.
-// timings.
-// status.
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,7 +24,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,14 +33,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.lsphysio.android.R
 import com.lifesparktech.lsphysio.android.data.sampleAppointments
-//import com.lifesparktech.lsphysio.android.data.samplePatients
-import com.lifesparktech.lsphysio.android.data.sampleSchedules
 
 @Composable
 fun AppointmentScreen(navController: NavController) {
@@ -56,6 +46,7 @@ fun AppointmentScreen(navController: NavController) {
         SimpleTableAppointment(navController)
     }
 }
+
 @Composable
 fun SimpleTableAppointment(navController: NavController) {
     Card(

@@ -11,6 +11,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -22,6 +23,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.lifesparktech.lsphysio.PeripheralManager
 import com.lifesparktech.lsphysio.android.pages.AccountScreen
 import com.lifesparktech.lsphysio.android.pages.AddPatientScreen
 import com.lifesparktech.lsphysio.android.pages.AppointmentScreen
@@ -124,6 +126,18 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         composable(Screen.Home.route) { HomeScreen() }
         composable(Screen.Games.route) { GamesScreen() }
         composable(Screen.Tests.route) { TestScreen() }
-        composable(Screen.DeviceConnectionScreen.route) { DeviceConnectionScreen(navController) }
+        composable(Screen.DeviceConnectionScreen.route) {
+            if (PeripheralManager.peripheral != null) {
+                // Peripheral is already connected, navigate to DeviceControlScreen
+                LaunchedEffect(Unit) {
+                    navController.navigate("DeviceControlScreen") {
+                        popUpTo(Screen.DeviceConnectionScreen.route) { inclusive = true }
+                    }
+                }
+            } else {
+                // Render the DeviceConnectionScreen
+                DeviceConnectionScreen(navController = navController)
+            }
+        }
     }
 }

@@ -1,10 +1,8 @@
 package com.lifesparktech.lsphysio.android.pages
 
-import android.R.attr.maxWidth
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -15,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -24,7 +21,8 @@ import androidx.compose.ui.unit.sp
 import com.example.lsphysio.android.R
 import com.google.accompanist.flowlayout.FlowRow
 import com.google.accompanist.flowlayout.MainAxisAlignment
-
+import com.lifesparktech.lsphysio.android.components.BarChartCard
+import com.lifesparktech.lsphysio.android.components.CalendarApp
 @Composable
 fun HomeScreen() {
     Scaffold(
@@ -36,11 +34,8 @@ fun HomeScreen() {
                 FlowRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        // .border(width = 1.dp, color = Color.Black)
-                        //.height(500.dp)
-                        .padding(12.dp)
                         .padding(innerPadding),
-                    mainAxisSpacing = 12.dp,
+                    mainAxisSpacing = 8.dp,
                     crossAxisSpacing = 8.dp,
                     mainAxisAlignment = MainAxisAlignment.Center
                 ) {
@@ -95,7 +90,7 @@ fun HomeScreen() {
                             containerColor = Color.White // Set the card's background color
                         )
                     ){
-
+                        BarChartCard()
                     }
                     Card(
                         modifier = Modifier.padding(12.dp).height(275.dp).fillMaxWidth(0.9f),
@@ -104,7 +99,7 @@ fun HomeScreen() {
                             containerColor = Color.White // Set the card's background color
                         )
                     ){
-
+                        CalendarApp()
                     }
                 }
             }
