@@ -23,7 +23,8 @@ fun CommonSlider(
     initialValue: Int,
     onValueChanged: (Int) -> Unit,
     valueRange: ClosedFloatingPointRange<Float>,
-    onValueChangeFinished: (Int) -> Unit
+    onValueChangeFinished: (Int) -> Unit,
+    isEnabled: Boolean = false
 ) {
     val sliderValue = remember { mutableStateOf(initialValue) }
     Column(
@@ -44,7 +45,8 @@ fun CommonSlider(
                 sliderValue.value = newValue.toInt()
                 onValueChanged(newValue.toInt())
             },
-            valueRange = valueRange, // Slider range
+            valueRange = valueRange,
+            enabled = isEnabled,
             modifier = Modifier.fillMaxWidth(),
             onValueChangeFinished = { onValueChangeFinished(sliderValue.value)},
             colors = SliderDefaults.colors(

@@ -25,15 +25,18 @@ fun BatteryIndicator(
     indicatorColor: Color = Color(0xFF0C6658),
     backgroundColor: Color = Color(0xFFB0BEC5),
     size: Dp = 70.dp,
-    strokeWidth: Dp = 12.dp
+    strokeWidth: Dp = 12.dp,
+    isEnabled: Boolean = true
 ) {
+    val adjustedIndicatorColor = if (isEnabled) indicatorColor else Color.Gray
+    val adjustedBackgroundColor = if (isEnabled) backgroundColor else Color.LightGray
     Box(contentAlignment = Alignment.Center, modifier = modifier.size(size)) {
         // Circular Indicator
         Canvas(modifier = Modifier.size(size)) {
             val sweepAngle = 360 * (batteryPercentage / 100f)
             val stroke = strokeWidth.toPx()
             drawArc(
-                color = backgroundColor,
+                color = adjustedBackgroundColor,
                 startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
@@ -42,7 +45,7 @@ fun BatteryIndicator(
                 topLeft = Offset(0f, 0f)
             )
             drawArc(
-                color = indicatorColor,
+                color = adjustedIndicatorColor,
                 startAngle = -90f,
                 sweepAngle = sweepAngle,
                 useCenter = false,

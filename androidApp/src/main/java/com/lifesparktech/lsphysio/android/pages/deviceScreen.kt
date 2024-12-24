@@ -52,6 +52,7 @@ import com.lifesparktech.lsphysio.android.components.disconnectDevice
 import com.lifesparktech.lsphysio.android.components.getBatteryPercentage
 import com.lifesparktech.lsphysio.android.components.getFrequency
 import com.lifesparktech.lsphysio.android.components.getMagnitudePercentage
+import com.lifesparktech.lsphysio.android.components.isClientConnected
 import com.lifesparktech.lsphysio.android.components.modesDictionary
 import com.lifesparktech.lsphysio.android.components.writeCommand
 import kotlinx.coroutines.launch
@@ -76,7 +77,9 @@ fun DeviceControlScreen(navController: NavController) {
         mainScope.launch {
             val batteryValues = getBatteryPercentage()
             val magnitudeValues = getMagnitudePercentage()
-            val fetchedFrequency = getFrequency() // Suspend function
+            val fetchedFrequency = getFrequency()
+            val isclient = isClientConnected()
+            println("this isclient: $isclient")
             println("Fetched frequency: $fetchedFrequency")
             if (fetchedFrequency != null) {
                 frequencyBand = fetchedFrequency

@@ -15,6 +15,12 @@ import com.lifesparktech.lsphysio.PeripheralManager.mainScope
 import com.lifesparktech.lsphysio.PeripheralManager.peripheral
 import kotlinx.coroutines.launch
 
+val BATTERY_PERCENTAGE_CLIENT_UUID = uuidFrom("0000aef3-0000-1000-8000-00805f9b34fb")
+val BATTERY_PERCENTAGE_SERVER_UUID = uuidFrom("0000adf3-0000-1000-8000-00805f9b34fb")
+val MAGNITUDE_SERVER = uuidFrom("0000adf8-0000-1000-8000-00805f9b34fb")
+val MAGNITUDE_CLIENT = uuidFrom("0000aef8-0000-1000-8000-00805f9b34fb")
+val FREQUENCY_UUID = uuidFrom("0000adf9-0000-1000-8000-00805f9b34fb")
+val CLIENT_CONNECTED = uuidFrom("0000ae02-0000-1000-8000-00805f9b34fb");
 @RequiresApi(Build.VERSION_CODES.O)
 fun ConnectDeviced(
     context: Context,
@@ -72,11 +78,6 @@ suspend fun writeCommand(command: String) {
     }
 }
 
-val BATTERY_PERCENTAGE_CLIENT_UUID = uuidFrom("0000aef3-0000-1000-8000-00805f9b34fb")
-val BATTERY_PERCENTAGE_SERVER_UUID = uuidFrom("0000adf3-0000-1000-8000-00805f9b34fb")
-val MAGNITUDE_SERVER = uuidFrom("0000adf8-0000-1000-8000-00805f9b34fb")
-val MAGNITUDE_CLIENT = uuidFrom("0000aef8-0000-1000-8000-00805f9b34fb")
-val FREQUENCY_UUID = uuidFrom("0000adf9-0000-1000-8000-00805f9b34fb")
 suspend fun getBatteryPercentage(): Pair<String, String>? {
     return try {
         val clientCharacteristic =  peripheral?.services!!
@@ -106,11 +107,11 @@ suspend fun getMagnitudePercentage(): Pair<Int, Int>? {
         val clientCharacteristic =  peripheral?.services!!
             .flatMap { it.characteristics }
             .firstOrNull { it.characteristicUuid == MAGNITUDE_CLIENT }
-            ?: error("Client battery characteristic not found")
+            ?: error("Client Magnitude characteristic not found")
         val serverCharacteristic =  peripheral?.services!!
             .flatMap { it.characteristics }
             .firstOrNull { it.characteristicUuid == MAGNITUDE_SERVER }
-            ?: error("Server battery characteristic not found")
+            ?: error("Server Magnitude characteristic not found")
         val clientResponse = peripheral?.read(clientCharacteristic)
         val serverResponse = peripheral?.read(serverCharacteristic)
         val rightMagnitude = clientResponse!!.decodeToString()
@@ -123,6 +124,7 @@ suspend fun getMagnitudePercentage(): Pair<Int, Int>? {
         null
     }
 }
+
 suspend fun getFrequency(): Int? {
     return try {
         val serverCharacteristic = peripheral?.services!!
@@ -147,6 +149,23 @@ suspend fun getFrequency(): Int? {
         null // Return null to indicate failure
     }
 }
+suspend fun isClientConnected(): Boolean {
+    return try {
+        val clientCharacteristic = peripheral?.services
+            ?.flatMap { it.characteristics }
+            ?.firstOrNull { it.characteristicUuid == CLIENT_CONNECTED }
+            ?: error("Client connected characteristic not found")
+
+        val clientResponse = peripheral?.read(clientCharacteristic)
+        val isconnect = clientResponse?.decodeToString()?.toIntOrNull()
+        println("This is isconnect: $isconnect")
+        isconnect == 0
+    } catch (e: Exception) {
+        println("Error while checking client connection: ${e.message}")
+        false // Return false to indicate failure
+    }
+}
+
 
 val modesDictionary = mapOf(
     "High Freq" to "-1",
@@ -157,7 +176,7 @@ val modesDictionary = mapOf(
     "Open loop" to "4"
 )
 suspend fun disconnectDevice(navController: NavController) {
-    val peripheral = PeripheralManager.peripheral
+    val peripheral = peripheral
 
     if (peripheral != null) {
         try {
