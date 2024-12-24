@@ -74,7 +74,9 @@ suspend fun writeCommand(command: String) {
 
 val BATTERY_PERCENTAGE_CLIENT_UUID = uuidFrom("0000aef3-0000-1000-8000-00805f9b34fb")
 val BATTERY_PERCENTAGE_SERVER_UUID = uuidFrom("0000adf3-0000-1000-8000-00805f9b34fb")
-
+val MAGNITUDE_SERVER = uuidFrom("0000adf8-0000-1000-8000-00805f9b34fb")
+val MAGNITUDE_CLIENT = uuidFrom("0000aef8-0000-1000-8000-00805f9b34fb")
+val FREQUENCY_UUID = uuidFrom("0000adf9-0000-1000-8000-00805f9b34fb")
 suspend fun getBatteryPercentage(): Pair<String, String>? {
     return try {
         val clientCharacteristic =  peripheral?.services!!
@@ -96,38 +98,56 @@ suspend fun getBatteryPercentage(): Pair<String, String>? {
         Pair(leftbattery, rightbattery)
     } catch (e: Exception) {
         println("Error while getting battery values: ${e.message}")
-        null // Return null to indicate failure
+        null
     }
 }
-
-suspend fun getFrequency(): String? {
+suspend fun getMagnitudePercentage(): Pair<Int, Int>? {
     return try {
         val clientCharacteristic =  peripheral?.services!!
             .flatMap { it.characteristics }
-            .firstOrNull { it.characteristicUuid == BATTERY_PERCENTAGE_CLIENT_UUID }
-            ?: error("Client Frequency characteristic not found")
+            .firstOrNull { it.characteristicUuid == MAGNITUDE_CLIENT }
+            ?: error("Client battery characteristic not found")
         val serverCharacteristic =  peripheral?.services!!
             .flatMap { it.characteristics }
-            .firstOrNull { it.characteristicUuid == BATTERY_PERCENTAGE_SERVER_UUID }
-            ?: error("Server Frequency characteristic not found")
-
-        // Read the values from both characteristics
+            .firstOrNull { it.characteristicUuid == MAGNITUDE_SERVER }
+            ?: error("Server battery characteristic not found")
         val clientResponse = peripheral?.read(clientCharacteristic)
         val serverResponse = peripheral?.read(serverCharacteristic)
-        val rightbattery = clientResponse!!.decodeToString()
-        val leftbattery = serverResponse!!.decodeToString()
-
-        // Log the responses (optional)
-        println("right Battery Response: ${rightbattery}")
-        println("left Battery Response: ${leftbattery}")
-
-        // Return the pair of battery values as strings
-       leftbattery
+        val rightMagnitude = clientResponse!!.decodeToString()
+        val leftMagnitude = serverResponse!!.decodeToString()
+        println("right Magnitude Response: ${rightMagnitude}")
+        println("left Magnitude Response: ${leftMagnitude}")
+        Pair(leftMagnitude.toInt(), rightMagnitude.toInt())
     } catch (e: Exception) {
         println("Error while getting battery values: ${e.message}")
+        null
+    }
+}
+suspend fun getFrequency(): Int? {
+    return try {
+        val serverCharacteristic = peripheral?.services!!
+            .flatMap { it.characteristics }
+            .firstOrNull { it.characteristicUuid == FREQUENCY_UUID }
+            ?: error("Frequency characteristic not found")
+
+        val serverResponse = peripheral?.read(serverCharacteristic)
+        val tempFreq = serverResponse?.decodeToString()?.toDoubleOrNull()
+
+        println("This is tempFreq: $tempFreq")
+
+        if (tempFreq != null) {
+            val originalValue = (tempFreq * 60).toInt()
+            println("This is the original value: $originalValue")
+            originalValue
+        } else {
+            null
+        }
+    } catch (e: Exception) {
+        println("Error while getting frequency: ${e.message}")
         null // Return null to indicate failure
     }
 }
+
 val modesDictionary = mapOf(
     "High Freq" to "-1",
     "Swing phase continuous" to "2",

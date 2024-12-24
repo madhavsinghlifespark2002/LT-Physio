@@ -127,7 +127,6 @@ fun DeviceConnectionScreen(navController: NavController) {
                           )
                           Text(
                               if (isScanning) "Scanning..." else "Start Scan",
-                              // if (isScanning) "Scanning... ($timerValue)" else "Start Scan",
                           )
                       }
                   }

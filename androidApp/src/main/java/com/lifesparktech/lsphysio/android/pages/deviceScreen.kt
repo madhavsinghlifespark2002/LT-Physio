@@ -50,6 +50,8 @@ import com.lifesparktech.lsphysio.android.components.BatteryIndicator
 import com.lifesparktech.lsphysio.android.components.CommonSlider
 import com.lifesparktech.lsphysio.android.components.disconnectDevice
 import com.lifesparktech.lsphysio.android.components.getBatteryPercentage
+import com.lifesparktech.lsphysio.android.components.getFrequency
+import com.lifesparktech.lsphysio.android.components.getMagnitudePercentage
 import com.lifesparktech.lsphysio.android.components.modesDictionary
 import com.lifesparktech.lsphysio.android.components.writeCommand
 import kotlinx.coroutines.launch
@@ -65,19 +67,35 @@ fun DeviceControlScreen(navController: NavController) {
     var selectedOption by remember { mutableStateOf("Select Mode") }
     var mode by remember { mutableStateOf("") }
     val options = listOf("High Freq", "Swing phase continuous", "Swing phase burst", "Stance phase continuous", "Stance phase burst","Open loop")
-    var leftBattery by remember { mutableStateOf(0) } // Default battery percentage
+    var leftBattery by remember { mutableStateOf(0) }
     var rightBattery by remember { mutableStateOf(0) }
+    var leftMagnitude by remember { mutableStateOf<Int?>(null) }
+    var rightMagnitude by remember { mutableStateOf<Int?>(null) }
+    var frequencyBand by remember { mutableStateOf<Int?>(null) }
     LaunchedEffect(Unit) {
         mainScope.launch {
             val batteryValues = getBatteryPercentage()
+            val magnitudeValues = getMagnitudePercentage()
+            val fetchedFrequency = getFrequency() // Suspend function
+            println("Fetched frequency: $fetchedFrequency")
+            if (fetchedFrequency != null) {
+                frequencyBand = fetchedFrequency
+                println("Updated frequencyBand: $frequencyBand")
+            } else {
+                println("Fetched frequency is null.")
+            }
+            println("this is currentFrq: $frequencyBand")
             if (batteryValues != null) {
                 leftBattery = batteryValues.first.toFloat().toInt() ?: 0
                 rightBattery = batteryValues.second.toFloat().toInt()?: 0
             }
+            if(magnitudeValues !=null){
+                leftMagnitude = magnitudeValues.first?: 0
+                rightMagnitude = magnitudeValues.second?: 0
+            }
         }
     }
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFf4f4f4)).padding(12.dp),
-
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -220,21 +238,25 @@ fun DeviceControlScreen(navController: NavController) {
         ){
             Column(modifier = Modifier.fillMaxSize().padding(12.dp)){
                 Text("Frequency", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                CommonSlider(
-                    label = "Frequency \n Steps/min",
-                    initialValue = 18,
-                    onValueChanged = {   /* Handle value change */ },
-                    valueRange = 18f..120f,
-                    onValueChangeFinished = { newValue ->
-                        val approxFrequency = (newValue.toDouble() / 60).let {
-                            (round(it * 10) / 10)
+                if (frequencyBand != null) {
+                    CommonSlider(
+                        label = "Steps/min",
+                        initialValue = frequencyBand!!,
+                        onValueChanged = { /* Handle value change */ },
+                        valueRange = 18f..120f,
+                        onValueChangeFinished = { newValue ->
+                            val approxFrequency = (newValue.toDouble() / 60).let {
+                                (round(it * 10) / 10)
+                            }
+                            val command = "freq c $approxFrequency;"
+                            mainScope.launch {
+                                writeCommand(command)
+                            }
                         }
-                        val command = "freq c $approxFrequency;"
-                        mainScope.launch{
-                            writeCommand(command)
-                        }
-                    }
-                )
+                    )
+                } else {
+                    Text("Loading...", fontSize = 14.sp, color = Color.Gray)
+                }
             }
         }
         Card(
@@ -249,34 +271,45 @@ fun DeviceControlScreen(navController: NavController) {
                     Box(
                         modifier = Modifier.weight(1f)
                     ){
-                        CommonSlider(
-                            label = "Left",
-                            initialValue = 0,
-                            onValueChanged = {   /* Handle value change */ },
-                            valueRange = 0f..4f,
-                            onValueChangeFinished = { newValue ->
-                                val command = "mag s $newValue;"
-                                mainScope.launch{
-                                    writeCommand(command)
+                        if (leftMagnitude != null) {
+                            CommonSlider(
+                                label = "Left",
+                                initialValue = leftMagnitude!!,
+                                onValueChanged = {   /* Handle value change */ },
+                                valueRange = 0f..4f,
+                                onValueChangeFinished = { newValue ->
+                                    val command = "mag s $newValue;"
+                                    mainScope.launch {
+                                        writeCommand(command)
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
+                        else{
+                            Text("Loading...", fontSize = 14.sp, color = Color.Gray)
+                        }
                     }
                     Box(
                         modifier = Modifier.weight(1f)
                     ){
-                        CommonSlider(
-                            label = "Right",
-                            initialValue = 0,
-                            onValueChanged = {   /* Handle value change */ },
-                            valueRange = 0f..4f,
-                            onValueChangeFinished = { newValue ->
-                                val command = "mag c $newValue;"
-                                mainScope.launch{
-                                    writeCommand(command)
+                        if (rightMagnitude !=null){
+                            CommonSlider(
+                                label = "Right",
+                                initialValue = rightMagnitude!!,
+                                onValueChanged = {   /* Handle value change */ },
+                                valueRange = 0f..4f,
+                                onValueChangeFinished = { newValue ->
+                                    val command = "mag c $newValue;"
+                                    mainScope.launch{
+                                        writeCommand(command)
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
+                        else{
+                            Text("Loading...", fontSize = 14.sp, color = Color.Gray)
+                        }
+
                     }
                 }
 
@@ -285,7 +318,7 @@ fun DeviceControlScreen(navController: NavController) {
         Card(
             modifier = Modifier.padding(12.dp).fillMaxWidth().height(50.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFFFA9A9)
+                containerColor = Color(0xFF960019)
             )
         ){
             Row(
@@ -298,12 +331,12 @@ fun DeviceControlScreen(navController: NavController) {
 
             ){
                 Image(
-                    painter = painterResource(id = R.drawable.device_connection),
-                    contentDescription = "logo",
+                    painter = painterResource(id = R.drawable.bluetooth_disabled),
+                    contentDescription = "bluetooth disabled",
                     modifier = Modifier.size(24.dp)
                 )
-                Spacer(modifier = Modifier.width(18.dp))
-                Text("Disconnect", fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.width(12.dp))
+                Text("Disconnect", fontWeight = FontWeight.Bold, color = Color.White)
             }
         }
     }
