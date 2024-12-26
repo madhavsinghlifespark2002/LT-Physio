@@ -24,7 +24,7 @@ fun CommonSlider(
     onValueChanged: (Int) -> Unit,
     valueRange: ClosedFloatingPointRange<Float>,
     onValueChangeFinished: (Int) -> Unit,
-    isEnabled: Boolean = false
+    isEnabled: Boolean = true
 ) {
     val sliderValue = remember { mutableStateOf(initialValue) }
     Column(

@@ -73,13 +73,22 @@ fun DeviceControlScreen(navController: NavController) {
     var leftMagnitude by remember { mutableStateOf<Int?>(null) }
     var rightMagnitude by remember { mutableStateOf<Int?>(null) }
     var frequencyBand by remember { mutableStateOf<Int?>(null) }
+    var isRightConnect by remember { mutableStateOf<Boolean?>(null) }
     LaunchedEffect(Unit) {
         mainScope.launch {
-            val batteryValues = getBatteryPercentage()
-            val magnitudeValues = getMagnitudePercentage()
-            val fetchedFrequency = getFrequency()
-            val isclient = isClientConnected()
-            println("this isclient: $isclient")
+            var batteryValues = getBatteryPercentage()
+            if(batteryValues?.second == "-1.000000"){
+                batteryValues = Pair(batteryValues.first, "1.000000")
+            }
+            var magnitudeValues = getMagnitudePercentage()
+            if(magnitudeValues?.second == -1){
+                magnitudeValues = Pair(magnitudeValues.first, 1)
+            }
+            var fetchedFrequency = getFrequency()
+            if(fetchedFrequency == -60){
+                fetchedFrequency = 18
+            }
+            isRightConnect= isClientConnected()
             println("Fetched frequency: $fetchedFrequency")
             if (fetchedFrequency != null) {
                 frequencyBand = fetchedFrequency
@@ -178,7 +187,12 @@ fun DeviceControlScreen(navController: NavController) {
 
                         }
                         Spacer(modifier = Modifier.height(16.dp))
-                        BatteryIndicator(batteryPercentage = rightBattery)
+                        if(isRightConnect != null){
+                            BatteryIndicator(batteryPercentage = rightBattery, isEnabled = isRightConnect == false)
+                        }
+                        else{
+                            Text("Loading...", fontSize = 14.sp, color = Color.Gray)
+                        }
                     }
                 }
             }
@@ -241,7 +255,7 @@ fun DeviceControlScreen(navController: NavController) {
         ){
             Column(modifier = Modifier.fillMaxSize().padding(12.dp)){
                 Text("Frequency", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                if (frequencyBand != null) {
+                if (frequencyBand != null && isRightConnect != null) {
                     CommonSlider(
                         label = "Steps/min",
                         initialValue = frequencyBand!!,
@@ -255,7 +269,8 @@ fun DeviceControlScreen(navController: NavController) {
                             mainScope.launch {
                                 writeCommand(command)
                             }
-                        }
+                        },
+                        isEnabled = isRightConnect == false
                     )
                 } else {
                     Text("Loading...", fontSize = 14.sp, color = Color.Gray)
@@ -295,7 +310,7 @@ fun DeviceControlScreen(navController: NavController) {
                     Box(
                         modifier = Modifier.weight(1f)
                     ){
-                        if (rightMagnitude !=null){
+                        if (rightMagnitude !=null  && isRightConnect != null){
                             CommonSlider(
                                 label = "Right",
                                 initialValue = rightMagnitude!!,
@@ -306,7 +321,8 @@ fun DeviceControlScreen(navController: NavController) {
                                     mainScope.launch{
                                         writeCommand(command)
                                     }
-                                }
+                                },
+                                isEnabled = isRightConnect == false
                             )
                         }
                         else{
