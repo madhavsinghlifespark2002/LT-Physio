@@ -54,13 +54,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.CircularProgressIndicator
 import com.google.accompanist.flowlayout.FlowRow
-import com.google.accompanist.flowlayout.MainAxisAlignment
 import com.lifesparktech.lsphysio.android.MainActivity
 import kotlinx.coroutines.delay
-import java.time.format.TextStyle
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -77,6 +73,7 @@ fun DeviceConnectionScreen(navController: NavController) {
           var isConnecting by remember { mutableStateOf(false) }
           var timerValue by remember { mutableStateOf(10) }
           val mainActivity = LocalContext.current as MainActivity
+          var connectingDevice by remember { mutableStateOf<String?>(null) }
           Column{
               Row(
                   modifier = Modifier.padding(16.dp).fillMaxWidth(),
@@ -173,6 +170,7 @@ fun DeviceConnectionScreen(navController: NavController) {
                                               mainActivity.requestBluetoothPermissions()
                                               mainActivity.requestLocationPermissions()
                                               mainScope.launch {
+                                                  connectingDevice = devices.name // Set the connecting device
                                                   isConnecting = true
                                                   try {
                                                       delay(2000)
@@ -190,7 +188,10 @@ fun DeviceConnectionScreen(navController: NavController) {
                                               containerColor = Color(0xFF005749)
                                           ),
                                       ) {
-                                          Text(text = if(isConnecting) { "Connecting..."} else {"Connect"}, color = Color.White)
+                                          Text(
+                                              text = if (connectingDevice == devices.name) "Connecting..." else "Connect",
+                                              color = Color.White
+                                          )
                                       }
                                   }
                               }

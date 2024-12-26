@@ -1,7 +1,6 @@
 package com.lifesparktech.lsphysio.android.pages
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -27,6 +27,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,9 +46,12 @@ import com.example.lsphysio.android.R
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.text.TextStyle
+import com.lifesparktech.lsphysio.PeripheralManager.charWrite
 import com.lifesparktech.lsphysio.PeripheralManager.mainScope
+import com.lifesparktech.lsphysio.PeripheralManager.peripheral
 import com.lifesparktech.lsphysio.android.components.BatteryIndicator
 import com.lifesparktech.lsphysio.android.components.CommonSlider
+import com.lifesparktech.lsphysio.android.components.Screen
 import com.lifesparktech.lsphysio.android.components.disconnectDevice
 import com.lifesparktech.lsphysio.android.components.getBatteryPercentage
 import com.lifesparktech.lsphysio.android.components.getFrequency
@@ -55,9 +59,12 @@ import com.lifesparktech.lsphysio.android.components.getMagnitudePercentage
 import com.lifesparktech.lsphysio.android.components.isClientConnected
 import com.lifesparktech.lsphysio.android.components.modesDictionary
 import com.lifesparktech.lsphysio.android.components.writeCommand
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.math.round
 import kotlin.text.get
+import kotlin.toString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -74,38 +81,78 @@ fun DeviceControlScreen(navController: NavController) {
     var rightMagnitude by remember { mutableStateOf<Int?>(null) }
     var frequencyBand by remember { mutableStateOf<Int?>(null) }
     var isRightConnect by remember { mutableStateOf<Boolean?>(null) }
+    var showDisconnectedPopup by remember { mutableStateOf(false) }
+    var BandStatus by remember { mutableStateOf("no Status") }
+    var BandStatusBool by remember { mutableStateOf(false) }
+    fun trackDeviceStatus() {
+        peripheral?.state?.onEach { state ->
+            println("Band State: $state")
+            BandStatus = state.toString()
+            if(BandStatus == "Disconnected(Timeout)"){
+                BandStatusBool = true
+                peripheral = null
+                charWrite = null
+            }
+        }?.launchIn(scope) // Automatically subscribe and collect in the CoroutineScope
+    }
     LaunchedEffect(Unit) {
         mainScope.launch {
-            var batteryValues = getBatteryPercentage()
-            if(batteryValues?.second == "-1.000000"){
-                batteryValues = Pair(batteryValues.first, "1.000000")
+            trackDeviceStatus()
+            val batteryValues = getBatteryPercentage()?.let {
+                if (it.second == "-1.000000") Pair(it.first, "1.000000") else it
             }
-            var magnitudeValues = getMagnitudePercentage()
-            if(magnitudeValues?.second == -1){
-                magnitudeValues = Pair(magnitudeValues.first, 1)
+            val magnitudeValues = getMagnitudePercentage()?.let {
+                if (it.second == -1) Pair(it.first, 1) else it
             }
-            var fetchedFrequency = getFrequency()
-            if(fetchedFrequency == -60){
-                fetchedFrequency = 18
+            val fetchedFrequency = getFrequency().let {
+                if (it == -60) 18 else it
             }
-            isRightConnect= isClientConnected()
-            println("Fetched frequency: $fetchedFrequency")
-            if (fetchedFrequency != null) {
-                frequencyBand = fetchedFrequency
-                println("Updated frequencyBand: $frequencyBand")
-            } else {
-                println("Fetched frequency is null.")
-            }
-            println("this is currentFrq: $frequencyBand")
+            isRightConnect = isClientConnected()
+            showDisconnectedPopup = isRightConnect == true
+            frequencyBand = fetchedFrequency
             if (batteryValues != null) {
-                leftBattery = batteryValues.first.toFloat().toInt() ?: 0
-                rightBattery = batteryValues.second.toFloat().toInt()?: 0
+                leftBattery = batteryValues.first.toFloat().toInt()
+                rightBattery = batteryValues.second.toFloat().toInt()
             }
-            if(magnitudeValues !=null){
-                leftMagnitude = magnitudeValues.first?: 0
-                rightMagnitude = magnitudeValues.second?: 0
+            if (magnitudeValues != null) {
+                leftMagnitude = magnitudeValues.first ?: 0
+                rightMagnitude = magnitudeValues.second ?: 0
             }
         }
+
+    }
+    if (BandStatusBool) {
+        AlertDialog(
+            onDismissRequest = {
+                BandStatusBool = false
+                navController.navigate(Screen.DeviceConnectionScreen.route) {
+                    popUpTo("DeviceControlScreen") { inclusive = true }
+                } },
+            title = { Text(text = "Band Disconnected") },
+            text = { Text(text = "Band is currently disconnected. Please check the connection.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    BandStatusBool = false
+                    navController.navigate(Screen.DeviceConnectionScreen.route) {
+                        popUpTo("DeviceControlScreen") { inclusive = true }
+                    }
+                }) {
+                    Text(text = "OK")
+                }
+            }
+        )
+    }
+    if (showDisconnectedPopup) {
+        AlertDialog(
+            onDismissRequest = { showDisconnectedPopup = false },
+            title = { Text(text = "Right Band Disconnected") },
+            text = { Text(text = "The right band is currently disconnected. Please check the connection.") },
+            confirmButton = {
+                TextButton(onClick = { showDisconnectedPopup = false }) {
+                    Text(text = "OK")
+                }
+            }
+        )
     }
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFf4f4f4)).padding(12.dp),
     ) {

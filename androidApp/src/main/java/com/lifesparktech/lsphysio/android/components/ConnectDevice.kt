@@ -165,8 +165,6 @@ suspend fun isClientConnected(): Boolean {
         false // Return false to indicate failure
     }
 }
-
-
 val modesDictionary = mapOf(
     "High Freq" to "-1",
     "Swing phase continuous" to "2",
