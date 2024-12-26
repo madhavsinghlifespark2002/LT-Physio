@@ -1,4 +1,10 @@
 package com.lifesparktech.lsphysio.android.pages
+import android.bluetooth.BluetoothAdapter
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.location.LocationManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -45,6 +51,7 @@ import androidx.navigation.NavController
 import com.example.lsphysio.android.R
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import com.lifesparktech.lsphysio.PeripheralManager.charWrite
 import com.lifesparktech.lsphysio.PeripheralManager.mainScope
@@ -84,6 +91,8 @@ fun DeviceControlScreen(navController: NavController) {
     var showDisconnectedPopup by remember { mutableStateOf(false) }
     var BandStatus by remember { mutableStateOf("no Status") }
     var BandStatusBool by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
     fun trackDeviceStatus() {
         peripheral?.state?.onEach { state ->
             println("Band State: $state")
@@ -93,10 +102,48 @@ fun DeviceControlScreen(navController: NavController) {
                 peripheral = null
                 charWrite = null
             }
-        }?.launchIn(scope) // Automatically subscribe and collect in the CoroutineScope
+        }?.launchIn(scope)
     }
+    fun trackSystemStates(context: Context) {
+        val bluetoothReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                when (intent.action) {
+                    BluetoothAdapter.ACTION_STATE_CHANGED -> {
+                        val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
+                        if (state == BluetoothAdapter.STATE_OFF) {
+                            mainScope.launch{
+                                disconnectDevice(navController)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        val locationReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.action == LocationManager.PROVIDERS_CHANGED_ACTION) {
+                    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                    val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                    val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+                    if (!isGpsEnabled && !isNetworkEnabled) {
+                        mainScope.launch{
+                            disconnectDevice(navController)
+                        }
+                    }
+                }
+            }
+        }
+
+        // Register the receivers
+        val bluetoothFilter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        val locationFilter = IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
+        context.registerReceiver(bluetoothReceiver, bluetoothFilter)
+        context.registerReceiver(locationReceiver, locationFilter)
+    }
+
     LaunchedEffect(Unit) {
         mainScope.launch {
+            trackSystemStates(context)
             trackDeviceStatus()
             val batteryValues = getBatteryPercentage()?.let {
                 if (it.second == "-1.000000") Pair(it.first, "1.000000") else it
