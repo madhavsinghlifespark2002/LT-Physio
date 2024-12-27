@@ -72,7 +72,12 @@ fun Material3BottomNavigationBar(navController: NavHostController) {
                     selected = currentRoute == screen.route,
                     onClick = {
                         navController.navigate(screen.route) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            if (screen.route == Screen.Home.route){
+                                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                            }
+                            else{
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            }
                             launchSingleTop = true
                             restoreState = true
                         }

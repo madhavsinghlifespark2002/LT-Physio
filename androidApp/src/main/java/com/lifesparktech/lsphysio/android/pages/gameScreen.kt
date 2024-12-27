@@ -1,14 +1,14 @@
 package com.lifesparktech.lsphysio.android.pages
+
+import android.content.Context
+import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,25 +24,63 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lifesparktech.lsphysio.R
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.os.postDelayed
+import com.example.lsphysio.android.R
+import com.unity3d.player.UnityPlayer
+import com.unity3d.player.UnityPlayerActivity
+import kotlin.jvm.java
+
 @Composable
 fun GamesScreen() {
-    Column(modifier = Modifier.fillMaxSize().background(Color(0xFFf4f4f4)),
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFf4f4f4))
     ) {
-
-        Text(text ="GamesScreen")
-        GameCard(com.example.lsphysio.android.R.drawable.fishgame1, "CatchFish", "Helps in reducing pain", 65)
-        GameCard(com.example.lsphysio.android.R.drawable.footballgame, "Football", "Helps in reducing pain", 73)
-        GameCard(com.example.lsphysio.android.R.drawable.swinggame, "Swing", "Helps in reducing pain", 32)
+        Text(
+            text = "GamesScreen",
+            style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(16.dp)
+        )
+        GameCard(
+            R.drawable.fishgame1,
+            "CatchFish",
+            "Helps in reducing pain",
+            65,
+            "SceneController",
+            "FishingGame"
+        )
+        GameCard(
+            R.drawable.footballgame,
+            "Football",
+            "Helps in reducing pain",
+            73,
+            "SceneController",
+            "BallGame"
+        )
+        GameCard(
+            R.drawable.swinggame,
+            "Swing",
+            "Helps in reducing pain",
+            32,
+            "SceneController",
+            "SwingGame"
+        )
     }
 }
+
 @Composable
 fun GameCard(
     gameImage: Int,
     gameName: String,
     helpFeature: String,
-    highestScore: Int
+    highestScore: Int,
+    unityObject: String,
+    unityMethod: String
 ) {
+    val context = LocalContext.current
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -66,11 +104,10 @@ fun GameCard(
                 contentScale = ContentScale.Crop
             )
 
-            // Game details on the right
+            // Game details and Play button
             Column(
                 modifier = Modifier.fillMaxWidth()
-            )
-            {
+            ) {
                 Text(
                     text = buildAnnotatedString {
                         withStyle(
@@ -92,7 +129,29 @@ fun GameCard(
                     )
                 )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Play button to launch Unity and send the message
+                Button(
+                    onClick = {
+                        launchUnity(context, unityObject, unityMethod)
+                    },
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text(text = "Play $gameName")
+                }
             }
         }
     }
+}
+
+fun launchUnity(context: Context, unityObject: String, unityMethod: String) {
+    // Launch Unity activity
+    val intent = Intent(context, UnityPlayerActivity::class.java)
+    context.startActivity(intent)
+    Handler(Looper.getMainLooper()).postDelayed({
+        UnityPlayer.UnitySendMessage(unityObject, unityMethod, "")
+    }, 1000)
+    // Delay the message slightly to ensure UnityPlayer is ready
+   // UnityPlayer.UnitySendMessage(unityObject, unityMethod, "")
 }

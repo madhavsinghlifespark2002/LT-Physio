@@ -36,8 +36,7 @@ fun ConnectDeviced(
             val service = peripheral.services?.find {
                 it.serviceUuid == uuidFrom("0000abf0-0000-1000-8000-00805f9b34fb")
             } ?: throw Exception("Service not found for device")
-
-            val char = service.characteristics.find {
+            service.characteristics.find {
                 it.characteristicUuid == uuidFrom("0000abf1-0000-1000-8000-00805f9b34fb")
             } ?: throw Exception("Read characteristic not found")
 
@@ -59,8 +58,6 @@ fun ConnectDeviced(
         }
     }
 }
-
-
 suspend fun writeCommand(command: String) {
     val peripheral = PeripheralManager.peripheral
     val charWrite = PeripheralManager.charWrite
@@ -77,7 +74,6 @@ suspend fun writeCommand(command: String) {
         println("Peripheral or characteristic not initialized.")
     }
 }
-
 suspend fun getBatteryPercentage(): Pair<String, String>? {
     return try {
         val clientCharacteristic =  peripheral?.services!!
@@ -131,12 +127,9 @@ suspend fun getFrequency(): Int? {
             .flatMap { it.characteristics }
             .firstOrNull { it.characteristicUuid == FREQUENCY_UUID }
             ?: error("Frequency characteristic not found")
-
         val serverResponse = peripheral?.read(serverCharacteristic)
         val tempFreq = serverResponse?.decodeToString()?.toDoubleOrNull()
-
         println("This is tempFreq: $tempFreq")
-
         if (tempFreq != null) {
             val originalValue = (tempFreq * 60).toInt()
             println("This is the original value: $originalValue")
@@ -155,7 +148,6 @@ suspend fun isClientConnected(): Boolean {
             ?.flatMap { it.characteristics }
             ?.firstOrNull { it.characteristicUuid == CLIENT_CONNECTED }
             ?: error("Client connected characteristic not found")
-
         val clientResponse = peripheral?.read(clientCharacteristic)
         val isconnect = clientResponse?.decodeToString()?.toIntOrNull()
         println("This is isconnect: $isconnect")

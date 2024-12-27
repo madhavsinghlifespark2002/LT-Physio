@@ -113,7 +113,7 @@ fun AccountScreen() {
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Card(
-                    modifier =   if (screenWidth > 500.dp) {Modifier.fillMaxWidth(0.65f) } else {Modifier.fillMaxWidth()},
+                    modifier =   if (screenWidth > 500.dp) {Modifier.fillMaxWidth(0.60f) } else {Modifier.fillMaxWidth()},
                     elevation = CardDefaults.cardElevation(4.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {

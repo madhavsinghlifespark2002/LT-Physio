@@ -58,10 +58,12 @@ dependencies {
     implementation(libs.firebase.functions.ktx)
     implementation(libs.firebase.storage.ktx)
     implementation(libs.androidx.activity)
+    implementation(project(":unityLibrary"))
     debugImplementation(libs.compose.ui.tooling)
     implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation("com.benasher44:uuid:0.7.0")
     implementation("com.google.accompanist:accompanist-flowlayout:0.36.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("com.juul.kable:core:0.32.0")
+    implementation( files("/Users/madhavsingh/Documents/projects/walk_physio_app_main_now/walk_physio_app/unityLibrary/libs/unity-classes.jar"))
 }
