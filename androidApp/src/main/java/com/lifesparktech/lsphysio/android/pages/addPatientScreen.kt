@@ -45,9 +45,6 @@ fun AddPatientScreen(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var weight by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
-
-
-
     var gender by remember { mutableStateOf("") }
     var Status by remember { mutableStateOf("") }
     var hepaticIssues  by remember { mutableStateOf("") }

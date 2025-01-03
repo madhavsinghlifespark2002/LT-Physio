@@ -61,7 +61,6 @@ import kotlinx.coroutines.delay
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DeviceConnectionScreen(navController: NavController) {
-    // Define the CoroutineScope
     mainScope = CoroutineScope(Dispatchers.Main)
 
     // State variables to track scanning, devices, and timer

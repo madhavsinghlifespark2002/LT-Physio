@@ -16,13 +16,21 @@ import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.core.app.ActivityCompat
 import android.provider.Settings
+import com.lifesparktech.lsphysio.PeripheralManager.mainScope
+import com.lifesparktech.lsphysio.android.components.vibrateLeft
+import com.lifesparktech.lsphysio.android.components.vibrateRight
 import com.lifesparktech.lsphysio.android.pages.MyMaterial3App
+import com.unity3d.player.UnityPlayer
+import kotlinx.coroutines.launch
+
 data class NavigationItem(
     val title: String,
     val selectedIcon: Painter,
     val route: String
 )
+var unityPlayer: UnityPlayer? = null
 class MainActivity : ComponentActivity() {
+
     private val enableBluetoothLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult())
     { result ->
         if (result.resultCode == RESULT_OK) {
@@ -43,6 +51,8 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+       // instance =
+        unityPlayer = UnityPlayer(this)
         enableEdgeToEdge()
         requestBluetoothPermissions()
         requestLocationPermissions()
@@ -109,7 +119,6 @@ class MainActivity : ComponentActivity() {
             enableLocation()
         }
     }
-
     @SuppressLint("ServiceCast")
     private fun enableLocation() {
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -121,6 +130,26 @@ class MainActivity : ComponentActivity() {
     companion object {
         private const val BLUETOOTH_PERMISSION_REQUEST_CODE = 1
         private const val LOCATION_PERMISSION_REQUEST_CODE = 2
-
+      //  var instance: MainActivity? = null
+        @JvmStatic
+        fun onUnityMessage(message: String) {
+            println("Message received from Unity: $message")
+            when (message) {
+                "VL" -> {
+                    mainScope.launch {
+                        vibrateLeft()
+                    }
+                }
+                "VR" -> {
+                    mainScope.launch {
+                        vibrateRight()
+                    }
+                }
+            }
+        }
+        @JvmStatic
+        fun exitUnity() {
+            unityPlayer?.destroy()
+        }
     }
 }

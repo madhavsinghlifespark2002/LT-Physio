@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -92,7 +93,7 @@ fun PatientDetail(navController: NavController, patientId: String) {
                 item {
                     Row(modifier = Modifier.fillMaxWidth()) {
                         Card(
-                            modifier = Modifier.padding(12.dp).height(700.dp)
+                            modifier = Modifier.padding(12.dp).height(725.dp)
                                 .fillMaxWidth(0.35f),
                             elevation = CardDefaults.cardElevation(4.dp),
                             colors = CardDefaults.cardColors(
@@ -165,13 +166,17 @@ fun PatientDetail(navController: NavController, patientId: String) {
                                         label = "Address",
                                         content = patient!!.address
                                     )
-
+                                    Box{
+                                        Button(onClick = { navController.navigate("updatedPatientScreen/${patientId}") }) {
+                                            Text("Edit")
+                                        }
+                                    }
                                 }
 
                             }
                         }
                         Card(
-                            modifier = Modifier.padding(12.dp).height(700.dp),
+                            modifier = Modifier.padding(12.dp).height(725.dp),
                             elevation = CardDefaults.cardElevation(4.dp),
                             colors = CardDefaults.cardColors(
                                 containerColor = Color.White // Set the card's background color

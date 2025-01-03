@@ -41,6 +41,7 @@ import com.lifesparktech.lsphysio.android.pages.ReportsScreen
 import com.lifesparktech.lsphysio.android.pages.ResourceScreen
 import com.lifesparktech.lsphysio.android.pages.ScheduleScreen
 import com.lifesparktech.lsphysio.android.pages.TestScreen
+import com.lifesparktech.lsphysio.android.pages.UpdatedPatientScreen
 
 @Composable
 fun Material3BottomNavigationBar(navController: NavHostController) {
@@ -124,6 +125,14 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
             val PatientId = backStackEntry.arguments?.getString("patientId")
             if (PatientId != null) {
                 PatientDetail(navController, patientId = PatientId)
+            } else {
+                Text(text = "Invalid Patient ID")
+            }
+        }
+        composable("updatedPatientScreen/{patientId}"){ backStackEntry ->
+            val PatientId = backStackEntry.arguments?.getString("patientId")
+            if (PatientId != null) {
+                UpdatedPatientScreen(navController, patientId = PatientId)
             } else {
                 Text(text = "Invalid Patient ID")
             }

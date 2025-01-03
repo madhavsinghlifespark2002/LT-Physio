@@ -1,9 +1,9 @@
 package com.lifesparktech.lsphysio.android.pages
-
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,6 +12,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,14 +30,25 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.os.postDelayed
 import com.example.lsphysio.android.R
+import com.lifesparktech.lsphysio.PeripheralManager
+import com.lifesparktech.lsphysio.PeripheralManager.mainScope
+import com.lifesparktech.lsphysio.android.components.readCommand
 import com.unity3d.player.UnityPlayer
 import com.unity3d.player.UnityPlayerActivity
+import kotlinx.coroutines.launch
 import kotlin.jvm.java
-
 @Composable
 fun GamesScreen() {
+    var isDeviceConnected by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit){
+        if (PeripheralManager.peripheral !=null){
+            isDeviceConnected = true
+        }
+    }
+    BackHandler {
+        println("back button pressed.")
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -49,7 +65,8 @@ fun GamesScreen() {
             "Helps in reducing pain",
             65,
             "SceneController",
-            "FishingGame"
+            "FishingGame",
+            isDeviceConnected
         )
         GameCard(
             R.drawable.footballgame,
@@ -57,7 +74,8 @@ fun GamesScreen() {
             "Helps in reducing pain",
             73,
             "SceneController",
-            "BallGame"
+            "BallGame",
+            isDeviceConnected
         )
         GameCard(
             R.drawable.swinggame,
@@ -65,7 +83,8 @@ fun GamesScreen() {
             "Helps in reducing pain",
             32,
             "SceneController",
-            "SwingGame"
+            "SwingGame",
+            isDeviceConnected
         )
     }
 }
@@ -77,7 +96,8 @@ fun GameCard(
     helpFeature: String,
     highestScore: Int,
     unityObject: String,
-    unityMethod: String
+    unityMethod: String,
+    isDeviceConnected: Boolean
 ) {
     val context = LocalContext.current
 
@@ -128,15 +148,15 @@ fun GameCard(
                         color = Color.Gray
                     )
                 )
-
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Play button to launch Unity and send the message
                 Button(
                     onClick = {
-                        launchUnity(context, unityObject, unityMethod)
+                        mainScope.launch{
+                            launchUnity(context, unityObject, unityMethod)
+                        }
                     },
-                    modifier = Modifier.align(Alignment.End)
+                    modifier = Modifier.align(Alignment.End),
+                    enabled = isDeviceConnected
                 ) {
                     Text(text = "Play $gameName")
                 }
@@ -144,14 +164,11 @@ fun GameCard(
         }
     }
 }
-
-fun launchUnity(context: Context, unityObject: String, unityMethod: String) {
-    // Launch Unity activity
+suspend fun launchUnity(context: Context, unityObject: String, unityMethod: String) {
     val intent = Intent(context, UnityPlayerActivity::class.java)
     context.startActivity(intent)
     Handler(Looper.getMainLooper()).postDelayed({
         UnityPlayer.UnitySendMessage(unityObject, unityMethod, "")
     }, 1000)
-    // Delay the message slightly to ensure UnityPlayer is ready
-   // UnityPlayer.UnitySendMessage(unityObject, unityMethod, "")
+    readCommand(unityObject,unityMethod)
 }

@@ -23,7 +23,6 @@ suspend fun fetchPatients(): List<Patient> {
         emptyList() // Return an empty list if there is an error
     }
 }
-
 fun addPatient(patient: Patient) {
     val firestore = FirebaseFirestore.getInstance()
     val patientId = generateRandomStringId()
@@ -38,6 +37,33 @@ fun addPatient(patient: Patient) {
             println("Failed to add patient: ${e.message}")
         }
 }
+fun updatePatient(patientId: String, updatedPatient: Patient) {
+    val firestore = FirebaseFirestore.getInstance()
+
+    firestore.collection("Patient")
+        .document(patientId)
+        .set(updatedPatient)
+        .addOnSuccessListener {
+            println("Patient updated successfully with ID: $patientId")
+        }
+        .addOnFailureListener { e ->
+            e.printStackTrace()
+            println("Failed to update patient: ${e.message}")
+        }
+}
+
+suspend fun updatePatientId(patientId: String): Patient? {
+    val firestore = FirebaseFirestore.getInstance()
+    return try {
+        val document = firestore.collection("Patient").document(patientId).get().await()
+        document.toObject(Patient::class.java)?.copy(serialNo = document.id)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null // Return null if an error occurs
+    }
+}
+
+
 
 suspend fun fetchPatientById(patientId: String): Patient? {
     val firestore = FirebaseFirestore.getInstance()

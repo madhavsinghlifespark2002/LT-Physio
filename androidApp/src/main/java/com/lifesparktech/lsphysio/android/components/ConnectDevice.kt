@@ -1,5 +1,4 @@
 package com.lifesparktech.lsphysio.android.components
-
 import android.content.Context
 import android.os.Build
 import android.widget.Toast
@@ -13,8 +12,8 @@ import com.juul.kable.peripheral
 import com.lifesparktech.lsphysio.PeripheralManager
 import com.lifesparktech.lsphysio.PeripheralManager.mainScope
 import com.lifesparktech.lsphysio.PeripheralManager.peripheral
+import com.unity3d.player.UnityPlayer
 import kotlinx.coroutines.launch
-
 val BATTERY_PERCENTAGE_CLIENT_UUID = uuidFrom("0000aef3-0000-1000-8000-00805f9b34fb")
 val BATTERY_PERCENTAGE_SERVER_UUID = uuidFrom("0000adf3-0000-1000-8000-00805f9b34fb")
 val MAGNITUDE_SERVER = uuidFrom("0000adf8-0000-1000-8000-00805f9b34fb")
@@ -36,7 +35,7 @@ fun ConnectDeviced(
             val service = peripheral.services?.find {
                 it.serviceUuid == uuidFrom("0000abf0-0000-1000-8000-00805f9b34fb")
             } ?: throw Exception("Service not found for device")
-            service.characteristics.find {
+            var charRead = service.characteristics.find {
                 it.characteristicUuid == uuidFrom("0000abf1-0000-1000-8000-00805f9b34fb")
             } ?: throw Exception("Read characteristic not found")
 
@@ -46,6 +45,7 @@ fun ConnectDeviced(
             androidPeripheral.requestMtu(512)
             PeripheralManager.peripheral = peripheral
             PeripheralManager.charWrite = charWrite
+            PeripheralManager.charRead = charRead
             navController.navigate("DeviceControlScreen")
         } catch (e: ConnectionLostException) {
             println("Connection lost: ${e.message}")
@@ -67,6 +67,57 @@ suspend fun writeCommand(command: String) {
             print("this is command: $command")
             peripheral.write(charWrite, command.encodeToByteArray())
             println("Command sent: $command")
+        } catch (e: Exception) {
+            println("Error writing command: ${e.message}")
+        }
+    } else {
+        println("Peripheral or characteristic not initialized.")
+    }
+}
+suspend fun vibrateLeft(){
+    val peripheral = PeripheralManager.peripheral
+    val charWrite = PeripheralManager.charWrite
+    val command = "beeps 5;"
+    if (peripheral != null && charWrite != null) {
+        try {
+            peripheral.write(charWrite, command.encodeToByteArray())
+            println("Command sent: $command")
+        } catch (e: Exception) {
+            println("Error writing command: ${e.message}")
+        }
+    } else {
+        println("Peripheral or characteristic not initialized.")
+    }
+}
+suspend fun vibrateRight(){
+    val peripheral = PeripheralManager.peripheral
+    val charWrite = PeripheralManager.charWrite
+    val command = "beepc 5;"
+    if (peripheral != null && charWrite != null) {
+        try {
+            peripheral.write(charWrite, command.encodeToByteArray())
+            println("Command sent: $command")
+        } catch (e: Exception) {
+            println("Error writing command: ${e.message}")
+        }
+    } else {
+        println("Peripheral or characteristic not initialized.")
+    }
+}
+suspend fun readCommand(unityObject: String, unityMethod: String) {
+    val peripheral = PeripheralManager.peripheral
+    val charWrite = PeripheralManager.charWrite
+    val charRead = PeripheralManager.charRead
+    val command = "mode 9;"
+    if (peripheral != null && charWrite !=null) {
+        try {
+            peripheral.write(charWrite, command.encodeToByteArray())
+            val observation = peripheral.observe(charRead!!)
+            observation?.collect{ data ->
+                val utfString = data.decodeToString()
+              //  println("this is observe value: $utfString")
+                UnityPlayer.UnitySendMessage(unityObject, "SetAccelerometerValue", utfString)
+            }
         } catch (e: Exception) {
             println("Error writing command: ${e.message}")
         }
@@ -159,7 +210,7 @@ suspend fun isClientConnected(): Boolean {
 }
 val modesDictionary = mapOf(
     "High Freq" to "-1",
-    "Swing phase continuous" to "2",
+    "Swing phase continuous" to "2", //jhj
     "Swing phase burst" to "3",
     "Stance phase continuous" to "0",
     "Stance phase burst" to "1",

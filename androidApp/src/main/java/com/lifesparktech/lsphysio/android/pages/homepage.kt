@@ -103,22 +103,22 @@ fun HomeScreen() {
                     }
                 }
             }
-            item{
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ){
-                    Card(
-                        modifier = Modifier.padding(12.dp).height(300.dp).fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(4.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.White // Set the card's background color
-                        )
-                    ){
-
-                    }
-                }
-            }
+//            item{
+//                Row(
+//                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+//                    verticalAlignment = Alignment.CenterVertically,
+//                ){
+//                    Card(
+//                        modifier = Modifier.padding(12.dp).height(300.dp).fillMaxWidth(),
+//                        elevation = CardDefaults.cardElevation(4.dp),
+//                        colors = CardDefaults.cardColors(
+//                            containerColor = Color.White // Set the card's background color
+//                        )
+//                    ){
+//
+//                    }
+//                }
+//            }
         }
     }
 }
