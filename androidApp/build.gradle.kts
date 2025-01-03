@@ -65,5 +65,5 @@ dependencies {
     implementation("com.google.accompanist:accompanist-flowlayout:0.36.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("com.juul.kable:core:0.32.0")
-    implementation( files("/Users/madhavsingh/Documents/projects/walk_physio_app_main_now/walk_physio_app/unityLibrary/libs/unity-classes.jar"))
+    implementation( files("/Users/madhavsingh/Documents/projects/Physio_backup/walk_physio_app/unityLibrary/libs/unity-classes.jar"))
 }

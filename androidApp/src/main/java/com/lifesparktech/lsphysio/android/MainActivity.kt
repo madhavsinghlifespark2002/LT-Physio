@@ -1,6 +1,7 @@
 package com.lifesparktech.lsphysio.android
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
@@ -16,10 +17,15 @@ import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.core.app.ActivityCompat
 import android.provider.Settings
+import android.view.View
+import android.view.ViewGroup
+import com.lifesparktech.lsphysio.PeripheralManager
 import com.lifesparktech.lsphysio.PeripheralManager.mainScope
+import com.lifesparktech.lsphysio.R
 import com.lifesparktech.lsphysio.android.components.vibrateLeft
 import com.lifesparktech.lsphysio.android.components.vibrateRight
 import com.lifesparktech.lsphysio.android.pages.MyMaterial3App
+import com.lifesparktech.lsphysio.android.pages.closeUnity
 import com.unity3d.player.UnityPlayer
 import kotlinx.coroutines.launch
 
@@ -29,6 +35,7 @@ data class NavigationItem(
     val route: String
 )
 var unityPlayer: UnityPlayer? = null
+var unityView: View? = null
 class MainActivity : ComponentActivity() {
 
     private val enableBluetoothLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult())
@@ -53,6 +60,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
        // instance =
         unityPlayer = UnityPlayer(this)
+//        setContentView(R.layout.activity_main) // Set the content view first, if not done yet
+//
+//        // Add the UnityPlayer's surface view to the layout
+//        unityView = unityPlayer?.view
+//
+//        // Ensure the Unity view is added to the current view
+//        unityView?.let { view ->
+//            val parentLayout = findViewById<ViewGroup>(R.id.container_layout) // Assuming you have a container in your layout
+//            parentLayout?.addView(view)
+//        }
+//
+//        unityView = findViewById(com.unity3d.player.R.id.unitySurfaceView)
         enableEdgeToEdge()
         requestBluetoothPermissions()
         requestLocationPermissions()
@@ -149,7 +168,33 @@ class MainActivity : ComponentActivity() {
         }
         @JvmStatic
         fun exitUnity() {
-            unityPlayer?.destroy()
+            println("this is peripheral before exitUnity: ${PeripheralManager.peripheral}")
+
+            try {
+                // Ensure unityPlayer is initialized before proceeding
+                if (unityPlayer != null) {
+                    // Get the Unity view (GLSurfaceView or similar)
+
+
+                    // Remove Unity view from the screen to stop rendering
+                    if (unityView != null) {
+                        val parentView = unityView?.parent as? ViewGroup
+                        println("Parent view: $parentView")
+                        parentView?.removeView(unityView) // Remove Unity's view
+                        println("Unity view successfully removed from screen.")
+                    } else {
+                        println("Unity view is not available.")
+                    }
+                } else {
+                    println("Unity player was not initialized.")
+                }
+            } catch (e: Exception) {
+                println("Error during Unity cleanup: ${e.message}")
+                e.printStackTrace()
+            }
+
+            println("this is peripheral after exitUnity: ${PeripheralManager.peripheral}")
         }
+
     }
 }

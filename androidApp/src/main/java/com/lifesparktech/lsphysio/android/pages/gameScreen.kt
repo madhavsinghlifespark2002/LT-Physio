@@ -1,9 +1,8 @@
 package com.lifesparktech.lsphysio.android.pages
-import android.content.Context
+import android.app.Activity
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -11,12 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,29 +20,31 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat.startActivity
 import com.example.lsphysio.android.R
 import com.lifesparktech.lsphysio.PeripheralManager
+import com.lifesparktech.lsphysio.PeripheralManager.gameContext
 import com.lifesparktech.lsphysio.PeripheralManager.mainScope
 import com.lifesparktech.lsphysio.android.components.readCommand
 import com.unity3d.player.UnityPlayer
 import com.unity3d.player.UnityPlayerActivity
 import kotlinx.coroutines.launch
-import kotlin.jvm.java
+
 @Composable
 fun GamesScreen() {
     var isDeviceConnected by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit){
-        if (PeripheralManager.peripheral !=null){
+
+    LaunchedEffect(Unit) {
+        if (PeripheralManager.peripheral != null) {
             isDeviceConnected = true
         }
     }
-    BackHandler {
-        println("back button pressed.")
-    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -89,6 +85,8 @@ fun GamesScreen() {
     }
 }
 
+
+
 @Composable
 fun GameCard(
     gameImage: Int,
@@ -100,7 +98,7 @@ fun GameCard(
     isDeviceConnected: Boolean
 ) {
     val context = LocalContext.current
-
+    gameContext = context
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -151,8 +149,8 @@ fun GameCard(
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
-                        mainScope.launch{
-                            launchUnity(context, unityObject, unityMethod)
+                        mainScope.launch {
+                            launchUnity(unityObject, unityMethod)
                         }
                     },
                     modifier = Modifier.align(Alignment.End),
@@ -164,11 +162,23 @@ fun GameCard(
         }
     }
 }
-suspend fun launchUnity(context: Context, unityObject: String, unityMethod: String) {
-    val intent = Intent(context, UnityPlayerActivity::class.java)
-    context.startActivity(intent)
+suspend fun launchUnity(unityObject: String, unityMethod: String) {
+    val intent = Intent(gameContext, UnityPlayerActivity::class.java)
+    gameContext?.startActivity(intent)
     Handler(Looper.getMainLooper()).postDelayed({
         UnityPlayer.UnitySendMessage(unityObject, unityMethod, "")
     }, 1000)
-    readCommand(unityObject,unityMethod)
+    readCommand(unityObject, unityMethod)
+}
+
+fun closeUnity() {
+    val intent = Intent(gameContext, UnityPlayerActivity::class.java)
+    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+    gameContext?.startActivity(intent)
+    if (gameContext is Activity) {
+        gameContext?.startActivity(intent)
+        (gameContext as Activity).finish() // Call finish on the Activity
+    } else {
+        println("Game context is not an Activity!")
+    }
 }
