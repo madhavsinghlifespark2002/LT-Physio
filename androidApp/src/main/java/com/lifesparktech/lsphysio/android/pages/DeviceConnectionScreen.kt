@@ -196,15 +196,9 @@ fun DeviceConnectionScreen(navController: NavController) {
                                         onClick = {
                                             mainActivity.requestBluetoothPermissions()
                                             mainActivity.requestLocationPermissions()
-
                                             isConnecting = true
-
-
-
-                                            // Handle connecting to the selected device
                                             mainScope.launch {
                                                 connectingDevice = device.name // Set the connecting device
-
                                                 try {
                                                     delay(2000)
                                                     ConnectDeviced(context, navController, device)

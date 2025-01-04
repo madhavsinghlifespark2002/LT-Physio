@@ -22,8 +22,7 @@ fun BarChartCard(modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .width(800.dp)
-            .height(600.dp)
-            .padding(16.dp),
+            .height(600.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
@@ -37,7 +36,7 @@ fun BarChartCard(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .padding(bottom = 16.dp), // Space between title and chart
-                fontSize = 20.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
             )
 
@@ -70,7 +69,7 @@ fun BarChartComposable(modifier: Modifier = Modifier) {
 
     val dataSet = BarDataSet(entries, "Example Data").apply {
         this.colors = colors
-        valueTextSize = 32f
+        valueTextSize = 20f
     }
 
     val barData = BarData(dataSet)

@@ -4,18 +4,22 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -26,9 +30,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,13 +40,12 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.lsphysio.android.R
 import com.lifesparktech.lsphysio.android.data.sampleDoctors
-//import com.lifesparktech.lsphysio.android.data.samplePatients
+
 @Composable
 fun DoctorScreen(navController: NavController) {
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFf4f4f4)),
@@ -54,6 +54,7 @@ fun DoctorScreen(navController: NavController) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SimpleTableDoctor(navController: NavController) {
     Card(
@@ -65,10 +66,11 @@ fun SimpleTableDoctor(navController: NavController) {
     ) {
         val configuration = LocalConfiguration.current
         val screenWidth = configuration.screenWidthDp.dp
+        println("ScreenWidth: $screenWidth")
         Column{
-            Row(
+            FlowRow(
                 modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+               // verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ){
                 Text(text = "Doctor List", fontWeight = FontWeight.Bold, fontSize = 24.sp)
@@ -118,69 +120,108 @@ fun SimpleTableDoctor(navController: NavController) {
                 color = Color(0xFFD6D6D6),
                 thickness = 1.dp
             )
-            Row(modifier = Modifier.fillMaxWidth()) {
-                TableCell(text = "NO.", modifier = Modifier.weight(0.3f),fontWeight = FontWeight.Bold)
-                TableCell(text = "NAME", modifier = Modifier.weight(0.5f),fontWeight = FontWeight.Bold)
-                TableCell(text = "CONTACT", modifier = Modifier.weight(0.75f),fontWeight = FontWeight.Bold)
-                TableCell(text = "WORKING DAYS", modifier = Modifier.weight(0.8f), fontWeight = FontWeight.Bold)
-                TableCell(text = "DEPARTMENT", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier =
+                    if(screenWidth >=800.dp){
+                        Modifier
+                            .fillMaxWidth()
+                    }else{
+
+                        Modifier.horizontalScroll(rememberScrollState()).fillMaxWidth()
+                    }
+            ){
+                if(screenWidth >= 800.0.dp){
+                    TableCell(text = "NO.", modifier = Modifier.weight(0.3f),fontWeight = FontWeight.Bold)
+                    TableCell(text = "NAME", modifier = Modifier.weight(0.5f),fontWeight = FontWeight.Bold)
+                    TableCell(text = "CONTACT", modifier = Modifier.weight(0.75f),fontWeight = FontWeight.Bold)
+                    TableCell(text = "WORKING DAYS", modifier = Modifier.weight(0.8f), fontWeight = FontWeight.Bold)
+                    TableCell(text = "DEPARTMENT", modifier = Modifier.weight(0.5f), fontWeight = FontWeight.Bold)
+                }
+                else{
+                    TableCell(text = "NO.", fontWeight = FontWeight.Bold)
+                    TableCell(text = "NAME", fontWeight = FontWeight.Bold)
+                    TableCell(text = "CONTACT",fontWeight = FontWeight.Bold)
+                    TableCell(text = "WORKING DAYS", fontWeight = FontWeight.Bold)
+                    TableCell(text = "DEPARTMENT", fontWeight = FontWeight.Bold)
+                }
+
             }
             Box(
-                modifier = Modifier.height( if(screenWidth <= 800.0.dp ) { 800.dp } else { 400.dp } )
+                modifier = Modifier.fillMaxHeight(0.85f)
             ){
-                LazyColumn(modifier = Modifier) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxHeight() // Enable horizontal scrolling
+                ) {
                     item{
-                        sampleDoctors.forEachIndexed { index, doctor ->
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                                    .background(if (index % 2 == 0) Color.White else Color(0xFFF8FAFB))
-                            ) {
-                                TableCell(text = "${doctor.serialNo}", modifier = Modifier.weight(0.3f))
-                                TableCell(text = "${doctor.name}", modifier = Modifier.weight(0.5f))
-                                TableCell(text = "${doctor.phone}\n ${doctor.email}", modifier = Modifier.weight(0.75f))
-                                TableCellBadgeDoctor(modifier = Modifier.weight(0.8f), workingDays = doctor.workingDays)
-                                TableCell(text = "${doctor.department}", modifier = Modifier.weight(0.5f))
-                                Spacer(modifier = Modifier.width(4.dp))
+                        FlowRow{
+                            sampleDoctors.forEachIndexed { index, doctor ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier =
+                                        if(screenWidth >= 800.0.dp){
+                                            println("inside not scroll")
+                                            Modifier.fillMaxWidth()
+                                                .background(if (index % 2 == 0) Color.White else Color(0xFFF8FAFB))
+                                        }
+                                        else{
+                                            println("inside scroll")
+                                            Modifier.horizontalScroll(rememberScrollState()).fillMaxWidth()
+                                                .background(if (index % 2 == 0) Color.White else Color(0xFFF8FAFB))
+
+                                        }
+
+                                ) {
+                                    if(screenWidth >= 800.0.dp ){
+                                        TableCell(text = "${doctor.serialNo}", modifier = Modifier.weight(0.3f))
+                                        TableCell(text = "${doctor.name}", modifier = Modifier.weight(0.5f))
+                                        TableCell(text = "${doctor.phone}\n ${doctor.email}", modifier = Modifier.weight(0.75f))
+                                        TableCellBadgeDoctor(modifier = Modifier.weight(0.8f), workingDays = doctor.workingDays)
+                                        TableCell(text = "${doctor.department}", modifier = Modifier.weight(0.5f))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                    }
+                                    else{
+                                        TableCell(text = "${doctor.serialNo}")
+                                        TableCell(text = "${doctor.name}")
+                                        TableCell(text = "${doctor.phone}\n ${doctor.email}")
+                                        TableCellBadgeDoctor( workingDays = doctor.workingDays)
+                                        TableCell(text = "${doctor.department}")
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                    }
+                                }
                             }
                         }
+
                     }
                 }
             }
-            Divider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                color = Color(0xFFD6D6D6),
-                thickness = 1.dp
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ){
-                Button(
-                    border = BorderStroke(width = 1.dp, color = Color(0xFFD6D6D6)),
-                    onClick = {},
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.textButtonColors(
-                        containerColor = Color.White
-                    ) //222429
-                ){
-                    Text(text = "Previous", color = Color(0xFF222429))
-                }
-                Text("Page 1 of 12")
-                Button(
-                    border = BorderStroke(width = 1.dp, color = Color(0xFFD6D6D6)),
-                    onClick = {},
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.textButtonColors(
-                        containerColor = Color.White
-                    ) //222429
-                ){
-                    Text(text = "Next", color = Color(0xFF222429))
-                }
-            }
+        }
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ){
+        Button(
+            border = BorderStroke(width = 1.dp, color = Color(0xFFD6D6D6)),
+            onClick = {},
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.textButtonColors(
+                containerColor = Color.White
+            ) //222429
+        ){
+            Text(text = "Previous", color = Color(0xFF222429))
+        }
+        Text("Page 1 of 12")
+        Button(
+            border = BorderStroke(width = 1.dp, color = Color(0xFFD6D6D6)),
+            onClick = {},
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.textButtonColors(
+                containerColor = Color.White
+            ) //222429
+        ){
+            Text(text = "Next", color = Color(0xFF222429))
         }
     }
 }

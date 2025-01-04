@@ -50,14 +50,14 @@ fun AccountScreen() {
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xff222429),
-                    modifier = Modifier.padding(vertical = 16.dp)
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
             FlowRow(
                 modifier = Modifier
                     .fillMaxWidth(),
                 mainAxisSpacing = 2.dp,
-                crossAxisSpacing = 2.dp,
+                crossAxisSpacing = 6.dp,
             ) {
                 Card(
                    modifier = if (screenWidth > 500.dp) { Modifier.fillMaxWidth(0.35f)} else {

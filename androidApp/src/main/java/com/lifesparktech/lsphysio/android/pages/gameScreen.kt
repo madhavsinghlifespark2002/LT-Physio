@@ -8,7 +8,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -56,7 +58,7 @@ fun GamesScreen() {
             modifier = Modifier.padding(16.dp)
         )
         GameCard(
-            R.drawable.fishgame1,
+            R.drawable.fishgame,
             "CatchFish",
             "Helps in reducing pain",
             65,
@@ -84,9 +86,6 @@ fun GamesScreen() {
         )
     }
 }
-
-
-
 @Composable
 fun GameCard(
     gameImage: Int,
@@ -102,9 +101,13 @@ fun GameCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(210.dp)
             .padding(8.dp),
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White // Set the card's background color
+        )
     ) {
         Row(
             modifier = Modifier
@@ -117,8 +120,7 @@ fun GameCard(
                 painter = painterResource(id = gameImage),
                 contentDescription = "$gameName Image",
                 modifier = Modifier
-                    .size(150.dp)
-                    .padding(end = 16.dp),
+                    .size(150.dp),
                 contentScale = ContentScale.Crop
             )
 
@@ -137,7 +139,7 @@ fun GameCard(
                         ) {
                             append("$gameName\n\n")
                         }
-                        append("Helps Patients: $helpFeature\n")
+                        append("$helpFeature\n")
                         append("Highest Score: $highestScore")
                     },
                     modifier = Modifier.padding(8.dp),
@@ -146,7 +148,7 @@ fun GameCard(
                         color = Color.Gray
                     )
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = {
                         mainScope.launch {
@@ -154,9 +156,16 @@ fun GameCard(
                         }
                     },
                     modifier = Modifier.align(Alignment.End),
-                    enabled = isDeviceConnected
+                    enabled = isDeviceConnected,
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = Color(0xFF005749), // Normal state color
+                        contentColor = Color.White, // Normal text color
+                        disabledContainerColor = Color(0xFFCCCCCC), // Background color when disabled
+                        disabledContentColor = Color.Gray // Text color when disabled
+                    )
                 ) {
-                    Text(text = "Play $gameName")
+                    Text(text = "Play", color = Color.White)
                 }
             }
         }

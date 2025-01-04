@@ -29,6 +29,8 @@ fun HomeScreen() {
         modifier = Modifier.fillMaxSize(),
         containerColor = Color(0xFFF4F4F4) // Use `containerColor` for the background
     ) { innerPadding ->
+        val configuration = LocalConfiguration.current
+        val screenWidth = configuration.screenWidthDp.dp
         LazyColumn{
             item{
                 FlowRow(
@@ -78,13 +80,20 @@ fun HomeScreen() {
                 }
             }
             item{
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceAround,
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+//                    verticalAlignment = Alignment.CenterVertically,
+//                    horizontalArrangement = Arrangement.SpaceAround,
                 ){
                     Card(
-                        modifier = Modifier.padding(12.dp).height(275.dp).fillMaxWidth(0.6f),
+                        modifier = Modifier.padding(12.dp).height(275.dp).fillMaxWidth(
+                            if(screenWidth <= 799.0.dp )
+                            {
+                                1.0f
+                            }
+                            else{
+                                0.5f}
+                        ),
                         elevation = CardDefaults.cardElevation(4.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = Color.White // Set the card's background color
@@ -93,7 +102,14 @@ fun HomeScreen() {
                         BarChartCard()
                     }
                     Card(
-                        modifier = Modifier.padding(12.dp).height(275.dp).fillMaxWidth(0.9f),
+                        modifier = Modifier.padding(12.dp).height(275.dp).fillMaxWidth(
+                            if(screenWidth <= 799.0.dp )
+                            {
+                                1.0f
+                            }
+                            else{
+                                0.45f}
+                        ),
                         elevation = CardDefaults.cardElevation(4.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = Color.White // Set the card's background color
@@ -130,7 +146,14 @@ fun DashboardCard(label: String, subContent: String, sideContent: String, conten
     println("screenWidth $screenWidth")
     Card(
         modifier = Modifier
-            .width(if(screenWidth <= 800.0.dp ){ 375.dp } else{ 300.dp})
+            .width(
+                if(screenWidth <= 800.0.dp )
+                {
+                    375.dp
+                }
+                else{
+                    300.dp}
+            )
             //.width(300.dp)
             .height(200.dp)
             .padding(12.dp),
