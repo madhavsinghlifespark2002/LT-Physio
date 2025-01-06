@@ -53,7 +53,7 @@ fun GamesScreen() {
             .background(Color(0xFFf4f4f4))
     ) {
         Text(
-            text = "GamesScreen",
+            text = "Games Screen",
             style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold),
             modifier = Modifier.padding(16.dp)
         )
@@ -86,6 +86,7 @@ fun GamesScreen() {
         )
     }
 }
+
 @Composable
 fun GameCard(
     gameImage: Int,

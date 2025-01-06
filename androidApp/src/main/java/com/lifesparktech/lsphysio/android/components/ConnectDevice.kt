@@ -13,6 +13,8 @@ import com.lifesparktech.lsphysio.PeripheralManager
 import com.lifesparktech.lsphysio.PeripheralManager.mainScope
 import com.lifesparktech.lsphysio.PeripheralManager.peripheral
 import com.unity3d.player.UnityPlayer
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 val BATTERY_PERCENTAGE_CLIENT_UUID = uuidFrom("0000aef3-0000-1000-8000-00805f9b34fb")
 val BATTERY_PERCENTAGE_SERVER_UUID = uuidFrom("0000adf3-0000-1000-8000-00805f9b34fb")
@@ -74,6 +76,38 @@ suspend fun writeCommand(command: String) {
         println("Peripheral or characteristic not initialized.")
     }
 }
+suspend fun testCommand(command: String): Flow<Pair<String, String>> = flow {
+    val peripheral = PeripheralManager.peripheral
+    val charWrite = PeripheralManager.charWrite
+    val charRead = PeripheralManager.charRead
+    val service = peripheral?.services?.find {
+        it.serviceUuid == uuidFrom("0000abf0-0000-1000-8000-00805f9b34fb")
+    } ?: throw Exception("Service not found for device")
+    var charReadClient = service.characteristics.find {
+        it.characteristicUuid == uuidFrom("0000abf4-0000-1000-8000-00805f9b34fb")
+    } ?: throw Exception("Read characteristic not found")
+    var charReadServer= service.characteristics.find {
+        it.characteristicUuid == uuidFrom("0000abf5-0000-1000-8000-00805f9b34fb")
+    } ?: throw Exception("Read characteristic not found")
+    if (peripheral != null && charWrite != null) {
+        try {
+            peripheral.write(charWrite, command.encodeToByteArray())
+            while (true) {
+                val observationClient = peripheral.read(charReadClient!!)
+                val observationServer = peripheral.read(charReadServer!!)
+                val clientReadable = observationClient.decodeToString()
+                val serverReadable = observationServer.decodeToString()
+                emit(clientReadable to serverReadable) // Emit the values as a pair
+                println("observationClient: $clientReadable and observationServer: $serverReadable")
+                kotlinx.coroutines.delay(500)
+            }
+        } catch (e: Exception) {
+            println("Error writing command: ${e.message}")
+        }
+    } else {
+        println("Peripheral or characteristic not initialized.")
+    }
+}
 suspend fun vibrateLeft(){
     val peripheral = PeripheralManager.peripheral
     val charWrite = PeripheralManager.charWrite
@@ -115,7 +149,6 @@ suspend fun readCommand(unityObject: String, unityMethod: String) {
             val observation = peripheral.observe(charRead!!)
             observation?.collect{ data ->
                 val utfString = data.decodeToString()
-              //  println("this is observe value: $utfString")
                 UnityPlayer.UnitySendMessage(unityObject, "SetAccelerometerValue", utfString)
             }
         } catch (e: Exception) {
@@ -239,3 +272,6 @@ suspend fun disconnectDevice(navController: NavController) {
 }
 // 0000aef9-0000-1000-8000-00805f9b34fb
 // 0000adf9-0000-1000-8000-00805f9b34fb
+
+//pub const CLIENT_STANDING_STATUS_CHARACTERISTIC: &str="0000abf4-0000-1000-8000-00805f9b34fb";
+//pub const SERVER_STANDING_STATUS_CHARACTERISTIC: &str="0000abf5-0000-1000-8000-00805f9b34fb";

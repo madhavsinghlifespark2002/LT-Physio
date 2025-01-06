@@ -40,6 +40,7 @@ import com.lifesparktech.lsphysio.android.pages.ReceiptScreen
 import com.lifesparktech.lsphysio.android.pages.ReportsScreen
 import com.lifesparktech.lsphysio.android.pages.ResourceScreen
 import com.lifesparktech.lsphysio.android.pages.ScheduleScreen
+import com.lifesparktech.lsphysio.android.pages.SittoStandScreen
 import com.lifesparktech.lsphysio.android.pages.TestScreen
 import com.lifesparktech.lsphysio.android.pages.UpdatedPatientScreen
 
@@ -121,6 +122,7 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         composable("resourceScreen"){ ResourceScreen(navController) }
         composable("receiptScreen"){ ReceiptScreen(navController) }
         composable("DeviceControlScreen") { DeviceControlScreen(navController) }
+        composable("SittoStandScreen") { SittoStandScreen() }
         composable("PatientDetail/{patientId}"){ backStackEntry ->
             val PatientId = backStackEntry.arguments?.getString("patientId")
             if (PatientId != null) {
@@ -139,7 +141,7 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         }
         composable(Screen.Home.route) { HomeScreen() }
         composable(Screen.Games.route) { GamesScreen() }
-        composable(Screen.Tests.route) { TestScreen() }
+        composable(Screen.Tests.route) { TestScreen(navController) }
         composable(Screen.DeviceConnectionScreen.route) {
             if (PeripheralManager.peripheral != null) {
                 // Peripheral is already connected, navigate to DeviceControlScreen

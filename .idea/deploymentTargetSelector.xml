@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="LSPhysio.androidApp">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-01-04T08:34:00.069038Z">
+        <DropdownSelection timestamp="2025-01-04T10:00:02.424378Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=HA1Y43LK" />
