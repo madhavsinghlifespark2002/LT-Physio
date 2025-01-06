@@ -97,8 +97,6 @@ fun AddPatientScreen(navController: NavController) {
         "Fever", "Cancer", "Parkinson's", "Sugar", "Diabetes",
     )
     val selectedItems = remember { mutableStateOf(setOf<String>()) }
-    //val textField = remember { mutableStateListOf<EditableTextField>() }
-
     fun validateName() {
         nameError = if (name.trim().isEmpty()) "Name is required." else ""
     }
@@ -364,7 +362,7 @@ fun AddPatientScreen(navController: NavController) {
                             value = email,
                             onValueChange = {
                                 email = it.trim()
-                                validateEmail()
+                              //  validateEmail()
                             },
                             label = "Email",
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
@@ -854,14 +852,14 @@ fun AddPatientScreen(navController: NavController) {
                     onClick = {
                         validateName()
                         validateAge()
-                        validateEmail()
+                        //validateEmail()
                         validateContact()
                         validateWeight()
                         validateHeight()
                         validateCondition()
                         validateGender()
                         if (
-                            nameError.isEmpty() && ageError.isEmpty() && emailError.isEmpty()
+                            nameError.isEmpty() && ageError.isEmpty()
                             && contactError.isEmpty() && weightError.isEmpty() &&
                             heightError.isEmpty() && conditionError.isEmpty() && genderError.isEmpty()
                         ) {
@@ -878,10 +876,11 @@ fun AddPatientScreen(navController: NavController) {
                                 height = height.toInt(),
                                 weight = weight.toInt(),
                                 diagnostics = selectedItems.value.toList(),
+                               // stsTest = emptyList(),
                                 extraDetails = extraDetailsList,
                                 bloodGroup = selectedBloodGroup,
                                 allergies = ALlergies,
-                                bodymassindex = bodymassindex.toDouble(),
+                                bodymassindex = bodymassindex.toDoubleOrNull() ?: 0.0,
                                 bloodPressure = bloodPressure,
                                 diabetesemergencies = diabetesEmergencies,
                                 chronicdisease= chronicDisease,

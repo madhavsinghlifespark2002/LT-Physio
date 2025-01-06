@@ -122,7 +122,7 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         composable("resourceScreen"){ ResourceScreen(navController) }
         composable("receiptScreen"){ ReceiptScreen(navController) }
         composable("DeviceControlScreen") { DeviceControlScreen(navController) }
-        composable("SittoStandScreen") { SittoStandScreen() }
+        composable("SittoStandScreen") { SittoStandScreen(navController) }
         composable("PatientDetail/{patientId}"){ backStackEntry ->
             val PatientId = backStackEntry.arguments?.getString("patientId")
             if (PatientId != null) {

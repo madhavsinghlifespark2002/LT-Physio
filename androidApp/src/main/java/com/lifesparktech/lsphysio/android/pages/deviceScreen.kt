@@ -92,7 +92,6 @@ fun DeviceControlScreen(navController: NavController) {
     var BandStatus by remember { mutableStateOf("no Status") }
     var BandStatusBool by remember { mutableStateOf(false) }
     val context = LocalContext.current
-
     fun trackDeviceStatus() {
         peripheral?.state?.onEach { state ->
             println("Band State: $state")
@@ -158,8 +157,8 @@ fun DeviceControlScreen(navController: NavController) {
             showDisconnectedPopup = isRightConnect == true
             frequencyBand = fetchedFrequency
             if (batteryValues != null) {
-                leftBattery = batteryValues.first.toFloat().toInt()
-                rightBattery = batteryValues.second.toFloat().toInt()
+                leftBattery = batteryValues.first.toFloatOrNull()?.toInt() ?: 0
+                rightBattery = batteryValues.second.toFloatOrNull()?.toInt() ?: 0
             }
             if (magnitudeValues != null) {
                 leftMagnitude = magnitudeValues.first ?: 0
@@ -201,8 +200,7 @@ fun DeviceControlScreen(navController: NavController) {
             }
         )
     }
-    Column(modifier = Modifier.fillMaxSize().background(Color(0xFFf4f4f4)).padding(12.dp),
-    ) {
+    Column(modifier = Modifier.fillMaxSize().background(Color(0xFFf4f4f4)).padding(12.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,

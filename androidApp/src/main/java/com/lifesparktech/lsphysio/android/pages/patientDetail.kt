@@ -59,8 +59,6 @@ import java.nio.file.WatchEvent
 fun PatientDetail(navController: NavController, patientId: String) {
     var patient by remember { mutableStateOf<Patient?>(null) }
     var isLoading by remember { mutableStateOf(true) }
-
-    // Fetch patient data
     LaunchedEffect(patientId) {
         try {
             isLoading = true
@@ -69,10 +67,8 @@ fun PatientDetail(navController: NavController, patientId: String) {
             isLoading = false
         }
     }
-
     Scaffold(
         topBar = {
-            // Define your TopBar here
         },
         containerColor = Color.White
     ) { contentPadding ->
@@ -447,41 +443,13 @@ fun PatientDetail(navController: NavController, patientId: String) {
                                         color = Color.Black
                                     )
                                     Spacer(modifier = Modifier.height(16.dp))
-                                    ReportItemDetailInfo(
-                                        res = R.drawable.report_zip,
-                                        label = "Chest X-Ray Report",
-                                        date = "12 Oct 2024"
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    ReportItemDetailInfo(
-                                        res = R.drawable.report_zip,
-                                        label = "Electrocardiogram",
-                                        date = "22 Sept 2024"
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    ReportItemDetailInfo(
-                                        res = R.drawable.report_zip,
-                                        label = "Blood Glucose Test Report",
-                                        date = "2 Aug 2024"
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    ReportItemDetailInfo(
-                                        res = R.drawable.report_zip,
-                                        label = "Pathology Lab Results Report",
-                                        date = "21 July 2024"
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    ReportItemDetailInfo(
-                                        res = R.drawable.report_zip,
-                                        label = "Surgical Procedure Summary",
-                                        date = "12 July 2024"
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    ReportItemDetailInfo(
-                                        res = R.drawable.report_zip,
-                                        label = "Chronic Condition Management Report",
-                                        date = "14 June 2024"
-                                    )
+                                    patient?.stsTest?.forEach{test ->
+                                        ReportItemDetailInfo(
+                                            res = R.drawable.report_zip,
+                                            label = test.toString(),
+                                            date = "12 Oct 2024"
+                                        )
+                                    }
                                     Spacer(modifier = Modifier.height(16.dp))
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
@@ -507,7 +475,6 @@ fun PatientDetail(navController: NavController, patientId: String) {
     }
 
 }
-
 @Composable
 fun PatientItemDetail(
     @DrawableRes res: Int,
