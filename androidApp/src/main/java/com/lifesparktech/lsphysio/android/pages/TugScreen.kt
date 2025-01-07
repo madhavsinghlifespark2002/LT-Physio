@@ -68,15 +68,15 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SittoStandScreen(navController: NavController){
+fun TugScreen(navController: NavController){
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFf4f4f4)),
     ) {
-        SittoStandCard(navController)
+        TugCard(navController)
     }
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SittoStandCard(navController: NavController) {
+fun TugCard(navController: NavController) {
     val command = "mode 4;"
     val clientData = remember { mutableStateOf("") }
     val patients = remember { mutableStateOf<List<Patient>>(emptyList()) }
@@ -95,7 +95,6 @@ fun SittoStandCard(navController: NavController) {
     val scope = rememberCoroutineScope()
     var patient by remember { mutableStateOf(Patient()) }
     var context = LocalContext.current
-
     fun trackDeviceStatus() {
         peripheral?.state?.onEach { state ->
             println("Band State: $state")
@@ -212,143 +211,157 @@ fun SittoStandCard(navController: NavController) {
 //        }
 //    }
 //    else {
-        Card(
-            modifier = Modifier.padding(12.dp),
-            elevation = CardDefaults.cardElevation(4.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White // Set the card's background color
-            )
-        ){
-            Column(modifier = Modifier.fillMaxSize().background(Color(0xFFf4f4f4)).padding(12.dp))
-            {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
+    Card(
+        modifier = Modifier.padding(12.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White // Set the card's background color
+        )
+    ){
+        Column(modifier = Modifier.fillMaxSize().background(Color(0xFFf4f4f4)).padding(12.dp))
+        {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    modifier = Modifier.clickable { navController.popBackStack() }
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "TUG",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF222429)
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Column(
+            ) {
+                Text(text = "Enter a patient", style = TextStyle(fontSize = 16.sp), fontWeight = FontWeight.SemiBold)
+                Spacer(modifier = Modifier.height(8.dp))
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back",
-                        modifier = Modifier.clickable { navController.popBackStack() }
+                    OutlinedTextField(
+                        value = selectedOption,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                        },
+                        colors =  TextFieldDefaults.textFieldColors(
+                            containerColor = Color(0xffEBEBEB),
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor()
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "Sit to Stand",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF222429)
-                    )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Column(
-                ) {
-                    Text(text = "Enter a patient", style = TextStyle(fontSize = 16.sp), fontWeight = FontWeight.SemiBold)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    ExposedDropdownMenuBox(
+                    ExposedDropdownMenu(
                         expanded = expanded,
-                        onExpandedChange = { expanded = !expanded }
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier.background(color = Color(0xFFf2f4f5))
                     ) {
-                        OutlinedTextField(
-                            value = selectedOption,
-                            onValueChange = {},
-                            readOnly = true,
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                            },
-                            colors =  TextFieldDefaults.textFieldColors(
-                                containerColor = Color(0xffEBEBEB),
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .menuAnchor()
-                        )
-                        ExposedDropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                            modifier = Modifier.background(color = Color(0xFFf2f4f5))
-                        ) {
-                            patients.value.forEach{option ->
-                                DropdownMenuItem(
-                                    text = { Text(option.name) },
-                                    onClick = {
-                                        patient = option
-                                        selectedOption = option.name
-                                        expanded = false
-                                    }
-                                )
+                        patients.value.forEach{option ->
+                            DropdownMenuItem(
+                                text = { Text(option.name) },
+                                onClick = {
+                                    patient = option
+                                    selectedOption = option.name
+                                    expanded = false
+                                }
+                            )
 
-                            }
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = {
-                        if (selectedOption.isEmpty()) {
-                            Toast.makeText(context, "Please select a patient", Toast.LENGTH_LONG).show()
-                            return@Button
-                        }
-                        if (PeripheralManager.peripheral != null) {
-                            if (collectionJob == null) {
-                                // Start the process
-                                collectionJob = mainScope.launch {
-                                    timeTaken.value = null // Reset the timeTaken value
-                                    testCommand(command).collect { (client, server) ->
-                                        clientData.value = client
-                                        serverData.value = server
-                                        if (client == "0" && server == "0" && !timerRunning.value) {
-                                            timerRunning.value = true
-                                            timerMillis.value = 0L
-                                        }
-                                        if (client == "1" && server == "1" && timerRunning.value) {
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    if (selectedOption.isEmpty()) {
+                        Toast.makeText(context, "Please select a patient", Toast.LENGTH_LONG).show()
+                        return@Button
+                    }
+                    if (PeripheralManager.peripheral != null) {
+                        if (collectionJob == null) {
+                            // Start the process
+                            collectionJob = mainScope.launch {
+                                timeTaken.value = null // Reset the timeTaken value
+                                timerMillis.value = 0L
+                                var hasStoodUp = false // Track if the user stood up
+                                testCommand(command).collect { (client, server) ->
+                                    clientData.value = client
+                                    serverData.value = server
+
+                                    when {
+                                        // User returns to sitting position after standing
+                                        client == "0" && server == "0" && hasStoodUp -> {
                                             timerRunning.value = false
                                             timeTaken.value = timerMillis.value // Record the time taken
+                                            Toast.makeText(context, "Test complete!", Toast.LENGTH_SHORT).show()
                                             collectionJob?.cancel() // Stop collecting
                                             collectionJob = null
-                                            updatePatientWithTestResult(patient, timeTaken.value, "stsTest")
+                                            hasStoodUp = false // Reset flag
+                                            updatePatientWithTestResult(patient, timeTaken.value, "tugTest")
+                                        }
+                                        // User transitions to standing
+                                        client == "1" && server == "1" && !hasStoodUp -> {
+                                            timerRunning.value = true
+                                            timerMillis.value = 0L
+                                            hasStoodUp = true
+                                        }
+                                        // Timer continues while standing
+                                        client == "1" && server == "1" && hasStoodUp -> {
+                                            timerMillis.value += 10 // Increment timer
                                         }
                                     }
                                 }
-                            } else {
-                                timerRunning.value = false
-                                timeTaken.value = timerMillis.value // Record the time taken
-                                collectionJob?.cancel() // Stop collecting
-                                collectionJob = null
-                                updatePatientWithTestResult(patient, timeTaken.value, "stsTest")
                             }
                         } else {
-                            Toast.makeText(context, "Device not Connected", Toast.LENGTH_LONG).show()
+                            // Stop the test manually
+                            timerRunning.value = false
+                            timeTaken.value = timerMillis.value // Record the time taken
+                            collectionJob?.cancel() // Stop collecting
+                            collectionJob = null
+                            updatePatientWithTestResult(patient, timeTaken.value, "tugTest")
                         }
-
-                    },
-                    enabled = isTestConnected,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (timerRunning.value) Color(0xFF960019) else Color(0xFF005749)
-                    )
-                ) {
-                    Text(text = if (collectionJob == null) "Start test" else "Stop")
-                }
-                Text(text = if (timerRunning.value) "Running..." else "Start test")
-                val status = when {
-                    clientData.value.isEmpty() && serverData.value.isEmpty() -> "Start the test"
-                    clientData.value == "0" && serverData.value == "0" -> "Sitting"
-                    clientData.value == "1" && serverData.value == "1" -> "Standing"
-                    else -> "No value"
-                }
-                Text(text = if (status.isEmpty()) "" else "Status: $status")
-                if (timerRunning.value) {
-                    val seconds = (timerMillis.value / 1000)
-                    val milliseconds = (timerMillis.value % 1000)
-                    Text(text = "Timer: ${seconds}s ${milliseconds}ms")
-                }
-                timeTaken.value?.let {
-                    val seconds = (it / 1000)
-                    val milliseconds = (it % 1000)
-                    Text(text = "Time taken from Sitting to Standing: ${seconds}s ${milliseconds}ms")
-                }
+                    } else {
+                        Toast.makeText(context, "Device not Connected", Toast.LENGTH_LONG).show()
+                    }
+                },
+                enabled = isTestConnected,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (timerRunning.value) Color(0xFF960019) else Color(0xFF005749)
+                )
+            ) {
+                Text(text = if (collectionJob == null) "Start test" else "Stop")
+            }
+            Text(text = if (timerRunning.value) "Running..." else "Start test")
+            val status = when {
+                clientData.value.isEmpty() && serverData.value.isEmpty() -> "Start the test"
+                clientData.value == "0" && serverData.value == "0" -> "Sitting"
+                clientData.value == "1" && serverData.value == "1" -> "Standing"
+                else -> "No value"
+            }
+            Text(text = if (status.isEmpty()) "" else "Status: $status")
+            if (timerRunning.value) {
+                val seconds = (timerMillis.value / 1000)
+                val milliseconds = (timerMillis.value % 1000)
+                Text(text = "Timer: ${seconds}s ${milliseconds}ms")
+            }
+            timeTaken.value?.let {
+                val seconds = (it / 1000)
+                val milliseconds = (it % 1000)
+                Text(text = "Time taken from Sitting to Standing: ${seconds}s ${milliseconds}ms")
             }
         }
-   // }
+    }
+    // }
 }
 

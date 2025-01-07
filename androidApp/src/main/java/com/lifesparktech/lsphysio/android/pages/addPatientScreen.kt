@@ -566,36 +566,6 @@ fun AddPatientScreen(navController: NavController) {
                     )
                 }
             }
-
-
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween // Adjust space between items as needed
-                ) {
-                    // First pair of text fields
-                    CommonTextFieldgrey(
-                        value = hepaticIssues,
-                        onValueChange = {
-                            hepaticIssues = it
-                        },
-                        label = "Hepatic Issues",
-                        modifier = Modifier.weight(1f) // Ensure equal space for each field
-                    )
-
-                    Spacer(modifier = Modifier.width(16.dp)) // Space between the first and second text fields
-
-                    CommonTextFieldgrey(
-                        value = relatedComplication,
-                        onValueChange = {
-                            relatedComplication = it
-                        },
-                        label = "Related Complication",
-                        modifier = Modifier.weight(1f) // Ensure equal space for each field
-                    )
-                }
-            }
-
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),

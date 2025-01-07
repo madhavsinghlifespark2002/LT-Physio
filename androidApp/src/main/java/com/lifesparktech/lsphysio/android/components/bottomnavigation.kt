@@ -42,6 +42,7 @@ import com.lifesparktech.lsphysio.android.pages.ResourceScreen
 import com.lifesparktech.lsphysio.android.pages.ScheduleScreen
 import com.lifesparktech.lsphysio.android.pages.SittoStandScreen
 import com.lifesparktech.lsphysio.android.pages.TestScreen
+import com.lifesparktech.lsphysio.android.pages.TugScreen
 import com.lifesparktech.lsphysio.android.pages.UpdatedPatientScreen
 
 @Composable
@@ -123,6 +124,7 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         composable("receiptScreen"){ ReceiptScreen(navController) }
         composable("DeviceControlScreen") { DeviceControlScreen(navController) }
         composable("SittoStandScreen") { SittoStandScreen(navController) }
+        composable("tugscreen") { TugScreen(navController) }
         composable("PatientDetail/{patientId}"){ backStackEntry ->
             val PatientId = backStackEntry.arguments?.getString("patientId")
             if (PatientId != null) {

@@ -53,6 +53,9 @@ import com.example.lsphysio.android.R
 import com.lifesparktech.lsphysio.android.Controller.fetchPatientById
 import com.lifesparktech.lsphysio.android.data.Patient
 import java.nio.file.WatchEvent
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -443,13 +446,25 @@ fun PatientDetail(navController: NavController, patientId: String) {
                                         color = Color.Black
                                     )
                                     Spacer(modifier = Modifier.height(16.dp))
-                                    patient?.stsTest?.forEach{test ->
-                                        ReportItemDetailInfo(
-                                            res = R.drawable.report_zip,
-                                            label = test.toString(),
-                                            date = "12 Oct 2024"
-                                        )
+                                    patient?.stsTest?.forEach { test ->
+                                        if (test is Map<*, *>) {
+                                            val res = R.drawable.report_zip // Replace with a valid drawable resource ID
+                                            val label = test["testName"]?.toString() ?: "Unknown Test"
+                                            val timeTaken = test["timeTaken"]?.toString() ?: "Unknown Time"
+                                            val date = test["timestamp"]?.let {
+                                                SimpleDateFormat("dd MMM yyyy HH:mm:ss", Locale.getDefault()).format(Date(it as Long))
+                                            } ?: "Unknown Date"
+                                            ReportItemDetailInfo(
+                                                res = res,
+                                                label = "$label: $timeTaken",
+                                                date = date
+                                            )
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                        } else {
+                                        println("Unexpected test format: $test")
                                     }
+                                    }
+
                                     Spacer(modifier = Modifier.height(16.dp))
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),

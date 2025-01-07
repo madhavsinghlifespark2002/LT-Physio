@@ -63,6 +63,31 @@ suspend fun updatePatientId(patientId: String): Patient? {
     }
 }
 
+fun updatePatientWithTestResult(patient: Patient, timeTaken: Long?, testname: String) {
+    val firestore = FirebaseFirestore.getInstance()
+    if (timeTaken != null) {
+        val seconds = (timeTaken / 1000)
+        val milliseconds = (timeTaken % 1000)
+        val timeString = "Timings: ${seconds}s ${milliseconds}ms"
+        val timestamp = System.currentTimeMillis()
+        val testResult = mapOf(
+            "testName" to testname,
+            "timeTaken" to timeString,
+            "timestamp" to timestamp
+        )
+        val patientRef = firestore.collection("Patient").document(patient.serialNo)
+        firestore.runTransaction { transaction ->
+            val snapshot = transaction.get(patientRef)
+            val currentResults = snapshot.get(testname) as? List<Map<String, Any>> ?: emptyList()
+            val updatedResults = currentResults + testResult
+            transaction.update(patientRef, testname, updatedResults)
+        }.addOnSuccessListener {
+            println("Patient test result updated successfully with timestamp.")
+        }.addOnFailureListener { exception ->
+            println("Error updating test result: ${exception.message}")
+        }
+    }
+}
 
 
 suspend fun fetchPatientById(patientId: String): Patient? {

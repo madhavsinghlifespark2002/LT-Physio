@@ -79,16 +79,21 @@ suspend fun writeCommand(command: String) {
 suspend fun testCommand(command: String): Flow<Pair<String, String>> = flow {
     val peripheral = PeripheralManager.peripheral
     val charWrite = PeripheralManager.charWrite
-    val charRead = PeripheralManager.charRead
     val service = peripheral?.services?.find {
         it.serviceUuid == uuidFrom("0000abf0-0000-1000-8000-00805f9b34fb")
     } ?: throw Exception("Service not found for device")
-    var charReadClient = service.characteristics.find {
+    val charReadClient = service.characteristics.find {
         it.characteristicUuid == uuidFrom("0000abf4-0000-1000-8000-00805f9b34fb")
-    } ?: throw Exception("Read characteristic not found")
-    var charReadServer= service.characteristics.find {
+    } ?: run {
+        emit("Error" to "Read characteristic for client not found")
+        return@flow
+    }
+    val charReadServer = service.characteristics.find {
         it.characteristicUuid == uuidFrom("0000abf5-0000-1000-8000-00805f9b34fb")
-    } ?: throw Exception("Read characteristic not found")
+    } ?: run {
+        emit("Error" to "Read characteristic for server not found")
+        return@flow
+    }
     if (peripheral != null && charWrite != null) {
         try {
             peripheral.write(charWrite, command.encodeToByteArray())

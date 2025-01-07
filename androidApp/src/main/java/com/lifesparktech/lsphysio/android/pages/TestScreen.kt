@@ -70,7 +70,7 @@ fun TestScreen(navController: NavController) {
                 "TUG",
                 "Helps in reducing pain",
                 isDeviceConnected,
-                "tug",
+                "tugscreen",
                 navController
             )
         }
