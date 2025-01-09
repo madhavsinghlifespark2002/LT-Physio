@@ -2,5 +2,5 @@
 <paths>
     <external-path name="external_files" path="." />
     <cache-path name="cache" path="." />
-
+    <cache-path name="pdf_cache" path="." />
 </paths>

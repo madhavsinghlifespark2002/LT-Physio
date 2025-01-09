@@ -65,5 +65,7 @@ dependencies {
     implementation("com.google.accompanist:accompanist-flowlayout:0.36.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("com.juul.kable:core:0.32.0")
+    implementation("com.itextpdf:itext7-core:7.2.5")
+    implementation ("com.github.mhiew:android-pdf-viewer:3.2.0-beta.3")
     implementation( files("/Users/madhavsingh/Documents/projects/Physio_backup/walk_physio_app/unityLibrary/libs/unity-classes.jar"))
 }

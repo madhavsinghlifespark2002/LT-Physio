@@ -1,4 +1,5 @@
 package com.lifesparktech.lsphysio.android.components
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -24,6 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.lifesparktech.lsphysio.PeripheralManager
+import com.lifesparktech.lsphysio.android.data.GASResult
 import com.lifesparktech.lsphysio.android.pages.AccountScreen
 import com.lifesparktech.lsphysio.android.pages.AddPatientScreen
 import com.lifesparktech.lsphysio.android.pages.AppointmentScreen
@@ -32,10 +34,13 @@ import com.lifesparktech.lsphysio.android.pages.DeviceConnectionScreen
 import com.lifesparktech.lsphysio.android.pages.DeviceControlScreen
 import com.lifesparktech.lsphysio.android.pages.DoctorScreen
 import com.lifesparktech.lsphysio.android.pages.GamesScreen
+import com.lifesparktech.lsphysio.android.pages.GasResultScreen
+import com.lifesparktech.lsphysio.android.pages.GasScreen
 import com.lifesparktech.lsphysio.android.pages.HomeScreen
 import com.lifesparktech.lsphysio.android.pages.PatientDetail
 import com.lifesparktech.lsphysio.android.pages.PatientModifiedScreen
 import com.lifesparktech.lsphysio.android.pages.PatientScreen
+import com.lifesparktech.lsphysio.android.pages.PreviewPdfScreen
 import com.lifesparktech.lsphysio.android.pages.ReceiptScreen
 import com.lifesparktech.lsphysio.android.pages.ReportsScreen
 import com.lifesparktech.lsphysio.android.pages.ResourceScreen
@@ -44,6 +49,7 @@ import com.lifesparktech.lsphysio.android.pages.SittoStandScreen
 import com.lifesparktech.lsphysio.android.pages.TestScreen
 import com.lifesparktech.lsphysio.android.pages.TugScreen
 import com.lifesparktech.lsphysio.android.pages.UpdatedPatientScreen
+import java.io.File
 
 @Composable
 fun Material3BottomNavigationBar(navController: NavHostController) {
@@ -125,6 +131,35 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         composable("DeviceControlScreen") { DeviceControlScreen(navController) }
         composable("SittoStandScreen") { SittoStandScreen(navController) }
         composable("tugscreen") { TugScreen(navController) }
+        composable("gasScreen") { GasScreen(navController) }
+        composable("gasResultScreen") {
+            val result = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<GASResult>("result")
+            val pdfFile = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<File>("pdfFile")
+            if (result != null) {
+                GasResultScreen(navController, result, pdfFile)
+            }
+        }
+        composable("previewPdfScreen") {
+            PreviewPdfScreen(navController)
+        }
+        composable("PdfGeneratorScreen") {
+            PdfGeneratorScreen(
+                onPreviewPdf = { pdfFile ->
+                    navController.navigate("PreviewPdfScreen/${Uri.encode(pdfFile.path)}")
+                },
+                navController
+            )
+        }
+        composable("PreviewPdfScreen/{pdfPath}") { backStackEntry ->
+            val pdfPath = backStackEntry.arguments?.getString("pdfPath")
+            pdfPath?.let {
+               PreviewPdfScreen(File(Uri.decode(it))) // Decode the file path before using it
+            }
+        }
         composable("PatientDetail/{patientId}"){ backStackEntry ->
             val PatientId = backStackEntry.arguments?.getString("patientId")
             if (PatientId != null) {

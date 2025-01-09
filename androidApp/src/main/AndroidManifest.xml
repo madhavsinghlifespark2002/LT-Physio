@@ -27,11 +27,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- Unity Player Activity without launcher intent filter -->
         <activity
                 android:name="com.unity3d.player.UnityPlayerActivity"
-
                 android:theme="@style/UnityThemeSelector"
                 android:screenOrientation="fullUser"
                 android:launchMode="singleTask"

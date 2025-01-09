@@ -2,6 +2,7 @@ package com.lifesparktech.lsphysio.android.Controller
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.lifesparktech.lsphysio.android.data.GASResult
 import com.lifesparktech.lsphysio.android.data.Patient
 
 import kotlinx.coroutines.tasks.await
@@ -62,7 +63,6 @@ suspend fun updatePatientId(patientId: String): Patient? {
         null // Return null if an error occurs
     }
 }
-
 fun updatePatientWithTestResult(patient: Patient, timeTaken: Long?, testname: String) {
     val firestore = FirebaseFirestore.getInstance()
     if (timeTaken != null) {
@@ -88,8 +88,30 @@ fun updatePatientWithTestResult(patient: Patient, timeTaken: Long?, testname: St
         }
     }
 }
-
-
+fun addedGasData(patient: Patient, result: GASResult) {
+    val firestore = FirebaseFirestore.getInstance()
+    val timestamp = System.currentTimeMillis()
+    val testResult = mapOf(
+        "testName" to "gasTest",
+        "totalScore" to result.totalScore,
+        "somaticScore" to result.somaticScore,
+        "cognitiveScore" to result.cognitiveScore,
+        "affectiveScore" to result.affectiveScore,
+        "anxietyCategory" to result.anxietyCategory,
+        "timestamp" to timestamp
+    )
+    val patientRef = firestore.collection("Patient").document(patient.serialNo)
+    firestore.runTransaction { transaction ->
+        val snapshot = transaction.get(patientRef)
+        val currentResults = snapshot.get("gasTest") as? List<Map<String, Any>> ?: emptyList()
+        val updatedResults = currentResults + testResult
+        transaction.update(patientRef, "gasTest", updatedResults)
+    }.addOnSuccessListener {
+        println("Patient test result updated successfully.")
+    }.addOnFailureListener { exception ->
+        println("Error updating test result: ${exception.message}")
+    }
+}
 suspend fun fetchPatientById(patientId: String): Patient? {
     val firestore = FirebaseFirestore.getInstance()
     return try {

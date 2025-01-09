@@ -77,10 +77,10 @@ fun TestScreen(navController: NavController) {
         item{
             TestCard(
                 R.drawable.testimg,
-                "SWAY",
+                "Geriatric Anxiety Scale (GAS)",
                 "Helps in reducing pain",
-                isDeviceConnected,
-                "tug",
+                true,
+                "gasScreen",
                 navController
             )
         }

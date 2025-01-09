@@ -16,6 +16,7 @@ data class Patient(
     val diagnostics: List<String> = emptyList(), // Added diagnostics
     val stsTest: List<Map<String, Any>> = emptyList(),
     val tugTest: List<Map<String, Any>> = emptyList(),
+    val gasTest: List<Map<String, Any>> = emptyList(),
     val extraDetails: List<String> = emptyList(),
     val bloodGroup: String="", // Add this field
     val allergies: String="",  // Add this field

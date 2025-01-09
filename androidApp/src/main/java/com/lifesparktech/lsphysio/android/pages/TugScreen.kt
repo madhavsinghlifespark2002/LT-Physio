@@ -238,8 +238,7 @@ fun TugCard(navController: NavController) {
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Column(
-            ) {
+            Column{
                 Text(text = "Enter a patient", style = TextStyle(fontSize = 16.sp), fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.height(8.dp))
                 ExposedDropdownMenuBox(
