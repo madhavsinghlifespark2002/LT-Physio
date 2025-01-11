@@ -34,9 +34,9 @@ import com.lifesparktech.lsphysio.android.pages.DeviceConnectionScreen
 import com.lifesparktech.lsphysio.android.pages.DeviceControlScreen
 import com.lifesparktech.lsphysio.android.pages.DoctorScreen
 import com.lifesparktech.lsphysio.android.pages.GamesScreen
-import com.lifesparktech.lsphysio.android.pages.GasResultScreen
 import com.lifesparktech.lsphysio.android.pages.GasScreen
 import com.lifesparktech.lsphysio.android.pages.HomeScreen
+import com.lifesparktech.lsphysio.android.pages.MiniBestScreen
 import com.lifesparktech.lsphysio.android.pages.PatientDetail
 import com.lifesparktech.lsphysio.android.pages.PatientModifiedScreen
 import com.lifesparktech.lsphysio.android.pages.PatientScreen
@@ -131,25 +131,24 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         composable("DeviceControlScreen") { DeviceControlScreen(navController) }
         composable("SittoStandScreen") { SittoStandScreen(navController) }
         composable("tugscreen") { TugScreen(navController) }
-        composable("gasScreen") { GasScreen(navController) }
-        composable("gasResultScreen") {
-            val result = navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.get<GASResult>("result")
-            val pdfFile = navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.get<File>("pdfFile")
-            if (result != null) {
-                GasResultScreen(navController, result, pdfFile)
-            }
-        }
-        composable("previewPdfScreen") {
-            PreviewPdfScreen(navController)
-        }
-        composable("PdfGeneratorScreen") {
-            PdfGeneratorScreen(
+        composable("gasScreen") {
+            GasScreen(
                 onPreviewPdf = { pdfFile ->
-                    navController.navigate("PreviewPdfScreen/${Uri.encode(pdfFile.path)}")
+                    navController.navigate("PreviewPdfScreen/${Uri.encode(pdfFile.path)}") {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                navController
+            )
+        }
+        composable("miniBesTest") {
+            MiniBestScreen(
+                onPreviewPdf = { pdfFile ->
+                    navController.navigate("PreviewPdfScreen/${Uri.encode(pdfFile.path)}") {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 },
                 navController
             )

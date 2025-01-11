@@ -41,6 +41,7 @@ import com.example.lsphysio.android.R
 import com.lifesparktech.lsphysio.PeripheralManager
 import com.lifesparktech.lsphysio.PeripheralManager.gameContext
 import com.lifesparktech.lsphysio.PeripheralManager.mainScope
+import com.lifesparktech.lsphysio.android.components.Screen
 import kotlinx.coroutines.launch
 
 @Composable
@@ -68,7 +69,7 @@ fun TestScreen(navController: NavController) {
             TestCard(
                 R.drawable.testimg,
                 "TUG",
-                "Helps in reducing pain",
+                "TIMED UP & GO WITH DUAL TASK",
                 isDeviceConnected,
                 "tugscreen",
                 navController
@@ -78,7 +79,7 @@ fun TestScreen(navController: NavController) {
             TestCard(
                 R.drawable.testimg,
                 "Geriatric Anxiety Scale (GAS)",
-                "Helps in reducing pain",
+                "Daniel L. Segal, Ph.D., 2013",
                 true,
                 "gasScreen",
                 navController
@@ -97,10 +98,10 @@ fun TestScreen(navController: NavController) {
         item{
             TestCard(
                 R.drawable.testimg,
-                "STEP LENGTH",
-                "Helps in reducing pain",
-                isDeviceConnected,
-                "tug",
+                "Mini-BesTest",
+                "Balance Evaluation Systems Test",
+                true,
+                "miniBesTest",
                 navController
             )
         }
@@ -131,7 +132,7 @@ fun TestCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(215.dp)
             .padding(8.dp),
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
@@ -174,12 +175,24 @@ fun TestCard(
                         color = Color.Gray
                     )
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
+                if(isDeviceConnected)
+                { }
+                else
+                {Text("Connect device for test",modifier = Modifier.align(Alignment.End), color = Color(0xFF960019))}
+                Spacer(modifier = Modifier.height(4.dp))
                 Button(
                     onClick = {
-                        navController.navigate("$testpage")
+                        navController.navigate("$testpage"){
+                            {
+                                popUpTo(Screen.Tests.route) { saveState = true } // Keep TestScreen in the back stack
+                                launchSingleTop = true // Avoid creating multiple instances
+                                restoreState = true // Restore the previous state of TestScreen
+                            }
+
+                        }
                     },
-                    modifier = Modifier.align(Alignment.End),
+                    modifier = Modifier.align(Alignment.End).padding(end = 24.dp),
                     enabled = isDeviceConnected,
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.textButtonColors(
