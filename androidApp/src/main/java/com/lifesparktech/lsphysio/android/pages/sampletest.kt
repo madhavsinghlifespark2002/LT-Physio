@@ -15,81 +15,49 @@ import androidx.compose.ui.unit.sp
 fun sampleTest() {
         var leftScore by remember { mutableStateOf(0) }
         var rightScore by remember { mutableStateOf(0) }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
-                text = "Question 1: STAND ON ONE LEG",
-                fontSize = 20.sp,
-                style = MaterialTheme.typography.titleMedium
-            )
+}
 
-            Text(
-                text = "Instruction: Look straight ahead. Keep your hands on your hips. Lift your leg off of the ground behind you without touching or resting your raised leg upon your other standing leg. Stay standing on one leg as long as you can. Look straight ahead. Lift now.",
-                fontSize = 14.sp
-            )
+@Composable
+fun question6(
+    side: String,
+    onScoreCalculated: (Int) -> Unit
+) {
+    var selectedScore by remember { mutableStateOf(0) }
 
-            Divider(modifier = Modifier.fillMaxWidth())
-
-            TimeInputSection("Left") {
-                leftScore = it
-            }
-
-            TimeInputSection("Right") {
-                rightScore = it
-            }
-
-            Divider(modifier = Modifier.fillMaxWidth())
-
-            Text(text = "Left Score: $leftScore", fontSize = 16.sp)
-            Text(text = "Right Score: $rightScore", fontSize = 16.sp)
-        }
-    }
-    @Composable
-    fun TimeInputSection(
-        side: String,
-        onScoreCalculated: (Int) -> Unit
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.Start
     ) {
-        var selectedScore by remember { mutableStateOf(0) }
-
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(text = "$side: ", fontSize = 16.sp, modifier = Modifier.padding(start = 12.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(
-                    selected = selectedScore == 2,
-                    onClick = {
-                        selectedScore = 2
-                        onScoreCalculated(selectedScore)
-                    }
-                )
-                Text(text = "(2) Normal: 20 s.", fontSize = 14.sp)
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(
-                    selected = selectedScore == 1,
-                    onClick = {
-                        selectedScore = 1
-                        onScoreCalculated(selectedScore)
-                    }
-                )
-                Text(text = "(1) Moderate: < 20 s.", fontSize = 14.sp)
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(
-                    selected = selectedScore == 0,
-                    onClick = {
-                        selectedScore = 0
-                        onScoreCalculated(selectedScore)
-                    }
-                )
-                Text(text = "(0) Severe: Unable.", fontSize = 14.sp)
-            }
+        Text(text = "$side: ", fontSize = 16.sp, modifier = Modifier.padding(start = 12.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(
+                selected = selectedScore == 0,
+                onClick = {
+                    selectedScore = 0
+                    onScoreCalculated(selectedScore)
+                }
+            )
+            Text(text = "Severe (0): Falls, or cannot step.", fontSize = 14.sp)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(
+                selected = selectedScore == 1,
+                onClick = {
+                    selectedScore = 1
+                    onScoreCalculated(selectedScore)
+                }
+            )
+            Text(text = "Moderate (1): Several steps to recover equilibrium.", fontSize = 14.sp)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(
+                selected = selectedScore == 2,
+                onClick = {
+                    selectedScore = 2
+                    onScoreCalculated(selectedScore)
+                }
+            )
+            Text(text = "Normal (2): Recovers independently with 1 step (crossover or lateral OK).", fontSize = 14.sp)
         }
     }
+}

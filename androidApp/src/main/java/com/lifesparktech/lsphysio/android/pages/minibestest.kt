@@ -1,7 +1,4 @@
 package com.lifesparktech.lsphysio.android.pages
-import TimeInputSection
-import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
 import android.graphics.Paint.Align
 import android.net.Uri
@@ -87,6 +84,7 @@ import com.lifesparktech.lsphysio.android.Controller.fetchPatients
 import com.lifesparktech.lsphysio.android.data.GASResult
 import com.lifesparktech.lsphysio.android.data.Patient
 import org.bouncycastle.math.raw.Mod
+import question6
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -156,21 +154,38 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
     )
     var answers by remember { mutableStateOf(List(questions.size) { 0 }) }
 
-    var trial1Time by remember { mutableStateOf("") }
-    var trial2Time by remember { mutableStateOf("") }
-    val totalScore = answers.sum()
+    var trial1Time1 by remember { mutableStateOf("") }
+    var trial1Time2 by remember { mutableStateOf("") }
+    var trial2Time1 by remember { mutableStateOf("") }
+    var trial2Time2 by remember { mutableStateOf("") }
     var isSubmitted by remember { mutableStateOf(false) }
     var leftScore by remember { mutableStateOf(0) }
     var rightScore by remember { mutableStateOf(0) }
+    var leftScore6 by remember { mutableStateOf(0) }
+    var rightScore6 by remember { mutableStateOf(0) }
+    val totalScore = answers.sum() + minOf(leftScore, rightScore) + + minOf(leftScore6, rightScore6)
+    var selectedScore by remember { mutableStateOf(0) }
+    var selectedScoreRight by remember { mutableStateOf(0) }
+    var selectedScore6 by remember { mutableStateOf(0) }
+    var selectedScoreRight6 by remember { mutableStateOf(0) }
     val subscores = sections.map { (startIndex, _) ->
-        if (startIndex == 0) { // Special case for "Stand on One Leg"
-//            val endIndex = startIndex + 3 // Each section contains 3 questions
-            val endIndex = startIndex + 2 // Each section contains 3 questions
-            answers.subList(startIndex, endIndex).sum() + minOf(leftScore, rightScore)
-//            answers.subList(startIndex, endIndex - 1).sum() + answers[startIndex] + answers[startIndex + 1] + minOf(leftScore, rightScore)
-        } else {
-            val endIndex = startIndex + 3 // Each section contains 3 questions
-            answers.subList(startIndex, endIndex).sum()
+        when (startIndex) {
+            0 -> { // Special case for questions 1, 2, 3
+                val endIndex = startIndex + 3 // Questions 1, 2, 3
+                answers.subList(startIndex, endIndex).sum() + minOf(leftScore, rightScore)
+            }
+            3 -> { // Special case for questions 4, 5, 6
+                val endIndex = startIndex + 3 // Questions 4, 5, 6
+                answers.subList(startIndex, endIndex).sum() + minOf(leftScore6, rightScore6)
+            }
+            9 -> { // Special case for questions 4, 5, 6
+                val endIndex = startIndex + 5 // Questions 4, 5, 6
+                answers.subList(startIndex, endIndex).sum()
+            }
+            else -> { // General case for all other sections
+                val endIndex = startIndex + 3 // Each section contains 3 questions
+                answers.subList(startIndex, endIndex).sum()
+            }
         }
     }
     val optionsList = listOf(
@@ -364,109 +379,187 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
             if (index == 2) {
                 // Special case for the "Stand on One Leg" question
                 item {
-                    Column(
+                    Card(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        Text(
-                            text = "Question 3: STAND ON ONE LEG",
-                            fontSize = 20.sp,
-                            style = MaterialTheme.typography.titleMedium
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White // Set the card's background color
                         )
-
-                        Text(
-                            text = "Instruction: Look straight ahead. Keep your hands on your hips. Lift your leg off of the ground behind you without touching or resting your raised leg upon your other standing leg. Stay standing on one leg as long as you can. Look straight ahead. Lift now.",
-                            fontSize = 14.sp
-                        )
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.Bottom
-                        ){
-                            Text(
-                                text = "Left:",
-                                style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text("Time in Seconds Trial 1: ", style = TextStyle(fontSize = 16.sp))
-                            Spacer(modifier = Modifier.width(12.dp))
-                            TextField(
-                                value = trial1Time,
-                                onValueChange = {
-                                    if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                        trial1Time = it }
-                                },
-                                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                                singleLine = true,
-                                colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
-                                modifier = Modifier.width(100.dp)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text("Trial 2: ", style = TextStyle(fontSize = 16.sp))
-                            Spacer(modifier = Modifier.width(12.dp))
-                            TextField(
-                                value = trial2Time,
-                                onValueChange = {
-                                    if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                        trial2Time = it }
-                                },
-                                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                                singleLine = true,
-                                colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
-                                modifier = Modifier.width(75.dp)
-                            )
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.Bottom
-                        ){
-                            Text(
-                                text = "Right:",
-                                style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text("Time in Seconds Trial 1: ", style = TextStyle(fontSize = 16.sp))
-                            Spacer(modifier = Modifier.width(12.dp))
-                            TextField(
-                                value = trial1Time,
-                                onValueChange = {
-                                    if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                        trial1Time = it
-                                    } },
-                                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                                singleLine = true,
-                                colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
-                                modifier = Modifier.width(100.dp)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text("Trial 2: ", style = TextStyle(fontSize = 16.sp))
-                            Spacer(modifier = Modifier.width(12.dp))
-                            TextField(
-                                value = trial2Time,
-                                onValueChange = {
-                                    if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                        trial2Time = it
-                                    }},
-                                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                                singleLine = true,
-                                colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
-                                modifier = Modifier.width(75.dp)
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.Start,
-                        modifier = Modifier.fillMaxWidth()
                     ){
-                        TimeInputSection("Left") {
-                            leftScore = it
-                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                text = "Question 3: STAND ON ONE LEG",
+                                fontSize = 20.sp,
+                                style = MaterialTheme.typography.titleMedium
+                            )
 
-                        TimeInputSection("Right") {
-                            rightScore = it
+                            Text(
+                                text = "Instruction: Look straight ahead. Keep your hands on your hips. Lift your leg off of the ground behind you without touching or resting your raised leg upon your other standing leg. Stay standing on one leg as long as you can. Look straight ahead. Lift now.",
+                                fontSize = 14.sp
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                Text(
+                                    text = "Left:",
+                                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text("Time in Seconds Trial 1: ", style = TextStyle(fontSize = 16.sp))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                TextField(
+                                    value = trial1Time1,
+                                    onValueChange = {
+                                        if (it.length <= 2 && it.all { char -> char.isDigit() }) {
+                                            trial1Time1 = it }
+                                    },
+                                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
+                                    modifier = Modifier.width(50.dp)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text("Trial 2: ", style = TextStyle(fontSize = 16.sp))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                TextField(
+                                    value = trial1Time2,
+                                    onValueChange = {
+                                        if (it.length <= 2 && it.all { char -> char.isDigit() }) {
+                                            trial1Time2 = it }
+                                    },
+                                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
+                                    modifier = Modifier.width(50.dp)
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                Text(
+                                    text = "Right:",
+                                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text("Time in Seconds Trial 1: ", style = TextStyle(fontSize = 16.sp))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                TextField(
+                                    value = trial2Time1,
+                                    onValueChange = {
+                                        if (it.length <= 2 && it.all { char -> char.isDigit() }) {
+                                            trial2Time1 = it
+                                        } },
+                                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
+                                    modifier = Modifier.width(50.dp)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text("Trial 2: ", style = TextStyle(fontSize = 16.sp))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                TextField(
+                                    value = trial2Time2,
+                                    onValueChange = {
+                                        if (it.length <= 2 && it.all { char -> char.isDigit() }) {
+                                            trial2Time2 = it
+                                        }},
+                                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
+                                    modifier = Modifier.width(50.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.Start,
+                            modifier = Modifier.fillMaxWidth()
+                        ){
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(text = "Left: ", fontSize = 16.sp, modifier = Modifier.padding(start = 12.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    RadioButton(
+                                        selected = selectedScore == 0,
+                                        onClick = {
+                                            selectedScore = 0
+                                            leftScore = selectedScore
+                                        }
+                                    )
+                                    Text(text = "(0) Severe: Unable.", fontSize = 14.sp)
+                                }
+
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    RadioButton(
+                                        selected = selectedScore == 1,
+                                        onClick = {
+                                            selectedScore = 1
+                                            leftScore = selectedScore
+                                        }
+                                    )
+                                    Text(text = "(1) Moderate: < 20 s.", fontSize = 14.sp)
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    RadioButton(
+                                        selected = selectedScore == 2,
+                                        onClick = {
+                                            selectedScore = 2
+                                            leftScore = selectedScore
+                                        }
+                                    )
+                                    Text(text = "(2) Normal: 20 s.", fontSize = 14.sp)
+                                }
+                            }
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(text = "Right: ", fontSize = 16.sp, modifier = Modifier.padding(start = 12.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    RadioButton(
+                                        selected = selectedScoreRight == 0,
+                                        onClick = {
+                                            selectedScoreRight = 0
+                                            rightScore = selectedScoreRight
+                                        }
+                                    )
+                                    Text(text = "(0) Severe: Unable.", fontSize = 14.sp)
+                                }
+
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    RadioButton(
+                                        selected = selectedScoreRight == 1,
+                                        onClick = {
+                                            selectedScoreRight = 1
+                                            rightScore = selectedScoreRight
+                                        }
+                                    )
+                                    Text(text = "(1) Moderate: < 20 s.", fontSize = 14.sp)
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    RadioButton(
+                                        selected = selectedScoreRight == 2,
+                                        onClick = {
+                                            selectedScoreRight = 2
+                                            rightScore = selectedScoreRight
+                                        }
+                                    )
+                                    Text(text = "(2) Normal: 20 s.", fontSize = 14.sp)
+                                }
+                            }
                         }
                     }
                 }
@@ -483,74 +576,108 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                             containerColor = Color.White // Set the card's background color
                         )
                     ){
-                        Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            horizontalAlignment = Alignment.Start
+                        ) {
                             Text(
-                                text = "${index + 1}. $question",
-                                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                text = "Question 6: COMPENSATORY STEPPING CORRECTION- LATERAL",
+                                fontSize = 20.sp,
+                                style = MaterialTheme.typography.titleMedium
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
+
                             Text(
-                                text = instruction,
-                                style = TextStyle(fontSize = 16.sp)
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Column{
-                                Text(
-                                    text = "Left:",
-                                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                                )
-                                options.take(6).forEachIndexed { optionIndex, option ->
-                                    Row(
-                                        // modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        RadioButton(
-                                            selected = answers[index] == optionIndex,
-                                            onClick = {
-                                                answers = answers.toMutableList().apply { set(index, optionIndex) }
-                                            },
-                                            colors = RadioButtonDefaults.colors(
-                                                selectedColor = Color(0xFF005749)
-                                            )
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(text = option, style = TextStyle(fontSize = 16.sp))
-                                    }
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(40.dp))
-                            Column{
-                                Text(
-                                    text = "Right:",
-                                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                                )
-                                options.take(6).forEachIndexed { optionIndex, option ->
-                                    Row(
-                                        //   modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        RadioButton(
-                                            selected = answers[index + 1] == optionIndex,
-                                            onClick = {
-                                                answers = answers.toMutableList().apply { set(index + 1, optionIndex) }
-                                            },
-                                            colors = RadioButtonDefaults.colors(
-                                                selectedColor = Color(0xFF005749)
-                                            )
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(text = option, style = TextStyle(fontSize = 16.sp))
-                                    }
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Use the side with the lowest score to calculate sub-score and total score.",
-                                style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                text = "Instruction: Stand with your feet together, arms down at your sides. Lean into my hand beyond your sideways limit. When I let go, do whatever is necessary, including taking a step, to avoid a fall.",
+                                fontSize = 14.sp
                             )
                         }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.Start,
+                            modifier = Modifier.fillMaxWidth()
+                        ){
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(text = "Left: ", fontSize = 16.sp, modifier = Modifier.padding(start = 12.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    RadioButton(
+                                        selected = selectedScore6 == 0,
+                                        onClick = {
+                                            selectedScore6 = 0
+                                            leftScore6 = selectedScore6
+                                        }
+                                    )
+                                    Text(text = "Severe (0): Falls, or cannot step.", fontSize = 14.sp)
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    RadioButton(
+                                        selected = selectedScore6 == 1,
+                                        onClick = {
+                                            selectedScore6 = 1
+                                            leftScore6 = selectedScore6
+                                        }
+                                    )
+                                    Text(text = "Moderate (1): Several steps to recover equilibrium.", fontSize = 14.sp)
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    RadioButton(
+                                        selected = selectedScore6 == 2,
+                                        onClick = {
+                                            selectedScore6 = 2
+                                            leftScore6 = selectedScore6
+                                        }
+                                    )
+                                    Text(text = "Normal (2): Recovers independently with 1 step (crossover or lateral OK).", fontSize = 14.sp)
+                                }
+                            }
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(text = "Right: ", fontSize = 16.sp, modifier = Modifier.padding(start = 12.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    RadioButton(
+                                        selected = selectedScoreRight6 == 0,
+                                        onClick = {
+                                            selectedScoreRight6 = 0
+                                            rightScore6 = selectedScoreRight6
+                                        }
+                                    )
+                                    Text(text = "Severe (0): Falls, or cannot step.", fontSize = 14.sp)
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    RadioButton(
+                                        selected = selectedScoreRight6 == 1,
+                                        onClick = {
+                                            selectedScoreRight6 = 1
+                                            rightScore6 = selectedScoreRight6
+                                        }
+                                    )
+                                    Text(text = "Moderate (1): Several steps to recover equilibrium.", fontSize = 14.sp)
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    RadioButton(
+                                        selected = selectedScoreRight6 == 2,
+                                        onClick = {
+                                            selectedScoreRight6 = 2
+                                            rightScore6 = selectedScoreRight6
+                                        }
+                                    )
+                                    Text(text = "Normal (2): Recovers independently with 1 step (crossover or lateral OK).", fontSize = 14.sp)
+                                }
+                            }
+                        }
+                        Text(
+                            text = "Use the side with the lowest score to calculate sub-score and total score.",
+                            style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
+                            modifier = Modifier.padding(12.dp)
+                        )
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
             else if(index ==8){
@@ -583,10 +710,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                 Text("Time in Seconds: ", style = TextStyle(fontSize = 16.sp))
                                 Spacer(modifier = Modifier.width(12.dp))
                                 TextField(
-                                    value = trial1Time,
+                                    value = trial1Time1,
                                     onValueChange = {
                                         if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                            trial1Time = it }
+                                            trial1Time1 = it }
                                     },
                                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                                     singleLine = true,
@@ -646,10 +773,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                     Text("Instruction TUG with Dual Task: “Count backwards by threes starting at: ")
                                     Spacer(modifier = Modifier.width(12.dp))
                                     TextField(
-                                        value = trial1Time,
+                                        value = trial1Time1,
                                         onValueChange = {
                                             if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                                trial1Time = it }
+                                                trial1Time1 = it }
                                         },
                                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                                         singleLine = true,
@@ -671,10 +798,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                     )
                                     Spacer(modifier = Modifier.width(12.dp))
                                     TextField(
-                                        value = trial1Time,
+                                        value = trial1Time1,
                                         onValueChange = {
                                             if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                                trial1Time = it }
+                                                trial1Time1 = it }
                                         },
                                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                                         singleLine = true,
@@ -695,10 +822,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                     Text("Dual Task TUG: ", style = TextStyle(fontSize = 16.sp),fontWeight = FontWeight.Bold)
                                     Spacer(modifier = Modifier.width(12.dp))
                                     TextField(
-                                        value = trial2Time,
+                                        value = trial1Time1,
                                         onValueChange = {
                                             if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                                trial2Time = it }
+                                                trial1Time1 = it }
                                         },
                                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                                         singleLine = true,
