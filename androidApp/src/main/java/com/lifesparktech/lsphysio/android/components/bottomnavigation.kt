@@ -49,6 +49,7 @@ import com.lifesparktech.lsphysio.android.pages.SittoStandScreen
 import com.lifesparktech.lsphysio.android.pages.TestScreen
 import com.lifesparktech.lsphysio.android.pages.TugScreen
 import com.lifesparktech.lsphysio.android.pages.UpdatedPatientScreen
+import sampleTest
 import java.io.File
 
 @Composable
@@ -176,6 +177,7 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
             }
         }
         composable(Screen.Home.route) { HomeScreen() }
+        composable("sampleTest") { sampleTest() }
         composable(Screen.Games.route) { GamesScreen() }
         composable(Screen.Tests.route) { TestScreen(navController) }
         composable(Screen.DeviceConnectionScreen.route) {

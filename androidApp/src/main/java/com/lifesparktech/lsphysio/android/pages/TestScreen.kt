@@ -110,8 +110,8 @@ fun TestScreen(navController: NavController) {
                 R.drawable.testimg,
                 "FOG",
                 "Helps in reducing pain",
-                isDeviceConnected,
-                "tug",
+                true,
+                "sampleTest",
                 navController
             )
         }
