@@ -89,6 +89,7 @@ import java.io.File
 import java.io.FileOutputStream
 import com.example.lsphysio.android.R
 import com.itextpdf.layout.element.Cell
+import com.itextpdf.layout.element.ListItem
 import com.itextpdf.layout.element.Table
 import com.itextpdf.layout.properties.UnitValue
 import com.lifesparktech.lsphysio.android.Controller.addedGasData
@@ -97,7 +98,9 @@ import com.lifesparktech.lsphysio.android.Controller.fetchPatients
 import com.lifesparktech.lsphysio.android.data.GASResult
 import com.lifesparktech.lsphysio.android.data.MiniBestResult
 import com.lifesparktech.lsphysio.android.data.Patient
+import com.lifesparktech.lsphysio.android.data.instructions
 import com.lifesparktech.lsphysio.android.data.minibestquestions
+import com.lifesparktech.lsphysio.android.data.optionsList
 import org.bouncycastle.math.raw.Mod
 import question6
 import java.text.SimpleDateFormat
@@ -126,26 +129,7 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
         }
     }
 
-    val instructions = listOf(
-        "Cross your arms across your chest. Try not to use your hands unless you must. Do not let your legs lean against the back of the chair when you stand. Please stand up now.",
-        "Place your feet shoulder width apart. Place your hands on your hips. Try to rise as high as you can onto your toes. I will count out loud to 3 seconds. Try to hold this pose for at least 3 seconds. Look straight ahead. Rise now.",
-        "Look straight ahead. Keep your hands on your hips. Lift your leg off of the ground behind you without touching or resting your raised leg upon your other standing leg. Stay standing on one leg as long as you can. Look straight ahead. Lift now.",
-        "Stand with your feet shoulder width apart, arms at your sides. Lean forward against my hands beyond your forward limits. When I let go, do whatever is necessary, including taking a step, to avoid a fall.",
-        "Stand with your feet shoulder width apart, arms at your sides. Lean backward against my hands beyond your backward limits. When I let go, do whatever is necessary, including taking a step, to avoid a fall.",
-        "Stand with your feet together, arms down at your sides. Lean into my hand beyond your sideways limit. When I let go, do whatever is necessary, including taking a step, to avoid a fall.",
-        "Place your hands on your hips. Place your feet together until almost touching. Look straight ahead. Be as stable and still as possible, until I say stop.",
-        "Step onto the foam. Place your hands on your hips. Place your feet together until almost touching. Be as stable and still as possible, until I say stop. I will start timing when you close your eyes.",
-        "Step onto the incline ramp. Please stand on the incline ramp with your toes toward the top. Place your feet shoulder width apart and have your arms down at your sides. I will start timing when you close your eyes.",
-        "Begin walking at your normal speed, when I tell you ‘fast’, walk as fast as you can. When I say ‘slow’, walk very slowly.",
-        "Begin walking at your normal speed, when I say “right”, turn your head and look to the right. When I say “left turn your head and look to the left. Try to keep yourself walking in a straight line.",
-        "Begin walking at your normal speed. When I tell you to ‘turn and stop’, turn as quickly as you can, face the opposite direction, and stop. After the turn, your feet should be close together.",
-        "Begin walking at your normal speed. When you get to the box, step over it, not around it and keep walking.",
-        "When I say ‘Go’, stand up from chair, walk at your normal speed across the tape on the floor, turn around," +
-                "and come back to sit in the chair.\n" +
-                "Instruction TUG with Dual Task: “Count backwards by threes starting at ___. When I say ‘Go’, stand up from chair, walk at" +
-                "your normal speed across the tape on the floor, turn around, and come back to sit in the chair. Continue counting backwards" +
-                "the entire time."
-    )
+
     val sections = listOf(
         Pair(0, "ANTICIPATORY" to "/6"),
         Pair(3, "REACTIVE POSTURAL CONTROL" to "/6"),
@@ -204,78 +188,7 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
         }
     }
 
-    val optionsList = listOf(
-        listOf(
-            "Severe (0): Unable to stand up from chair without assistance, OR needs several attempts with use of hands.",
-            "Moderate (1): Comes to stand WITH use of hands on first attempt.",
-            "Normal (2): Comes to stand without use of hands and stabilizes independently."
-        ),
-        listOf(
-            "Severe (0): < 3 s.",
-            "Moderate (1): Heels up, but not full range (smaller than when holding hands), OR noticeable instability for 3 s.",
-            "Normal (2): Stable for 3 s with maximum height."
-        ),
-        listOf(
-            "Severe (0): Unable",
-            "Moderate (1): < 20 s.",
-            "Normal (2): 20 s.",
-        ),
-        listOf(
-            "Severe (0): No step, OR would fall if not caught, OR falls spontaneously.",
-            "Moderate (1): More than one step used to recover equilibrium.",
-            "Normal (2): Recovers independently with a single, large step (second realignment step is allowed)."
-        ),
-        listOf(
-            "Severe (0): No step, OR would fall if not caught, OR falls spontaneously.",
-            "Moderate (1): More than one step used to recover equilibrium.",
-            "Normal (2): Recovers independently with a single, large step."
-        ),
-        listOf(
-            "Severe (0): Falls, or cannot step.",
-            "Moderate (1): Several steps to recover equilibrium.",
-            "Normal (2): Recovers independently with 1 step (crossover or lateral OK)."
-        ),
-        listOf(
-            "Severe (0): Unable.",
-            "Moderate (1): < 30 s.",
-            "Normal (2): 30 s."
-        ),
-        listOf(
-            "Severe (0): Unable.",
-            "Moderate (1): < 30 s.",
-            "Normal (2): 30 s."
-        ),
-        listOf(
-            "Severe (0): Unable.",
-            "Moderate (1): Stands independently <30 s OR aligns with surface.",
-            "Normal (2): Stands independently 30 s and aligns with gravity."
-        ),
-        listOf(
-            "Severe (0): Unable to achieve significant change in walking speed AND signs of imbalance.",
-            "Moderate (1): Unable to change walking speed or signs of imbalance.",
-            "Normal (2): Significantly changes walking speed without imbalance."
-        ),
-        listOf(
-            "Severe (0): Performs head turns with imbalance.",
-            "Moderate (1): Performs head turns with reduction in gait speed.",
-            "Normal (2): Performs head turns with no change in gait speed and good balance."
-        ),
-        listOf(
-            "Severe (0): Cannot turn with feet close at any speed without imbalance.",
-            "Moderate (1): Turns with feet close SLOW (>4 steps) with good balance.",
-            "Normal (2): Turns with feet close FAST (< 3 steps) with good balance."
-        ),
-        listOf(
-            "Severe (0): Unable to step over box OR steps around box.",
-            "Moderate (1): Steps over box but touches box OR displays cautious behavior by slowing gait.",
-            "Normal (2): Able to step over box with minimal change of gait speed and with good balance."
-        ),
-        listOf(
-            "Severe (0): Stops counting while walking OR stops walking while counting.",
-            "Moderate (1): Dual Task affects either counting OR walking (>10%) when compared to the TUG without Dual Task.",
-            "Normal (2): No noticeable change in sitting, standing or walking while backward counting when compared to TUG without Dual Task."
-        ),
-    )
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -1452,23 +1365,7 @@ fun savePdfToDocumentsUsingMediaStoreMinibest(content: MiniBestResult, patientNa
         put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
         put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS)
     }
-    fun getminibestCategory(): String {
-        return when {
-            content.totalScore in 0..6 -> "Severe"
-            content.totalScore in 6..11 -> "Moderate Anxiety"
-            content.totalScore in 11..16 -> "Mild"
-            else -> "Mild"  // This is a fallback, just in case
-        }
-    }
-    fun getminibestCategoryRange(): String {
-        return when {
-            content.totalScore in 0..6 -> "0 - 6"
-            content.totalScore in 6..11 -> "6 - 11"
-            content.totalScore in 11..16 -> "11 - 16"
-            content.totalScore >= 22 -> "above 16"
-            else -> "No Balance"  // This is a fallback, just in case
-        }
-    }
+
     val uri = resolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
     if (uri != null) {
         resolver.openOutputStream(uri)?.use { outputStream ->
@@ -1505,26 +1402,14 @@ fun savePdfToDocumentsUsingMediaStoreMinibest(content: MiniBestResult, patientNa
             document.add(nameParagraph)
             document.add(ageParagraph)
             document.add(genderParagraph)
+            val bulletList = com.itextpdf.layout.element.List()
+                .setSymbolIndent(12f)
+                .setFontSize(12f)
 
-            // Add a Table
-            val table = Table(floatArrayOf(2f, 5f)) // Two columns, widths are proportional
-            table.setWidth(UnitValue.createPercentValue(100f)) // Table width is 100% of the page
-
-            // Add Table Header
-            table.addCell(Paragraph("Category").setBold())
-            table.addCell(Paragraph("Score").setBold())
-
-            // Add Rows
-            table.addCell("Total Score")
-            table.addCell(content.totalScore.toString())
-            table.addCell("Anticipatory")
-            table.addCell(content.anticipatory.toString())
-            table.addCell("Reactive postural control")
-            table.addCell(content.reactive_postural_control.toString())
-            table.addCell("Sensory orientation")
-            table.addCell(content.sensory_orientation.toString())
-            table.addCell("Dynamic gait")
-            table.addCell(content.dynamic_gait.toString())
+            bulletList.add(ListItem("Anticipatory: ${content.anticipatory}"))
+            bulletList.add(ListItem("Reactive postural control: ${content.reactive_postural_control}"))
+            bulletList.add(ListItem("Sensory orientation: ${content.sensory_orientation}"))
+            bulletList.add(ListItem("Dynamic gait: ${content.dynamic_gait}"))
             val table2 = Table(floatArrayOf(3f, 3f, 4f)).setMarginBottom(20f) // Three columns: Scale, Normative Value, Report
             table2.setWidth(UnitValue.createPercentValue(100f)) // Table width is 100% of the page
             val headerBackgroundColor = com.itextpdf.kernel.colors.DeviceRgb(0, 87, 73)
@@ -1534,37 +1419,30 @@ fun savePdfToDocumentsUsingMediaStoreMinibest(content: MiniBestResult, patientNa
             scaleHeaderCell.setBackgroundColor(headerBackgroundColor).setFontColor(fontBackgroundColor)
             table2.addCell(scaleHeaderCell)
 
-            val normativeValueHeaderCell = Cell().add(Paragraph("Normative Value").setBold())
+            val normativeValueHeaderCell = Cell().add(Paragraph("Session Score").setBold())
             normativeValueHeaderCell.setBackgroundColor(headerBackgroundColor).setFontColor(fontBackgroundColor)
             table2.addCell(normativeValueHeaderCell)
 
-            val reportHeaderCell = Cell().add(Paragraph("Report").setBold())
+            val reportHeaderCell = Cell().add(Paragraph("Normative Value").setBold())
             reportHeaderCell.setBackgroundColor(headerBackgroundColor).setFontColor(fontBackgroundColor)
             table2.addCell(reportHeaderCell)
-
-            // Add Rows (Example Data, adjust as per your logic)
             table2.addCell("Minibesttest")
-            table2.addCell(getminibestCategory())
-            table2.addCell(getminibestCategoryRange())
-
+            table2.addCell(content.totalScore.toString())
+            table2.addCell("16-28")
             val summaryTitle = Paragraph("Summary")
-                .setFontSize(14f)
+                .setFontSize(12f)
                 .setBold()
                 .setTextAlignment(com.itextpdf.layout.properties.TextAlignment.LEFT)
-                .setMarginTop(20f)
-            val reference = """
-                Segal, D. L., June, A., Payne, M., Coolidge, F. L., & Yochim, B. (2010). Development and initial validation of
-                a self-report assessment tool for anxiety among older adults: The Geriatric Anxiety Scale. Journal of Anxiety
-                Disorders, 24, 709-714.
-            """.trimIndent()
-
-            val referenceParagraph = Paragraph(reference)
+                .setMarginTop(5f)
+            val Interpretation = Paragraph("Interpretation of Mini-Best scoring on different measurements used:")
                 .setFontSize(12f)
                 .setTextAlignment(com.itextpdf.layout.properties.TextAlignment.LEFT)
+                .setMarginTop(5f)
+                .setBold()
             document.add(table2)
-            document.add(table)
+            document.add(Interpretation)
+            document.add(bulletList)
             document.add(summaryTitle)
-            document.add(referenceParagraph)
             document.close()
         }
 
@@ -1578,6 +1456,7 @@ fun savePdfToDocumentsUsingMediaStoreMinibest(content: MiniBestResult, patientNa
     }
     return null
 }
+
 @Composable
 fun QuestionCardMinibest(
     question: String,
