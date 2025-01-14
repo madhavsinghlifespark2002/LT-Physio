@@ -1,4 +1,6 @@
 package com.lifesparktech.lsphysio.android.pages
+import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.graphics.Paint.Align
 import android.net.Uri
@@ -15,6 +17,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -26,6 +29,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -55,11 +60,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
@@ -80,9 +92,12 @@ import com.itextpdf.layout.element.Cell
 import com.itextpdf.layout.element.Table
 import com.itextpdf.layout.properties.UnitValue
 import com.lifesparktech.lsphysio.android.Controller.addedGasData
+import com.lifesparktech.lsphysio.android.Controller.addedMiniData
 import com.lifesparktech.lsphysio.android.Controller.fetchPatients
 import com.lifesparktech.lsphysio.android.data.GASResult
+import com.lifesparktech.lsphysio.android.data.MiniBestResult
 import com.lifesparktech.lsphysio.android.data.Patient
+import com.lifesparktech.lsphysio.android.data.minibestquestions
 import org.bouncycastle.math.raw.Mod
 import question6
 import java.text.SimpleDateFormat
@@ -110,22 +125,7 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
             //isLoading = false
         }
     }
-    val questions = listOf(
-        "SIT TO STAND",
-        "RISE TO TOES",
-        "STAND ON ONE LEG",
-        "COMPENSATORY STEPPING CORRECTION- FORWARD",
-        "COMPENSATORY STEPPING CORRECTION- BACKWARD",
-        "COMPENSATORY STEPPING CORRECTION- LATERAL",
-        "STANCE (FEET TOGETHER); EYES OPEN, FIRM SURFACE",
-        "STANCE (FEET TOGETHER); EYES CLOSED, FOAM SURFACE",
-        "INCLINE- EYES CLOSED",
-        "CHANGE IN GAIT SPEED",
-        "WALK WITH HEAD TURNS – HORIZONTAL",
-        "WALK WITH PIVOT TURNS",
-        "STEP OVER OBSTACLES",
-        "TIMED UP & GO WITH DUAL TASK [3 METER WALK]"
-    )
+
     val instructions = listOf(
         "Cross your arms across your chest. Try not to use your hands unless you must. Do not let your legs lean against the back of the chair when you stand. Please stand up now.",
         "Place your feet shoulder width apart. Place your hands on your hips. Try to rise as high as you can onto your toes. I will count out loud to 3 seconds. Try to hold this pose for at least 3 seconds. Look straight ahead. Rise now.",
@@ -152,9 +152,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
         Pair(6, "SENSORY ORIENTATION" to "/6"),
         Pair(9, "DYNAMIC GAIT" to "/10")
     )
-    var answers by remember { mutableStateOf(List(questions.size) { 0 }) }
+    var answers by remember { mutableStateOf(List(minibestquestions.size) { 0 }) }
 
     var trial1Time1 by remember { mutableStateOf("") }
+    var question8sec by remember { mutableStateOf("") }
     var trial1Time2 by remember { mutableStateOf("") }
     var trial2Time1 by remember { mutableStateOf("") }
     var trial2Time2 by remember { mutableStateOf("") }
@@ -163,31 +164,46 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
     var rightScore by remember { mutableStateOf(0) }
     var leftScore6 by remember { mutableStateOf(0) }
     var rightScore6 by remember { mutableStateOf(0) }
-    val totalScore = answers.sum() + minOf(leftScore, rightScore) + + minOf(leftScore6, rightScore6)
+    var totalScore = answers.sum() + minOf(leftScore, rightScore) + + minOf(leftScore6, rightScore6)
     var selectedScore by remember { mutableStateOf(0) }
     var selectedScoreRight by remember { mutableStateOf(0) }
     var selectedScore6 by remember { mutableStateOf(0) }
     var selectedScoreRight6 by remember { mutableStateOf(0) }
+    var anticipatory by remember { mutableStateOf(0) }
+    var reactive_postural_control by remember { mutableStateOf(0) }
+    var sensory_orientation by remember { mutableStateOf(0) }
+    var dynamic_gait by remember { mutableStateOf(0) }
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
     val subscores = sections.map { (startIndex, _) ->
         when (startIndex) {
-            0 -> { // Special case for questions 1, 2, 3
-                val endIndex = startIndex + 3 // Questions 1, 2, 3
-                answers.subList(startIndex, endIndex).sum() + minOf(leftScore, rightScore)
+            0 -> {
+                val endIndex = startIndex + 3
+                val score = answers.subList(startIndex, endIndex).sum() + minOf(leftScore, rightScore)
+                anticipatory = score
+                score
             }
-            3 -> { // Special case for questions 4, 5, 6
-                val endIndex = startIndex + 3 // Questions 4, 5, 6
-                answers.subList(startIndex, endIndex).sum() + minOf(leftScore6, rightScore6)
+            3 -> {
+                val endIndex = startIndex + 3
+                val score = answers.subList(startIndex, endIndex).sum() + minOf(leftScore6, rightScore6)
+                reactive_postural_control = score
+                score
             }
-            9 -> { // Special case for questions 4, 5, 6
-                val endIndex = startIndex + 5 // Questions 4, 5, 6
-                answers.subList(startIndex, endIndex).sum()
+            9 -> {
+                val endIndex = startIndex + 5 // Questions 7, 8, 9
+                val score = answers.subList(startIndex, endIndex).sum()
+                sensory_orientation = score // Update state
+                score // Return value for `map`
             }
             else -> { // General case for all other sections
                 val endIndex = startIndex + 3 // Each section contains 3 questions
-                answers.subList(startIndex, endIndex).sum()
+                val score = answers.subList(startIndex, endIndex).sum()
+                dynamic_gait = score // Update state
+                score // Return value for `map`
             }
         }
     }
+
     val optionsList = listOf(
         listOf(
             "Severe (0): Unable to stand up from chair without assistance, OR needs several attempts with use of hands.",
@@ -350,7 +366,7 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
         item{
             Spacer(modifier = Modifier.height(12.dp))
         }
-        questions.zip(instructions).zip(optionsList).forEachIndexed { index, (questionAndInstruction, options) ->
+        minibestquestions.zip(instructions).zip(optionsList).forEachIndexed { index, (questionAndInstruction, options) ->
             val (question, instruction) = questionAndInstruction
             sections.find { it.first == index }?.let { (_, titleAndScore) ->
                 val (title, maxScore) = titleAndScore
@@ -377,7 +393,6 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                 }
             }
             if (index == 2) {
-                // Special case for the "Stand on One Leg" question
                 item {
                     Card(
                         modifier = Modifier
@@ -397,11 +412,9 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                             horizontalAlignment = Alignment.Start
                         ) {
                             Text(
-                                text = "Question 3: STAND ON ONE LEG",
-                                fontSize = 20.sp,
-                                style = MaterialTheme.typography.titleMedium
+                                "3. STAND ON ONE LEG: ",
+                                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
                             )
-
                             Text(
                                 text = "Instruction: Look straight ahead. Keep your hands on your hips. Lift your leg off of the ground behind you without touching or resting your raised leg upon your other standing leg. Stay standing on one leg as long as you can. Look straight ahead. Lift now.",
                                 fontSize = 14.sp
@@ -412,36 +425,93 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                             ){
                                 Text(
                                     text = "Left:",
-                                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                    style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold)
                                 )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Text("Time in Seconds Trial 1: ", style = TextStyle(fontSize = 16.sp))
-                                Spacer(modifier = Modifier.width(12.dp))
-                                TextField(
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Time in Seconds Trial 1: ", style = TextStyle(fontSize = 14.sp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                BasicTextField(
                                     value = trial1Time1,
                                     onValueChange = {
-                                        if (it.length <= 2 && it.all { char -> char.isDigit() }) {
-                                            trial1Time1 = it }
+                                        if (it.length <= 3 && it.all { char -> char.isDigit() }) {
+                                            trial1Time1 = it
+                                        }
                                     },
-                                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                                    keyboardOptions = KeyboardOptions.Default.copy(
+                                        keyboardType = KeyboardType.Number,
+                                        imeAction = ImeAction.Done // Handles "Done" action
+                                    ),
+                                    keyboardActions = KeyboardActions(
+                                        onDone = {
+                                            focusManager.clearFocus() // Dismiss the keyboard when "Done" is pressed
+                                        }
+                                    ),
+                                    textStyle = TextStyle(
+                                        fontSize = 12.sp,
+                                        color = Color.Black
+                                    ),
                                     singleLine = true,
-                                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
-                                    modifier = Modifier.width(50.dp)
+                                    modifier = Modifier
+                                        .width(30.dp)
+                                        .background(Color.Transparent)
+                                        .padding(4.dp)
+                                        .focusRequester(focusRequester)
+                                        .drawBehind {
+                                            val strokeWidth = 1.dp.toPx()
+                                            val y = size.height - strokeWidth / 2
+                                            drawLine(
+                                                color = Color.Black,
+                                                start = Offset(0f, y),
+                                                end = Offset(size.width, y),
+                                                strokeWidth = strokeWidth
+                                            )
+                                        }
+                                        .clickable { focusRequester.requestFocus() }
                                 )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Text("Trial 2: ", style = TextStyle(fontSize = 16.sp))
-                                Spacer(modifier = Modifier.width(12.dp))
-                                TextField(
-                                    value = trial1Time2,
+                                Spacer(modifier = Modifier.width(2.dp))
+                                Text("Sec", style = TextStyle(fontSize = 14.sp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Trial 2: ", style = TextStyle(fontSize = 14.sp))
+                                Spacer(modifier = Modifier.width(2.dp))
+                                BasicTextField(
+                                    value = trial1Time1,
                                     onValueChange = {
-                                        if (it.length <= 2 && it.all { char -> char.isDigit() }) {
-                                            trial1Time2 = it }
+                                        if (it.length <= 3 && it.all { char -> char.isDigit() }) {
+                                            trial1Time1 = it
+                                        }
                                     },
-                                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                                    keyboardOptions = KeyboardOptions.Default.copy(
+                                        keyboardType = KeyboardType.Number,
+                                        imeAction = ImeAction.Done // Handles "Done" action
+                                    ),
+                                    keyboardActions = KeyboardActions(
+                                        onDone = {
+                                            focusManager.clearFocus() // Dismiss the keyboard when "Done" is pressed
+                                        }
+                                    ),
+                                    textStyle = TextStyle(
+                                        fontSize = 12.sp,
+                                        color = Color.Black
+                                    ),
                                     singleLine = true,
-                                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
-                                    modifier = Modifier.width(50.dp)
+                                    modifier = Modifier
+                                        .width(30.dp)
+                                        .background(Color.Transparent)
+                                        .padding(4.dp)
+                                        .focusRequester(focusRequester)
+                                        .drawBehind {
+                                            val strokeWidth = 1.dp.toPx()
+                                            val y = size.height - strokeWidth / 2
+                                            drawLine(
+                                                color = Color.Black,
+                                                start = Offset(0f, y),
+                                                end = Offset(size.width, y),
+                                                strokeWidth = strokeWidth
+                                            )
+                                        }
+                                        .clickable { focusRequester.requestFocus() }
                                 )
+                                Text("Sec", style = TextStyle(fontSize = 14.sp))
                             }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -449,39 +519,95 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                             ){
                                 Text(
                                     text = "Right:",
-                                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                    style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold)
                                 )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Text("Time in Seconds Trial 1: ", style = TextStyle(fontSize = 16.sp))
-                                Spacer(modifier = Modifier.width(12.dp))
-                                TextField(
-                                    value = trial2Time1,
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Time in Seconds Trial 1: ", style = TextStyle(fontSize = 14.sp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                BasicTextField(
+                                    value = trial1Time1,
                                     onValueChange = {
-                                        if (it.length <= 2 && it.all { char -> char.isDigit() }) {
-                                            trial2Time1 = it
-                                        } },
-                                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                                        if (it.length <= 3 && it.all { char -> char.isDigit() }) {
+                                            trial1Time1 = it
+                                        }
+                                    },
+                                    keyboardOptions = KeyboardOptions.Default.copy(
+                                        keyboardType = KeyboardType.Number,
+                                        imeAction = ImeAction.Done // Handles "Done" action
+                                    ),
+                                    keyboardActions = KeyboardActions(
+                                        onDone = {
+                                            focusManager.clearFocus() // Dismiss the keyboard when "Done" is pressed
+                                        }
+                                    ),
+                                    textStyle = TextStyle(
+                                        fontSize = 12.sp,
+                                        color = Color.Black
+                                    ),
                                     singleLine = true,
-                                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
-                                    modifier = Modifier.width(50.dp)
+                                    modifier = Modifier
+                                        .width(30.dp)
+                                        .background(Color.Transparent)
+                                        .padding(4.dp)
+                                        .focusRequester(focusRequester)
+                                        .drawBehind {
+                                            val strokeWidth = 1.dp.toPx()
+                                            val y = size.height - strokeWidth / 2
+                                            drawLine(
+                                                color = Color.Black,
+                                                start = Offset(0f, y),
+                                                end = Offset(size.width, y),
+                                                strokeWidth = strokeWidth
+                                            )
+                                        }
+                                        .clickable { focusRequester.requestFocus() }
                                 )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Text("Trial 2: ", style = TextStyle(fontSize = 16.sp))
-                                Spacer(modifier = Modifier.width(12.dp))
-                                TextField(
-                                    value = trial2Time2,
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Sec", style = TextStyle(fontSize = 14.sp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Trial 2: ", style = TextStyle(fontSize = 14.sp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                BasicTextField(
+                                    value = trial1Time1,
                                     onValueChange = {
-                                        if (it.length <= 2 && it.all { char -> char.isDigit() }) {
-                                            trial2Time2 = it
-                                        }},
-                                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                                        if (it.length <= 3 && it.all { char -> char.isDigit() }) {
+                                            trial1Time1 = it
+                                        }
+                                    },
+                                    keyboardOptions = KeyboardOptions.Default.copy(
+                                        keyboardType = KeyboardType.Number,
+                                        imeAction = ImeAction.Done // Handles "Done" action
+                                    ),
+                                    keyboardActions = KeyboardActions(
+                                        onDone = {
+                                            focusManager.clearFocus() // Dismiss the keyboard when "Done" is pressed
+                                        }
+                                    ),
+                                    textStyle = TextStyle(
+                                        fontSize = 12.sp,
+                                        color = Color.Black
+                                    ),
                                     singleLine = true,
-                                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
-                                    modifier = Modifier.width(50.dp)
+                                    modifier = Modifier
+                                        .width(30.dp)
+                                        .background(Color.Transparent)
+                                        .padding(4.dp)
+                                        .focusRequester(focusRequester)
+                                        .drawBehind {
+                                            val strokeWidth = 1.dp.toPx()
+                                            val y = size.height - strokeWidth / 2
+                                            drawLine(
+                                                color = Color.Black,
+                                                start = Offset(0f, y),
+                                                end = Offset(size.width, y),
+                                                strokeWidth = strokeWidth
+                                            )
+                                        }
+                                        .clickable { focusRequester.requestFocus() }
                                 )
+                                Text("Sec", style = TextStyle(fontSize = 14.sp))
                             }
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
                         Row(
                             horizontalArrangement = Arrangement.Start,
                             modifier = Modifier.fillMaxWidth()
@@ -490,25 +616,31 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 horizontalAlignment = Alignment.Start
                             ) {
-                                Text(text = "Left: ", fontSize = 16.sp, modifier = Modifier.padding(start = 12.dp))
+                                Text(text = "Left: ", fontSize = 14.sp, fontWeight= FontWeight.Bold, modifier = Modifier.padding(start = 12.dp))
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     RadioButton(
                                         selected = selectedScore == 0,
                                         onClick = {
                                             selectedScore = 0
                                             leftScore = selectedScore
-                                        }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
+                                        )
                                     )
                                     Text(text = "(0) Severe: Unable.", fontSize = 14.sp)
                                 }
-
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     RadioButton(
                                         selected = selectedScore == 1,
                                         onClick = {
                                             selectedScore = 1
                                             leftScore = selectedScore
-                                        }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
+                                        )
+
                                     )
                                     Text(text = "(1) Moderate: < 20 s.", fontSize = 14.sp)
                                 }
@@ -518,7 +650,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                         onClick = {
                                             selectedScore = 2
                                             leftScore = selectedScore
-                                        }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
+                                        )
                                     )
                                     Text(text = "(2) Normal: 20 s.", fontSize = 14.sp)
                                 }
@@ -527,14 +662,17 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 horizontalAlignment = Alignment.Start
                             ) {
-                                Text(text = "Right: ", fontSize = 16.sp, modifier = Modifier.padding(start = 12.dp))
+                                Text(text = "Right: ", fontWeight = FontWeight.Bold, fontSize = 14.sp, modifier = Modifier.padding(start = 12.dp))
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     RadioButton(
                                         selected = selectedScoreRight == 0,
                                         onClick = {
                                             selectedScoreRight = 0
                                             rightScore = selectedScoreRight
-                                        }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
+                                        )
                                     )
                                     Text(text = "(0) Severe: Unable.", fontSize = 14.sp)
                                 }
@@ -545,7 +683,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                         onClick = {
                                             selectedScoreRight = 1
                                             rightScore = selectedScoreRight
-                                        }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
+                                        )
                                     )
                                     Text(text = "(1) Moderate: < 20 s.", fontSize = 14.sp)
                                 }
@@ -555,13 +696,20 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                         onClick = {
                                             selectedScoreRight = 2
                                             rightScore = selectedScoreRight
-                                        }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
+                                        )
                                     )
                                     Text(text = "(2) Normal: 20 s.", fontSize = 14.sp)
                                 }
                             }
                         }
+                        Text("To score each side separately use the trial with the longest time.\n" +
+                                "To calculate the sub-score and total score use the side [left or right] with the lowest numerical score [i.e. the worse side].",
+                            fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(12.dp))
                     }
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
             else if(index == 5){
@@ -584,9 +732,8 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                             horizontalAlignment = Alignment.Start
                         ) {
                             Text(
-                                text = "Question 6: COMPENSATORY STEPPING CORRECTION- LATERAL",
-                                fontSize = 20.sp,
-                                style = MaterialTheme.typography.titleMedium
+                                text = "6. COMPENSATORY STEPPING CORRECTION- LATERAL",
+                                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
                             )
 
                             Text(
@@ -594,7 +741,7 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                 fontSize = 14.sp
                             )
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Row(
                             horizontalArrangement = Arrangement.Start,
                             modifier = Modifier.fillMaxWidth()
@@ -610,7 +757,11 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                         onClick = {
                                             selectedScore6 = 0
                                             leftScore6 = selectedScore6
-                                        }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
+                                        )
+
                                     )
                                     Text(text = "Severe (0): Falls, or cannot step.", fontSize = 14.sp)
                                 }
@@ -620,7 +771,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                         onClick = {
                                             selectedScore6 = 1
                                             leftScore6 = selectedScore6
-                                        }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
+                                        )
                                     )
                                     Text(text = "Moderate (1): Several steps to recover equilibrium.", fontSize = 14.sp)
                                 }
@@ -630,9 +784,12 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                         onClick = {
                                             selectedScore6 = 2
                                             leftScore6 = selectedScore6
-                                        }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
+                                        )
                                     )
-                                    Text(text = "Normal (2): Recovers independently with 1 step (crossover or lateral OK).", fontSize = 14.sp)
+                                    Text(text = "Normal (2): Recovers independently with 1 step\n (crossover or lateral OK).", fontSize = 14.sp)
                                 }
                             }
                             Column(
@@ -646,7 +803,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                         onClick = {
                                             selectedScoreRight6 = 0
                                             rightScore6 = selectedScoreRight6
-                                        }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
+                                        )
                                     )
                                     Text(text = "Severe (0): Falls, or cannot step.", fontSize = 14.sp)
                                 }
@@ -656,7 +816,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                         onClick = {
                                             selectedScoreRight6 = 1
                                             rightScore6 = selectedScoreRight6
-                                        }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
+                                        )
                                     )
                                     Text(text = "Moderate (1): Several steps to recover equilibrium.", fontSize = 14.sp)
                                 }
@@ -666,7 +829,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                         onClick = {
                                             selectedScoreRight6 = 2
                                             rightScore6 = selectedScoreRight6
-                                        }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
+                                        )
                                     )
                                     Text(text = "Normal (2): Recovers independently with 1 step (crossover or lateral OK).", fontSize = 14.sp)
                                 }
@@ -678,9 +844,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                             modifier = Modifier.padding(12.dp)
                         )
                     }
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
-            else if(index ==8){
+            else if(index == 6){
                 item {
                     Card(
                         modifier = Modifier
@@ -699,46 +866,259 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = instruction,
-                                style = TextStyle(fontSize = 16.sp)
+                                text = "Instruction: $instruction",
+                                style = TextStyle(fontSize = 14.sp)
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.Bottom
+                                verticalAlignment = Alignment.CenterVertically
                             ){
-                                Text("Time in Seconds: ", style = TextStyle(fontSize = 16.sp))
-                                Spacer(modifier = Modifier.width(12.dp))
-                                TextField(
+                                Text("Time in Seconds: ", style = TextStyle(fontSize = 14.sp), fontWeight = FontWeight.SemiBold)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                BasicTextField(
+                                    value = question8sec,
+                                    onValueChange = {
+                                        if (it.length <= 3 && it.all { char -> char.isDigit() }) {
+                                            trial1Time1 = it
+                                        }
+                                    },
+                                    keyboardOptions = KeyboardOptions.Default.copy(
+                                        keyboardType = KeyboardType.Number,
+                                        imeAction = ImeAction.Done // Handles "Done" action
+                                    ),
+                                    keyboardActions = KeyboardActions(
+                                        onDone = {
+                                            focusManager.clearFocus() // Dismiss the keyboard when "Done" is pressed
+                                        }
+                                    ),
+                                    textStyle = TextStyle(
+                                        fontSize = 12.sp,
+                                        color = Color.Black
+                                    ),
+                                    singleLine = true,
+                                    modifier = Modifier
+                                        .width(30.dp)
+                                        .background(Color.Transparent)
+                                        .padding(4.dp)
+                                        .focusRequester(focusRequester)
+                                        .drawBehind {
+                                            val strokeWidth = 1.dp.toPx()
+                                            val y = size.height - strokeWidth / 2
+                                            drawLine(
+                                                color = Color.Black,
+                                                start = Offset(0f, y),
+                                                end = Offset(size.width, y),
+                                                strokeWidth = strokeWidth
+                                            )
+                                        }
+                                        .clickable { focusRequester.requestFocus() }
+                                )
+                                Text("Sec", style = TextStyle(fontSize = 14.sp), fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                        Column{
+                            options.take(7).forEachIndexed { optionIndex, option ->
+                                Row(
+                                    // modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = answers[index] == optionIndex,
+                                        onClick = {
+                                            answers = answers.toMutableList().apply { set(index, optionIndex) }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
+                                        )
+                                    )
+                                    Text(text = option, style = TextStyle(fontSize = 14.sp))
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            }
+            else if(index == 7){
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White // Set the card's background color
+                        )
+                    ){
+                        Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
+                            Text(
+                                text = "${index + 1}. $question",
+                                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Instruction: $instruction",
+                                style = TextStyle(fontSize = 14.sp)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                Text("Time in Seconds: ", style = TextStyle(fontSize = 14.sp), fontWeight = FontWeight.SemiBold)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                BasicTextField(
+                                    value = question8sec,
+                                    onValueChange = {
+                                        if (it.length <= 3 && it.all { char -> char.isDigit() }) {
+                                            trial1Time1 = it
+                                        }
+                                    },
+                                    keyboardOptions = KeyboardOptions.Default.copy(
+                                        keyboardType = KeyboardType.Number,
+                                        imeAction = ImeAction.Done // Handles "Done" action
+                                    ),
+                                    keyboardActions = KeyboardActions(
+                                        onDone = {
+                                            focusManager.clearFocus() // Dismiss the keyboard when "Done" is pressed
+                                        }
+                                    ),
+                                    textStyle = TextStyle(
+                                        fontSize = 12.sp,
+                                        color = Color.Black
+                                    ),
+                                    singleLine = true,
+                                    modifier = Modifier
+                                        .width(30.dp)
+                                        .background(Color.Transparent)
+                                        .padding(4.dp)
+                                        .focusRequester(focusRequester)
+                                        .drawBehind {
+                                            val strokeWidth = 1.dp.toPx()
+                                            val y = size.height - strokeWidth / 2
+                                            drawLine(
+                                                color = Color.Black,
+                                                start = Offset(0f, y),
+                                                end = Offset(size.width, y),
+                                                strokeWidth = strokeWidth
+                                            )
+                                        }
+                                        .clickable { focusRequester.requestFocus() }
+                                )
+                                Text("Sec", style = TextStyle(fontSize = 14.sp), fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                        Column{
+                            options.take(8).forEachIndexed { optionIndex, option ->
+                                Row(
+                                    // modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = answers[index] == optionIndex,
+                                        onClick = {
+                                            answers = answers.toMutableList().apply { set(index, optionIndex) }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
+                                        )
+                                    )
+                                    Text(text = option, style = TextStyle(fontSize = 14.sp))
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            }
+            else if(index == 8){
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White // Set the card's background color
+                        )
+                    ){
+                        Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
+                            Text(
+                                text = "${index + 1}. $question",
+                                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Instruction: $instruction",
+                                style = TextStyle(fontSize = 14.sp)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                Text("Time in Seconds: ", style = TextStyle(fontSize = 14.sp), fontWeight = FontWeight.SemiBold)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                BasicTextField(
                                     value = trial1Time1,
                                     onValueChange = {
                                         if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                            trial1Time1 = it }
+                                            trial1Time1 = it
+                                        }
                                     },
-                                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                                    keyboardOptions = KeyboardOptions.Default.copy(
+                                        keyboardType = KeyboardType.Number,
+                                        imeAction = ImeAction.Done // Handles "Done" action
+                                    ),
+                                    keyboardActions = KeyboardActions(
+                                        onDone = {
+                                            focusManager.clearFocus() // Dismiss the keyboard when "Done" is pressed
+                                        }
+                                    ),
+                                    textStyle = TextStyle(
+                                        fontSize = 12.sp,
+                                        color = Color.Black
+                                    ),
                                     singleLine = true,
-                                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
-                                    modifier = Modifier.width(100.dp)
-                                )
-                            }
-                            Column{
-                                options.take(9).forEachIndexed { optionIndex, option ->
-                                    Row(
-                                        // modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.Bottom
-                                    ) {
-                                        RadioButton(
-                                            selected = answers[index] == optionIndex,
-                                            onClick = {
-                                                answers = answers.toMutableList().apply { set(index, optionIndex) }
-                                            },
-                                            colors = RadioButtonDefaults.colors(
-                                                selectedColor = Color(0xFF005749)
+                                    modifier = Modifier
+                                        .width(30.dp)
+                                        .background(Color.Transparent)
+                                        .padding(4.dp)
+                                        .focusRequester(focusRequester)
+                                        .drawBehind {
+                                            val strokeWidth = 1.dp.toPx()
+                                            val y = size.height - strokeWidth / 2
+                                            drawLine(
+                                                color = Color.Black,
+                                                start = Offset(0f, y),
+                                                end = Offset(size.width, y),
+                                                strokeWidth = strokeWidth
                                             )
+                                        }
+                                        .clickable { focusRequester.requestFocus() }
+                                )
+                                Text("Sec", style = TextStyle(fontSize = 14.sp), fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                        Column{
+                            options.take(9).forEachIndexed { optionIndex, option ->
+                                Row(
+                                    // modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = answers[index] == optionIndex,
+                                        onClick = {
+                                            answers = answers.toMutableList().apply { set(index, optionIndex) }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
                                         )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(text = option, style = TextStyle(fontSize = 16.sp))
-                                    }
+                                    )
+                                    Text(text = option, style = TextStyle(fontSize = 14.sp))
                                 }
                             }
                         }
@@ -770,18 +1150,46 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.Bottom
                                 ){
-                                    Text("Instruction TUG with Dual Task: “Count backwards by threes starting at: ")
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    TextField(
+                                    Text("Instruction TUG with Dual Task:")
+                                    Text("Count backwards by threes starting at: ", fontWeight = FontWeight.Bold)
+                                    Spacer(modifier = Modifier.width(2.dp))
+                                    BasicTextField(
                                         value = trial1Time1,
                                         onValueChange = {
                                             if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                                trial1Time1 = it }
+                                                trial1Time1 = it
+                                            }
                                         },
-                                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                                        keyboardOptions = KeyboardOptions.Default.copy(
+                                            keyboardType = KeyboardType.Number,
+                                            imeAction = ImeAction.Done // Handles "Done" action
+                                        ),
+                                        keyboardActions = KeyboardActions(
+                                            onDone = {
+                                                focusManager.clearFocus() // Dismiss the keyboard when "Done" is pressed
+                                            }
+                                        ),
+                                        textStyle = TextStyle(
+                                            fontSize = 12.sp,
+                                            color = Color.Black
+                                        ),
                                         singleLine = true,
-                                        colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
-                                        modifier = Modifier.width(100.dp)
+                                        modifier = Modifier
+                                        .width(30.dp)
+                                        .background(Color.Transparent)
+                                        .padding(4.dp)
+                                        .focusRequester(focusRequester)
+                                        .drawBehind {
+                                            val strokeWidth = 1.dp.toPx()
+                                            val y = size.height - strokeWidth / 2
+                                            drawLine(
+                                                color = Color.Black,
+                                                start = Offset(0f, y),
+                                                end = Offset(size.width, y),
+                                                strokeWidth = strokeWidth
+                                            )
+                                        }
+                                        .clickable { focusRequester.requestFocus() }
                                     )
                                 }
                                 Text("When I say ‘Go’, stand up from chair, walk at your normal speed across the tape on the floor, turn around, and come back to sit in the chair. Continue counting backwards the entire time.")
@@ -794,86 +1202,132 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                 ){
                                     Text(
                                         text = "TUG:",
-                                        style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                        style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold)
                                     )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    TextField(
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    BasicTextField(
                                         value = trial1Time1,
                                         onValueChange = {
                                             if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                                trial1Time1 = it }
+                                                trial1Time1 = it
+                                            }
                                         },
-                                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                                        singleLine = true,
-                                        textStyle = TextStyle(
-                                            fontSize = 16.sp,
-                                            textAlign = TextAlign.Start, // Align text horizontally
-                                            baselineShift = BaselineShift.Subscript // Align text vertically towards bottom
+                                        keyboardOptions = KeyboardOptions.Default.copy(
+                                            keyboardType = KeyboardType.Number,
+                                            imeAction = ImeAction.Done // Handles "Done" action
                                         ),
-                                        colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
-                                        modifier = Modifier.width(60.dp)
+                                        keyboardActions = KeyboardActions(
+                                            onDone = {
+                                                focusManager.clearFocus() // Dismiss the keyboard when "Done" is pressed
+                                            }
+                                        ),
+                                        textStyle = TextStyle(
+                                            fontSize = 12.sp,
+                                            color = Color.Black
+                                        ),
+                                        singleLine = true,
+                                        modifier = Modifier
+                                            .width(30.dp)
+                                            .background(Color.Transparent)
+                                            .padding(4.dp)
+                                            .focusRequester(focusRequester)
+                                            .drawBehind {
+                                                val strokeWidth = 1.dp.toPx()
+                                                val y = size.height - strokeWidth / 2
+                                                drawLine(
+                                                    color = Color.Black,
+                                                    start = Offset(0f, y),
+                                                    end = Offset(size.width, y),
+                                                    strokeWidth = strokeWidth
+                                                )
+                                            }
+                                            .clickable { focusRequester.requestFocus() }
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
                                         text = "Seconds:",
-                                        style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                        style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold)
                                     )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Text("Dual Task TUG: ", style = TextStyle(fontSize = 16.sp),fontWeight = FontWeight.Bold)
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    TextField(
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Dual Task TUG: ", style = TextStyle(fontSize = 14.sp),fontWeight = FontWeight.Bold)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    BasicTextField(
                                         value = trial1Time1,
                                         onValueChange = {
                                             if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                                trial1Time1 = it }
+                                                trial1Time1 = it
+                                            }
                                         },
-                                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                                        keyboardOptions = KeyboardOptions.Default.copy(
+                                            keyboardType = KeyboardType.Number,
+                                            imeAction = ImeAction.Done // Handles "Done" action
+                                        ),
+                                        keyboardActions = KeyboardActions(
+                                            onDone = {
+                                                focusManager.clearFocus() // Dismiss the keyboard when "Done" is pressed
+                                            }
+                                        ),
+                                        textStyle = TextStyle(
+                                            fontSize = 12.sp,
+                                            color = Color.Black
+                                        ),
                                         singleLine = true,
-                                        colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
-                                        modifier = Modifier.width(75.dp)
+                                        modifier = Modifier
+                                            .width(30.dp)
+                                            .background(Color.Transparent)
+                                            .padding(4.dp)
+                                            .focusRequester(focusRequester)
+                                            .drawBehind {
+                                                val strokeWidth = 1.dp.toPx()
+                                                val y = size.height - strokeWidth / 2
+                                                drawLine(
+                                                    color = Color.Black,
+                                                    start = Offset(0f, y),
+                                                    end = Offset(size.width, y),
+                                                    strokeWidth = strokeWidth
+                                                )
+                                            }
+                                            .clickable { focusRequester.requestFocus() }
                                     )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Text("Seconds", style = TextStyle(fontSize = 16.sp), fontWeight = FontWeight.Bold)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Seconds", style = TextStyle(fontSize = 14.sp), fontWeight = FontWeight.Bold)
                                 }
                             }
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                // horizontalArrangement = Arrangement.SpaceBetween
-                            ){
-                                Column{
-                                    options.take(13).forEachIndexed { optionIndex, option ->
-                                        Row(
-                                            // modifier = Modifier.fillMaxWidth(),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            RadioButton(
-                                                selected = answers[index] == optionIndex,
-                                                onClick = {
-                                                    answers = answers.toMutableList().apply { set(index, optionIndex) }
-                                                },
-                                                colors = RadioButtonDefaults.colors(
-                                                    selectedColor = Color(0xFF005749)
-                                                )
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Start
+                        ){
+                            Column{
+                                options.take(13).forEachIndexed { optionIndex, option ->
+                                    Row(
+                                        // modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        RadioButton(
+                                            selected = answers[index] == optionIndex,
+                                            onClick = {
+                                                answers = answers.toMutableList().apply { set(index, optionIndex) }
+                                            },
+                                            colors = RadioButtonDefaults.colors(
+                                                selectedColor = Color(0xFF005749)
                                             )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(text = option, style = TextStyle(fontSize = 16.sp))
-                                        }
+                                        )
+                                        Text(text = option, style = TextStyle(fontSize = 14.sp))
                                     }
                                 }
                             }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "When scoring item 14, if subject’s gait speed slows more than 10% between the TUG without and with a Dual Task the score should be decreased by a point.",
-                                style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                            )
                         }
+                        Text(
+                            text = "When scoring item 14, if subject’s gait speed slows more than 10% between the TUG without and with a Dual Task the score should be decreased by a point.",
+                            style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
+                            modifier = Modifier.padding(12.dp)
+                        )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }
             else {
-                // Default rendering for other questions
                 item {
                     QuestionCardMinibest(
                         question = "${index + 1}. $question",
@@ -909,6 +1363,18 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                         return@Button
                     }
                     isSubmitted = true
+                    val result = MiniBestResult(
+                        totalScore = totalScore,
+                        anticipatory = anticipatory,
+                        reactive_postural_control = reactive_postural_control,
+                        sensory_orientation = sensory_orientation,
+                        dynamic_gait = dynamic_gait
+                    )
+                    val dateFormatter = SimpleDateFormat("dd MMM yy - hh.mm a", Locale.getDefault())
+                    val currentTimestamp = dateFormatter.format(System.currentTimeMillis())
+                    val pdfName = "${patient.name} - $currentTimestamp.pdf"
+                    addedMiniData(patient = patient, result = result)
+                    pdfFile = savePdfToDocumentsUsingMediaStoreMinibest(result, pdfName, patient, context)
                 },
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.textButtonColors(
@@ -978,7 +1444,140 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.Q)
+fun savePdfToDocumentsUsingMediaStoreMinibest(content: MiniBestResult, patientName: String, patientDetail: Patient, context: Context): File? {
+    val resolver = context.contentResolver
+    val contentValues = ContentValues().apply {
+        put(MediaStore.MediaColumns.DISPLAY_NAME, patientName)
+        put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS)
+    }
+    fun getminibestCategory(): String {
+        return when {
+            content.totalScore in 0..6 -> "Severe"
+            content.totalScore in 6..11 -> "Moderate Anxiety"
+            content.totalScore in 11..16 -> "Mild"
+            else -> "Mild"  // This is a fallback, just in case
+        }
+    }
+    fun getminibestCategoryRange(): String {
+        return when {
+            content.totalScore in 0..6 -> "0 - 6"
+            content.totalScore in 6..11 -> "6 - 11"
+            content.totalScore in 11..16 -> "11 - 16"
+            content.totalScore >= 22 -> "above 16"
+            else -> "No Balance"  // This is a fallback, just in case
+        }
+    }
+    val uri = resolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
+    if (uri != null) {
+        resolver.openOutputStream(uri)?.use { outputStream ->
+            val writer = PdfWriter(outputStream)
+            val pdfDoc = PdfDocument(writer)
+            val document = Document(pdfDoc)
+            val title = Paragraph("Assessment Report")
+                .setFontSize(18f)
+                .setTextAlignment(com.itextpdf.layout.properties.TextAlignment.LEFT)
+                .setBold()
+            val logoBitmap = getLogoBitmap(context) // Get your logo as Bitmap
+            if (logoBitmap != null) {
+                val logoStream = logoBitmapToByteArray(logoBitmap)
+                val imageData = com.itextpdf.io.image.ImageDataFactory.create(logoStream)
+                val image = com.itextpdf.layout.element.Image(imageData).setHeight(50f)
+                document.add(image)
+            }
+            document.add(title)
+            val nameParagraph = Paragraph("Name: ")
+                .setBold()
+                .add(Paragraph(patientDetail.name?.toString() ?: "N/A").setFontSize(12f)) // Detail without bold
+                .setFontSize(12f)
 
+            val ageParagraph = Paragraph("Age: ")
+                .setBold()
+                .add(Paragraph(patientDetail.age?.toString() ?: "N/A").setFontSize(12f)) // Detail without bold
+                .setFontSize(12f)
+
+            val genderParagraph = Paragraph("Gender: ")
+                .setBold()
+                .add(Paragraph(patientDetail.gender ?: "N/A").setFontSize(12f)) // Detail without bold
+                .setFontSize(12f)
+
+            document.add(nameParagraph)
+            document.add(ageParagraph)
+            document.add(genderParagraph)
+
+            // Add a Table
+            val table = Table(floatArrayOf(2f, 5f)) // Two columns, widths are proportional
+            table.setWidth(UnitValue.createPercentValue(100f)) // Table width is 100% of the page
+
+            // Add Table Header
+            table.addCell(Paragraph("Category").setBold())
+            table.addCell(Paragraph("Score").setBold())
+
+            // Add Rows
+            table.addCell("Total Score")
+            table.addCell(content.totalScore.toString())
+            table.addCell("Anticipatory")
+            table.addCell(content.anticipatory.toString())
+            table.addCell("Reactive postural control")
+            table.addCell(content.reactive_postural_control.toString())
+            table.addCell("Sensory orientation")
+            table.addCell(content.sensory_orientation.toString())
+            table.addCell("Dynamic gait")
+            table.addCell(content.dynamic_gait.toString())
+            val table2 = Table(floatArrayOf(3f, 3f, 4f)).setMarginBottom(20f) // Three columns: Scale, Normative Value, Report
+            table2.setWidth(UnitValue.createPercentValue(100f)) // Table width is 100% of the page
+            val headerBackgroundColor = com.itextpdf.kernel.colors.DeviceRgb(0, 87, 73)
+            val fontBackgroundColor = com.itextpdf.kernel.colors.ColorConstants.WHITE
+
+            val scaleHeaderCell = Cell().add(Paragraph("Scale").setBold())
+            scaleHeaderCell.setBackgroundColor(headerBackgroundColor).setFontColor(fontBackgroundColor)
+            table2.addCell(scaleHeaderCell)
+
+            val normativeValueHeaderCell = Cell().add(Paragraph("Normative Value").setBold())
+            normativeValueHeaderCell.setBackgroundColor(headerBackgroundColor).setFontColor(fontBackgroundColor)
+            table2.addCell(normativeValueHeaderCell)
+
+            val reportHeaderCell = Cell().add(Paragraph("Report").setBold())
+            reportHeaderCell.setBackgroundColor(headerBackgroundColor).setFontColor(fontBackgroundColor)
+            table2.addCell(reportHeaderCell)
+
+            // Add Rows (Example Data, adjust as per your logic)
+            table2.addCell("Minibesttest")
+            table2.addCell(getminibestCategory())
+            table2.addCell(getminibestCategoryRange())
+
+            val summaryTitle = Paragraph("Summary")
+                .setFontSize(14f)
+                .setBold()
+                .setTextAlignment(com.itextpdf.layout.properties.TextAlignment.LEFT)
+                .setMarginTop(20f)
+            val reference = """
+                Segal, D. L., June, A., Payne, M., Coolidge, F. L., & Yochim, B. (2010). Development and initial validation of
+                a self-report assessment tool for anxiety among older adults: The Geriatric Anxiety Scale. Journal of Anxiety
+                Disorders, 24, 709-714.
+            """.trimIndent()
+
+            val referenceParagraph = Paragraph(reference)
+                .setFontSize(12f)
+                .setTextAlignment(com.itextpdf.layout.properties.TextAlignment.LEFT)
+            document.add(table2)
+            document.add(table)
+            document.add(summaryTitle)
+            document.add(referenceParagraph)
+            document.close()
+        }
+
+        val tempFile = File(context.cacheDir, patientName)
+        resolver.openInputStream(uri)?.use { inputStream ->
+            FileOutputStream(tempFile).use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
+        }
+        return tempFile
+    }
+    return null
+}
 @Composable
 fun QuestionCardMinibest(
     question: String,
@@ -1000,35 +1599,35 @@ fun QuestionCardMinibest(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp)
+                .padding(12.dp),
+            horizontalAlignment = Alignment.Start
         ) {
             Text(text = question, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             Spacer(modifier = Modifier.height(4.dp))
             Text(text = "Instruction: $instruction", fontSize = 14.sp)
-            Spacer(modifier = Modifier.height(6.dp))
-            options.chunked(4).forEach { optionPair ->
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    //  horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    optionPair.forEachIndexed { index, option ->
-                        OptionRowminibest(
-                            option = option,
-                            isSelected = selectedOption == index,
-                            onClick = { onOptionSelected(index) }
-                        )
-                    }
+        }
+        options.chunked(4).forEach { optionPair ->
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
+            ) {
+                optionPair.forEachIndexed { index, option ->
+                    OptionRowminibest(
+                        option = option,
+                        isSelected = selectedOption == index,
+                        onClick = { onOptionSelected(index) }
+                    )
                 }
             }
         }
     }
 }
-
 @Composable
 fun OptionRowminibest(option: String, isSelected: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth()
             .clickable { onClick() },
+        horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
@@ -1038,7 +1637,6 @@ fun OptionRowminibest(option: String, isSelected: Boolean, onClick: () -> Unit) 
                 selectedColor = Color(0xFF005749)
             )
         )
-        Spacer(modifier = Modifier.width(2.dp))
-        Text(text = option, style = MaterialTheme.typography.bodyLarge)
+        Text(text = option, fontSize = 14.sp)
     }
 }

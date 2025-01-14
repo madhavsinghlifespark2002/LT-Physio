@@ -578,3 +578,49 @@ fun OptionRow(option: String, isSelected: Boolean, onClick: () -> Unit) {
         Text(text = option, style = MaterialTheme.typography.bodyLarge)
     }
 }
+//Row(
+//                                modifier = Modifier.fillMaxWidth(),
+//                                verticalAlignment = Alignment.CenterVertically
+//                            ){
+//                                Text("Time in Seconds: ", style = TextStyle(fontSize = 14.sp), fontWeight = FontWeight.SemiBold)
+//                                Spacer(modifier = Modifier.width(4.dp))
+//                                BasicTextField(
+//                                    value = trial1Time1,
+//                                    onValueChange = {
+//                                        if (it.length <= 3 && it.all { char -> char.isDigit() }) {
+//                                            trial1Time1 = it
+//                                        }
+//                                    },
+//                                    keyboardOptions = KeyboardOptions.Default.copy(
+//                                        keyboardType = KeyboardType.Number,
+//                                        imeAction = ImeAction.Done // Handles "Done" action
+//                                    ),
+//                                    keyboardActions = KeyboardActions(
+//                                        onDone = {
+//                                            focusManager.clearFocus() // Dismiss the keyboard when "Done" is pressed
+//                                        }
+//                                    ),
+//                                    textStyle = TextStyle(
+//                                        fontSize = 12.sp,
+//                                        color = Color.Black
+//                                    ),
+//                                    singleLine = true,
+//                                    modifier = Modifier
+//                                        .width(30.dp)
+//                                        .background(Color.Transparent)
+//                                        .padding(4.dp)
+//                                        .focusRequester(focusRequester)
+//                                        .drawBehind {
+//                                            val strokeWidth = 1.dp.toPx()
+//                                            val y = size.height - strokeWidth / 2
+//                                            drawLine(
+//                                                color = Color.Black,
+//                                                start = Offset(0f, y),
+//                                                end = Offset(size.width, y),
+//                                                strokeWidth = strokeWidth
+//                                            )
+//                                        }
+//                                        .clickable { focusRequester.requestFocus() }
+//                                )
+//                                Text("Sec", style = TextStyle(fontSize = 14.sp), fontWeight = FontWeight.SemiBold)
+//                            }

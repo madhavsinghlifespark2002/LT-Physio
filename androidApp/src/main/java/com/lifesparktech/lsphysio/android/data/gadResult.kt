@@ -8,3 +8,13 @@ data class GASResult(
     val affectiveScore: Int,
     val anxietyCategory: String
 ) : Serializable
+
+data class MiniBestResult(
+    val totalScore: Int,
+    val anticipatory: Int,
+    val reactive_postural_control: Int,
+    val sensory_orientation: Int,
+    val dynamic_gait: Int
+) : Serializable
+
+

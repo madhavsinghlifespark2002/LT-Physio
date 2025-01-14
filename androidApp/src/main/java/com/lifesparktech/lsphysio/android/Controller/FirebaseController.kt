@@ -3,6 +3,7 @@ package com.lifesparktech.lsphysio.android.Controller
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.lifesparktech.lsphysio.android.data.GASResult
+import com.lifesparktech.lsphysio.android.data.MiniBestResult
 import com.lifesparktech.lsphysio.android.data.Patient
 
 import kotlinx.coroutines.tasks.await
@@ -106,6 +107,30 @@ fun addedGasData(patient: Patient, result: GASResult) {
         val currentResults = snapshot.get("gasTest") as? List<Map<String, Any>> ?: emptyList()
         val updatedResults = currentResults + testResult
         transaction.update(patientRef, "gasTest", updatedResults)
+    }.addOnSuccessListener {
+        println("Patient test result updated successfully.")
+    }.addOnFailureListener { exception ->
+        println("Error updating test result: ${exception.message}")
+    }
+}
+fun addedMiniData(patient: Patient, result: MiniBestResult) {
+    val firestore = FirebaseFirestore.getInstance()
+    val timestamp = System.currentTimeMillis()
+    val testResult = mapOf(
+        "testName" to "minibestTest",
+        "totalScore" to result.totalScore,
+        "anticipatory" to result.anticipatory,
+        "reactive_postural_control" to result.reactive_postural_control,
+        "sensory_orientation" to result.sensory_orientation,
+        "dynamic_gait" to result.dynamic_gait,
+        "timestamp" to timestamp
+    )
+    val patientRef = firestore.collection("Patient").document(patient.serialNo)
+    firestore.runTransaction { transaction ->
+        val snapshot = transaction.get(patientRef)
+        val currentResults = snapshot.get("minibestTest") as? List<Map<String, Any>> ?: emptyList()
+        val updatedResults = currentResults + testResult
+        transaction.update(patientRef, "minibestTest", updatedResults)
     }.addOnSuccessListener {
         println("Patient test result updated successfully.")
     }.addOnFailureListener { exception ->
