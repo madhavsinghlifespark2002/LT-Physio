@@ -101,8 +101,6 @@ import com.lifesparktech.lsphysio.android.data.Patient
 import com.lifesparktech.lsphysio.android.data.instructions
 import com.lifesparktech.lsphysio.android.data.minibestquestions
 import com.lifesparktech.lsphysio.android.data.optionsList
-import org.bouncycastle.math.raw.Mod
-import question6
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -136,7 +134,7 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
         Pair(6, "SENSORY ORIENTATION" to "/6"),
         Pair(9, "DYNAMIC GAIT" to "/10")
     )
-    var answers by remember { mutableStateOf(List(minibestquestions.size) { 0 }) }
+    var answers by remember { mutableStateOf(List(14) { 2 }) }
 
     var trial1Time1 by remember { mutableStateOf("") }
     var question8sec by remember { mutableStateOf("") }
@@ -144,15 +142,16 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
     var trial2Time1 by remember { mutableStateOf("") }
     var trial2Time2 by remember { mutableStateOf("") }
     var isSubmitted by remember { mutableStateOf(false) }
-    var leftScore by remember { mutableStateOf(0) }
-    var rightScore by remember { mutableStateOf(0) }
-    var leftScore6 by remember { mutableStateOf(0) }
-    var rightScore6 by remember { mutableStateOf(0) }
-    var totalScore = answers.sum() + minOf(leftScore, rightScore) + + minOf(leftScore6, rightScore6)
-    var selectedScore by remember { mutableStateOf(0) }
-    var selectedScoreRight by remember { mutableStateOf(0) }
-    var selectedScore6 by remember { mutableStateOf(0) }
-    var selectedScoreRight6 by remember { mutableStateOf(0) }
+    var leftScore by remember { mutableStateOf(2) }
+    var rightScore by remember { mutableStateOf(2) }
+    var leftScore6 by remember { mutableStateOf(2) }
+    var rightScore6 by remember { mutableStateOf(2) }
+    val totalScore = answers.filterIndexed { index, _ -> index != 2 && index != 5 }.sum() + minOf(leftScore, rightScore) + minOf(leftScore6, rightScore6)
+//    var totalScore = answers.sum() + minOf(leftScore, rightScore) + minOf(leftScore6, rightScore6)
+    var selectedScore by remember { mutableStateOf(2) }
+    var selectedScoreRight by remember { mutableStateOf(2) }
+    var selectedScore6 by remember { mutableStateOf(2) }
+    var selectedScoreRight6 by remember { mutableStateOf(2) }
     var anticipatory by remember { mutableStateOf(0) }
     var reactive_postural_control by remember { mutableStateOf(0) }
     var sensory_orientation by remember { mutableStateOf(0) }
@@ -162,33 +161,32 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
     val subscores = sections.map { (startIndex, _) ->
         when (startIndex) {
             0 -> {
-                val endIndex = startIndex + 3
-                val score = answers.subList(startIndex, endIndex).sum() + minOf(leftScore, rightScore)
+                val score = answers.subList(startIndex, startIndex + 3)
+                    .filterIndexed { index, _ -> index != 2 } // Exclude index 2
+                    .sum() + minOf(leftScore, rightScore)
                 anticipatory = score
                 score
             }
             3 -> {
-                val endIndex = startIndex + 3
-                val score = answers.subList(startIndex, endIndex).sum() + minOf(leftScore6, rightScore6)
+                val score = answers.subList(startIndex, startIndex + 3)
+                    .filterIndexed { index, _ -> index != 2 } // Exclude index 5
+                    .sum() + minOf(leftScore6, rightScore6)
                 reactive_postural_control = score
                 score
             }
             9 -> {
-                val endIndex = startIndex + 5 // Questions 7, 8, 9
-                val score = answers.subList(startIndex, endIndex).sum()
-                sensory_orientation = score // Update state
-                score // Return value for `map`
+                val score = answers.subList(startIndex, startIndex + 5).sum()
+                sensory_orientation = score
+                score
             }
-            else -> { // General case for all other sections
-                val endIndex = startIndex + 3 // Each section contains 3 questions
+            else -> {
+                val endIndex = startIndex + 3
                 val score = answers.subList(startIndex, endIndex).sum()
-                dynamic_gait = score // Update state
-                score // Return value for `map`
+                dynamic_gait = score
+                score
             }
         }
     }
-
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -215,8 +213,16 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                 }
                 Button(
                     onClick = {
-                        answers = List(30) { 0 }
+                        answers = List(14) { 2 }
                         isSubmitted = false
+                        leftScore = 2
+                        rightScore = 2
+                        leftScore6 = 2
+                        rightScore6 = 2
+                        selectedScore = 2
+                        selectedScoreRight = 2
+                        selectedScore6 = 2
+                        selectedScoreRight6 = 2
                     },
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.textButtonColors(
@@ -1088,21 +1094,21 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                         ),
                                         singleLine = true,
                                         modifier = Modifier
-                                        .width(30.dp)
-                                        .background(Color.Transparent)
-                                        .padding(4.dp)
-                                        .focusRequester(focusRequester)
-                                        .drawBehind {
-                                            val strokeWidth = 1.dp.toPx()
-                                            val y = size.height - strokeWidth / 2
-                                            drawLine(
-                                                color = Color.Black,
-                                                start = Offset(0f, y),
-                                                end = Offset(size.width, y),
-                                                strokeWidth = strokeWidth
-                                            )
-                                        }
-                                        .clickable { focusRequester.requestFocus() }
+                                            .width(30.dp)
+                                            .background(Color.Transparent)
+                                            .padding(4.dp)
+                                            .focusRequester(focusRequester)
+                                            .drawBehind {
+                                                val strokeWidth = 1.dp.toPx()
+                                                val y = size.height - strokeWidth / 2
+                                                drawLine(
+                                                    color = Color.Black,
+                                                    start = Offset(0f, y),
+                                                    end = Offset(size.width, y),
+                                                    strokeWidth = strokeWidth
+                                                )
+                                            }
+                                            .clickable { focusRequester.requestFocus() }
                                     )
                                 }
                                 Text("When I say ‘Go’, stand up from chair, walk at your normal speed across the tape on the floor, turn around, and come back to sit in the chair. Continue counting backwards the entire time.")

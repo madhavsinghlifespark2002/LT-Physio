@@ -49,7 +49,7 @@ import com.lifesparktech.lsphysio.android.pages.SittoStandScreen
 import com.lifesparktech.lsphysio.android.pages.TestScreen
 import com.lifesparktech.lsphysio.android.pages.TugScreen
 import com.lifesparktech.lsphysio.android.pages.UpdatedPatientScreen
-import sampleTest
+import com.lifesparktech.lsphysio.android.pages.sampleTest
 import java.io.File
 
 @Composable

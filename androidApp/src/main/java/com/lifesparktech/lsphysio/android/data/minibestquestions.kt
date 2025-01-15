@@ -20,12 +20,12 @@ val optionsList = listOf(
     listOf(
         "Severe (0): Unable to stand up from chair without assistance, OR needs several attempts with use of hands.",
         "Moderate (1): Comes to stand WITH use of hands on first attempt.",
-        "Normal (2): Comes to stand without use of hands and stabilizes independently."
+        "Normal (2): Comes to stand without use of hands and stabilizes independently.",
     ),
     listOf(
         "Severe (0): < 3 s.",
         "Moderate (1): Heels up, but not full range (smaller than when holding hands), OR noticeable instability for 3 s.",
-        "Normal (2): Stable for 3 s with maximum height."
+        "Normal (2): Stable for 3 s with maximum height.",
     ),
     listOf(
         "Severe (0): Unable",
@@ -35,52 +35,54 @@ val optionsList = listOf(
     listOf(
         "Severe (0): No step, OR would fall if not caught, OR falls spontaneously.",
         "Moderate (1): More than one step used to recover equilibrium.",
-        "Normal (2): Recovers independently with a single, large step (second realignment step is allowed)."
+        "Normal (2): Recovers independently with a single, large step (second realignment step is allowed).",
     ),
     listOf(
         "Severe (0): No step, OR would fall if not caught, OR falls spontaneously.",
         "Moderate (1): More than one step used to recover equilibrium.",
-        "Normal (2): Recovers independently with a single, large step."
+        "Normal (2): Recovers independently with a single, large step.",
     ),
     listOf(
         "Severe (0): Falls, or cannot step.",
         "Moderate (1): Several steps to recover equilibrium.",
-        "Normal (2): Recovers independently with 1 step (crossover or lateral OK)."
+        "Normal (2): Recovers independently with 1 step (crossover or lateral OK).",
     ),
     listOf(
         "Severe (0): Unable.",
         "Moderate (1): < 30 s.",
-        "Normal (2): 30 s."
+        "Normal (2): 30 s.",
+
     ),
     listOf(
         "Severe (0): Unable.",
         "Moderate (1): < 30 s.",
-        "Normal (2): 30 s."
+        "Normal (2): 30 s.",
     ),
     listOf(
         "Severe (0): Unable.",
         "Moderate (1): Stands independently <30 s OR aligns with surface.",
-        "Normal (2): Stands independently 30 s and aligns with gravity."
+        "Normal (2): Stands independently 30 s and aligns with gravity.",
+
     ),
     listOf(
         "Severe (0): Unable to achieve significant change in walking speed AND signs of imbalance.",
         "Moderate (1): Unable to change walking speed or signs of imbalance.",
-        "Normal (2): Significantly changes walking speed without imbalance."
+        "Normal (2): Significantly changes walking speed without imbalance.",
     ),
     listOf(
         "Severe (0): Performs head turns with imbalance.",
         "Moderate (1): Performs head turns with reduction in gait speed.",
-        "Normal (2): Performs head turns with no change in gait speed and good balance."
+        "Normal (2): Performs head turns with no change in gait speed and good balance.",
     ),
     listOf(
         "Severe (0): Cannot turn with feet close at any speed without imbalance.",
         "Moderate (1): Turns with feet close SLOW (>4 steps) with good balance.",
-        "Normal (2): Turns with feet close FAST (< 3 steps) with good balance."
+        "Normal (2): Turns with feet close FAST (< 3 steps) with good balance.",
     ),
     listOf(
         "Severe (0): Unable to step over box OR steps around box.",
         "Moderate (1): Steps over box but touches box OR displays cautious behavior by slowing gait.",
-        "Normal (2): Able to step over box with minimal change of gait speed and with good balance."
+        "Normal (2): Able to step over box with minimal change of gait speed and with good balance.",
     ),
     listOf(
         "Severe (0): Stops counting while walking OR stops walking while counting.",
