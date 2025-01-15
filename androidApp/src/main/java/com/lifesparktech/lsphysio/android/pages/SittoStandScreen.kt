@@ -303,8 +303,8 @@ fun SittoStandCard(navController: NavController) {
                                         }
                                         if (client == "1" && server == "1" && timerRunning.value) {
                                             timerRunning.value = false
-                                            timeTaken.value = timerMillis.value // Record the time taken
-                                            collectionJob?.cancel() // Stop collecting
+                                            timeTaken.value = timerMillis.value
+                                            collectionJob?.cancel()
                                             collectionJob = null
                                             updatePatientWithTestResult(patient, timeTaken.value, "stsTest")
                                         }

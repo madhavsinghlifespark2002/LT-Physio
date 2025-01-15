@@ -295,7 +295,72 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
-            if (index == 2) {
+            if(index == 0) {
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White // Set the card's background color
+                        )
+                    ) {
+                        Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
+                            ){
+                                Text(
+                                    text = "${index + 1}. $question",
+                                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                )
+                                Button(
+                                    onClick = {navController.navigate("SittoStandScreen")},
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = ButtonDefaults.textButtonColors(
+                                        containerColor = Color(0xFF005749), // Normal state color
+                                        contentColor = Color.White, // Normal text color
+                                    ),
+                                ){
+                                    Text("Start", color = Color.White)
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Instruction: $instruction",
+                                style = TextStyle(fontSize = 14.sp)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                        Column{
+                            options.take(7).forEachIndexed { optionIndex, option ->
+                                Row(
+                                    // modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = answers[index] == optionIndex,
+                                        onClick = {
+                                            answers = answers.toMutableList().apply { set(index, optionIndex) }
+                                        },
+                                        colors = RadioButtonDefaults.colors(
+                                            selectedColor = Color(0xFF005749)
+                                        )
+                                    )
+                                    Text(text = option, style = TextStyle(fontSize = 14.sp))
+                                }
+                            }
+                        }
+
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            }
+           else if (index == 2) {
                 item {
                     Card(
                         modifier = Modifier
