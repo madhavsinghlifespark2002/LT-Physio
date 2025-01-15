@@ -23,7 +23,7 @@ val optionsList = listOf(
         "Normal (2): Comes to stand without use of hands and stabilizes independently.",
     ),
     listOf(
-        "Severe (0): < 3 s.",
+        "Severe (0): <= 3 s.",
         "Moderate (1): Heels up, but not full range (smaller than when holding hands), OR noticeable instability for 3 s.",
         "Normal (2): Stable for 3 s with maximum height.",
     ),
@@ -76,8 +76,8 @@ val optionsList = listOf(
     ),
     listOf(
         "Severe (0): Cannot turn with feet close at any speed without imbalance.",
-        "Moderate (1): Turns with feet close SLOW (>4 steps) with good balance.",
-        "Normal (2): Turns with feet close FAST (< 3 steps) with good balance.",
+        "Moderate (1): Turns with feet close SLOW (>=4 steps) with good balance.",
+        "Normal (2): Turns with feet close FAST (>= 3 steps) with good balance.",
     ),
     listOf(
         "Severe (0): Unable to step over box OR steps around box.",

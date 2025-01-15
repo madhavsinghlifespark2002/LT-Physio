@@ -2,7 +2,6 @@ package com.lifesparktech.lsphysio.android.pages
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.graphics.Paint.Align
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -12,22 +11,17 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -38,7 +32,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -47,10 +40,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonColors
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -65,37 +56,28 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.BaselineShift
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.FileProvider
 import androidx.navigation.NavController
-import com.github.barteksc.pdfviewer.PDFView
 import com.itextpdf.kernel.pdf.PdfDocument
 import com.itextpdf.kernel.pdf.PdfWriter
 import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.Paragraph
 import java.io.File
 import java.io.FileOutputStream
-import com.example.lsphysio.android.R
 import com.itextpdf.layout.element.Cell
 import com.itextpdf.layout.element.ListItem
 import com.itextpdf.layout.element.Table
 import com.itextpdf.layout.properties.UnitValue
-import com.lifesparktech.lsphysio.android.Controller.addedGasData
 import com.lifesparktech.lsphysio.android.Controller.addedMiniData
 import com.lifesparktech.lsphysio.android.Controller.fetchPatients
-import com.lifesparktech.lsphysio.android.data.GASResult
 import com.lifesparktech.lsphysio.android.data.MiniBestResult
 import com.lifesparktech.lsphysio.android.data.Patient
 import com.lifesparktech.lsphysio.android.data.instructions
@@ -103,7 +85,7 @@ import com.lifesparktech.lsphysio.android.data.minibestquestions
 import com.lifesparktech.lsphysio.android.data.optionsList
 import java.text.SimpleDateFormat
 import java.util.Locale
-
+import kotlin.Int
 @RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -126,8 +108,6 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
             //isLoading = false
         }
     }
-
-
     val sections = listOf(
         Pair(0, "ANTICIPATORY" to "/6"),
         Pair(3, "REACTIVE POSTURAL CONTROL" to "/6"),
@@ -135,9 +115,7 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
         Pair(9, "DYNAMIC GAIT" to "/10")
     )
     var answers by remember { mutableStateOf(List(14) { 2 }) }
-
     var trial1Time1 by remember { mutableStateOf("") }
-    var question8sec by remember { mutableStateOf("") }
     var trial1Time2 by remember { mutableStateOf("") }
     var trial2Time1 by remember { mutableStateOf("") }
     var trial2Time2 by remember { mutableStateOf("") }
@@ -158,6 +136,12 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
     var dynamic_gait by remember { mutableStateOf(0) }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    var question7sec by remember { mutableStateOf("") }
+    var question8sec by remember { mutableStateOf("") }
+    var question9sec by remember { mutableStateOf("") }
+    var count3 by remember { mutableStateOf("") }
+    var tug1 by remember { mutableStateOf("") }
+    var tug2 by remember { mutableStateOf("") }
     val subscores = sections.map { (startIndex, _) ->
         when (startIndex) {
             0 -> {
@@ -176,13 +160,13 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
             }
             9 -> {
                 val score = answers.subList(startIndex, startIndex + 5).sum()
-                sensory_orientation = score
+                dynamic_gait = score
                 score
             }
             else -> {
                 val endIndex = startIndex + 3
                 val score = answers.subList(startIndex, endIndex).sum()
-                dynamic_gait = score
+                sensory_orientation = score
                 score
             }
         }
@@ -393,10 +377,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                 Text("Trial 2: ", style = TextStyle(fontSize = 14.sp))
                                 Spacer(modifier = Modifier.width(2.dp))
                                 BasicTextField(
-                                    value = trial1Time1,
+                                    value = trial1Time2,
                                     onValueChange = {
                                         if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                            trial1Time1 = it
+                                            trial1Time2 = it
                                         }
                                     },
                                     keyboardOptions = KeyboardOptions.Default.copy(
@@ -444,10 +428,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                 Text("Time in Seconds Trial 1: ", style = TextStyle(fontSize = 14.sp))
                                 Spacer(modifier = Modifier.width(4.dp))
                                 BasicTextField(
-                                    value = trial1Time1,
+                                    value = trial2Time1,
                                     onValueChange = {
                                         if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                            trial1Time1 = it
+                                            trial2Time1 = it
                                         }
                                     },
                                     keyboardOptions = KeyboardOptions.Default.copy(
@@ -487,10 +471,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                 Text("Trial 2: ", style = TextStyle(fontSize = 14.sp))
                                 Spacer(modifier = Modifier.width(4.dp))
                                 BasicTextField(
-                                    value = trial1Time1,
+                                    value = trial2Time2,
                                     onValueChange = {
                                         if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                            trial1Time1 = it
+                                            trial2Time2 = it
                                         }
                                     },
                                     keyboardOptions = KeyboardOptions.Default.copy(
@@ -796,10 +780,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                 Text("Time in Seconds: ", style = TextStyle(fontSize = 14.sp), fontWeight = FontWeight.SemiBold)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 BasicTextField(
-                                    value = question8sec,
+                                    value = question7sec,
                                     onValueChange = {
                                         if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                            trial1Time1 = it
+                                            question7sec = it
                                         }
                                     },
                                     keyboardOptions = KeyboardOptions.Default.copy(
@@ -892,7 +876,7 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                     value = question8sec,
                                     onValueChange = {
                                         if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                            trial1Time1 = it
+                                            question8sec = it
                                         }
                                     },
                                     keyboardOptions = KeyboardOptions.Default.copy(
@@ -982,10 +966,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                 Text("Time in Seconds: ", style = TextStyle(fontSize = 14.sp), fontWeight = FontWeight.SemiBold)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 BasicTextField(
-                                    value = trial1Time1,
+                                    value = question9sec,
                                     onValueChange = {
                                         if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                            trial1Time1 = it
+                                            question9sec = it
                                         }
                                     },
                                     keyboardOptions = KeyboardOptions.Default.copy(
@@ -1073,10 +1057,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                     Text("Count backwards by threes starting at: ", fontWeight = FontWeight.Bold)
                                     Spacer(modifier = Modifier.width(2.dp))
                                     BasicTextField(
-                                        value = trial1Time1,
+                                        value = count3,
                                         onValueChange = {
                                             if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                                trial1Time1 = it
+                                                count3 = it
                                             }
                                         },
                                         keyboardOptions = KeyboardOptions.Default.copy(
@@ -1125,10 +1109,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     BasicTextField(
-                                        value = trial1Time1,
+                                        value = tug1,
                                         onValueChange = {
                                             if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                                trial1Time1 = it
+                                                tug1 = it
                                             }
                                         },
                                         keyboardOptions = KeyboardOptions.Default.copy(
@@ -1171,10 +1155,10 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                     Text("Dual Task TUG: ", style = TextStyle(fontSize = 14.sp),fontWeight = FontWeight.Bold)
                                     Spacer(modifier = Modifier.width(4.dp))
                                     BasicTextField(
-                                        value = trial1Time1,
+                                        value = tug2,
                                         onValueChange = {
                                             if (it.length <= 3 && it.all { char -> char.isDigit() }) {
-                                                trial1Time1 = it
+                                                tug2 = it
                                             }
                                         },
                                         keyboardOptions = KeyboardOptions.Default.copy(
@@ -1287,7 +1271,17 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                         anticipatory = anticipatory,
                         reactive_postural_control = reactive_postural_control,
                         sensory_orientation = sensory_orientation,
-                        dynamic_gait = dynamic_gait
+                        dynamic_gait = dynamic_gait,
+                        trial1Time1 = trial1Time1.toIntOrNull(),
+                        trial1Time2 = trial1Time2.toIntOrNull(),
+                        trial2Time1 = trial2Time1.toIntOrNull(),
+                        trial2Time2 = trial2Time2.toIntOrNull(),
+                        question7sec = question7sec.toIntOrNull(),
+                        question8sec= question8sec.toIntOrNull(),
+                        question9sec = question9sec.toIntOrNull(),
+                        count3 = count3.toIntOrNull(),
+                        tug1 = tug1.toIntOrNull(),
+                        tug2 = tug2.toIntOrNull(),
                     )
                     val dateFormatter = SimpleDateFormat("dd MMM yy - hh.mm a", Locale.getDefault())
                     val currentTimestamp = dateFormatter.format(System.currentTimeMillis())
@@ -1389,33 +1383,54 @@ fun savePdfToDocumentsUsingMediaStoreMinibest(content: MiniBestResult, patientNa
                 val image = com.itextpdf.layout.element.Image(imageData).setHeight(50f)
                 document.add(image)
             }
+            val timeParagraph = Paragraph(
+                "Left: Time in Seconds Trial 1: ${content.trial1Time1 ?: "0" }s Trial 2: ${content.trial1Time2 ?: "0"}s\n" +
+                        "Right: Time in Seconds Trial 1: ${content.trial2Time1 ?: "0"}s Trial 2: ${content.trial2Time2 ?: "0"}s"
+            ).setFontSize(12f).setTextAlignment(com.itextpdf.layout.properties.TextAlignment.LEFT)
+            val questionParagraph = Paragraph(
+                "STANCE (FEET TOGETHER); EYES OPEN, FIRM SURFACE: ${content.question7sec ?: "0" }s\n"
+                        + "STANCE (FEET TOGETHER); EYES CLOSED, FOAM SURFACE: ${content.question8sec ?: "0"}s\n"
+                        + "INCLINE- EYES CLOSED: ${content.question9sec ?: "0"}s\n"
+            ).setFontSize(12f).setTextAlignment(com.itextpdf.layout.properties.TextAlignment.LEFT)
+            val tugParagraph = Paragraph(
+                "Tug count backwards by threes starting at: ${content.count3 ?: "0" }s\n"
+                        + "TUG: ${content.tug1 ?: "0"}s\n"
+                        + "Dual TUG: ${content.tug2 ?: "0"}s\n"
+            ).setFontSize(12f).setTextAlignment(com.itextpdf.layout.properties.TextAlignment.LEFT)
             document.add(title)
             val nameParagraph = Paragraph("Name: ")
                 .setBold()
                 .add(Paragraph(patientDetail.name?.toString() ?: "N/A").setFontSize(12f)) // Detail without bold
                 .setFontSize(12f)
-
             val ageParagraph = Paragraph("Age: ")
                 .setBold()
                 .add(Paragraph(patientDetail.age?.toString() ?: "N/A").setFontSize(12f)) // Detail without bold
                 .setFontSize(12f)
-
             val genderParagraph = Paragraph("Gender: ")
                 .setBold()
                 .add(Paragraph(patientDetail.gender ?: "N/A").setFontSize(12f)) // Detail without bold
                 .setFontSize(12f)
-
             document.add(nameParagraph)
             document.add(ageParagraph)
             document.add(genderParagraph)
             val bulletList = com.itextpdf.layout.element.List()
                 .setSymbolIndent(12f)
                 .setFontSize(12f)
-
+            val bulletList2 = com.itextpdf.layout.element.List()
+                .setSymbolIndent(12f)
+                .setFontSize(12f)
             bulletList.add(ListItem("Anticipatory: ${content.anticipatory}"))
             bulletList.add(ListItem("Reactive postural control: ${content.reactive_postural_control}"))
             bulletList.add(ListItem("Sensory orientation: ${content.sensory_orientation}"))
             bulletList.add(ListItem("Dynamic gait: ${content.dynamic_gait}"))
+            bulletList2.add(ListItem("Left: Time in Seconds Trial 1: ${content.trial1Time1 ?: "0" }s Trial 2: ${content.trial1Time2 ?: "0"}s\n"))
+            bulletList2.add(ListItem("Right: Time in Seconds Trial 1: ${content.trial2Time1 ?: "0"}s Trial 2: ${content.trial2Time2 ?: "0"}s"))
+            bulletList2.add(ListItem("Stance (feet together); eyes open, firm surface: ${content.question7sec ?: "0" }s\n"))
+            bulletList2.add(ListItem("Stance (feet together); eyes closed, foam surface: ${content.question8sec ?: "0"}s\n"))
+            bulletList2.add(ListItem("Incline- eyes closed: ${content.question9sec ?: "0"}s\n"))
+            bulletList2.add(ListItem("Tug count backwards by threes starting at: ${content.count3 ?: "0" }s\n"))
+            bulletList2.add(ListItem("TUG: ${content.tug1 ?: "0"}s\n"))
+            bulletList2.add(ListItem("Dual TUG: ${content.tug2 ?: "0"}s\n"))
             val table2 = Table(floatArrayOf(3f, 3f, 4f)).setMarginBottom(20f) // Three columns: Scale, Normative Value, Report
             table2.setWidth(UnitValue.createPercentValue(100f)) // Table width is 100% of the page
             val headerBackgroundColor = com.itextpdf.kernel.colors.DeviceRgb(0, 87, 73)
@@ -1449,9 +1464,9 @@ fun savePdfToDocumentsUsingMediaStoreMinibest(content: MiniBestResult, patientNa
             document.add(Interpretation)
             document.add(bulletList)
             document.add(summaryTitle)
+            document.add(bulletList2)
             document.close()
         }
-
         val tempFile = File(context.cacheDir, patientName)
         resolver.openInputStream(uri)?.use { inputStream ->
             FileOutputStream(tempFile).use { outputStream ->
