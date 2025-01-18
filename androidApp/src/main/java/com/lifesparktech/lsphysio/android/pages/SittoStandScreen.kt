@@ -60,6 +60,7 @@ import com.lifesparktech.lsphysio.android.Controller.fetchPatients
 import com.lifesparktech.lsphysio.android.Controller.updatePatientWithTestResult
 import com.lifesparktech.lsphysio.android.components.Screen
 import com.lifesparktech.lsphysio.android.components.disconnectDevice
+import com.lifesparktech.lsphysio.android.components.sitstantcommand
 import com.lifesparktech.lsphysio.android.components.testCommand
 import com.lifesparktech.lsphysio.android.data.Patient
 import kotlinx.coroutines.Job
@@ -77,7 +78,7 @@ fun SittoStandScreen(navController: NavController){
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SittoStandCard(navController: NavController) {
-    val command = "mode 4;"
+    val command = "mode 9;"
     val clientData = remember { mutableStateOf("") }
     val patients = remember { mutableStateOf<List<Patient>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -202,16 +203,6 @@ fun SittoStandCard(navController: NavController) {
             }
         )
     }
-//    if (isLoading){
-//        Column(
-//            modifier = Modifier.fillMaxSize(),
-//            verticalArrangement = Arrangement.Center,
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ){
-//            CircularProgressIndicator(modifier = Modifier.size(40.dp), color = Color.Black)
-//        }
-//    }
-//    else {
         Card(
             modifier = Modifier.padding(12.dp),
             elevation = CardDefaults.cardElevation(4.dp),
@@ -294,7 +285,7 @@ fun SittoStandCard(navController: NavController) {
                                 // Start the process
                                 collectionJob = mainScope.launch {
                                     timeTaken.value = null // Reset the timeTaken value
-                                    testCommand(command).collect { (client, server) ->
+                                    sitstantcommand(command).collect { (client, server) ->
                                         clientData.value = client
                                         serverData.value = server
                                         if (client == "0" && server == "0" && !timerRunning.value) {
@@ -352,3 +343,15 @@ fun SittoStandCard(navController: NavController) {
    // }
 }
 
+//  L : 0.38 0.02 -1.06 1.52 -0.12 1.4
+//  R : -0.18 0.05 -1 -2.56 1.22 -2.13
+//  L : 0.37 0.02 -1.06 1.4 -0.12 1.28
+//  R : -0.18 0.05 -1 -2.56 1.22 -2.13
+
+//    var dataArr = data.split(" ");
+//        if (dataArr[0] == "L") {
+//          var ax = double.parse(dataArr[2]);
+//          var ay = double.parse(dataArr[3]);
+//          var az = double.parse(dataArr[4]);
+//   angleleft = (((180 / 3.14) * atan(ax / sqrt(ay * ay + az * az)) / 90) - 1) * -1;
+//   angleright = 1 - (((((180 / 3.14) * atan(ax / sqrt(ay * ay + az * az))) / -90)));

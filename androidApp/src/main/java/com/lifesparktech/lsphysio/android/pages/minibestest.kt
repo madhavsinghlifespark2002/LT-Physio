@@ -76,6 +76,7 @@ import com.itextpdf.layout.element.Cell
 import com.itextpdf.layout.element.ListItem
 import com.itextpdf.layout.element.Table
 import com.itextpdf.layout.properties.UnitValue
+import com.lifesparktech.lsphysio.PeripheralManager
 import com.lifesparktech.lsphysio.android.Controller.addedMiniData
 import com.lifesparktech.lsphysio.android.Controller.fetchPatients
 import com.lifesparktech.lsphysio.android.data.MiniBestResult
@@ -86,7 +87,6 @@ import com.lifesparktech.lsphysio.android.data.optionsList
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.Int
-@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
@@ -95,6 +95,7 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
     var selectedOption by remember { mutableStateOf("") }
     var patient by remember { mutableStateOf(Patient()) }
     var pdfFile by remember { mutableStateOf<File?>(null) }
+    var isDeviceConnected by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val shareLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -103,6 +104,9 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
         try{
             val result = fetchPatients()
             patients.value = result
+            if (PeripheralManager.peripheral != null) {
+                isDeviceConnected = true
+            }
         }
         finally {
             //isLoading = false
@@ -320,10 +324,13 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                 Button(
                                     onClick = {navController.navigate("SittoStandScreen")},
                                     shape = RoundedCornerShape(8.dp),
+                                    //enabled = isDeviceConnected,
                                     colors = ButtonDefaults.textButtonColors(
                                         containerColor = Color(0xFF005749), // Normal state color
                                         contentColor = Color.White, // Normal text color
-                                    ),
+                                        disabledContainerColor = Color(0xFFCCCCCC), // Background color when disabled
+                                        disabledContentColor = Color.Gray // Text color when disabled
+                                    )
                                 ){
                                     Text("Start", color = Color.White)
                                 }
@@ -1422,7 +1429,6 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 fun savePdfToDocumentsUsingMediaStoreMinibest(content: MiniBestResult, patientName: String, patientDetail: Patient, context: Context): File? {
     val resolver = context.contentResolver
     val contentValues = ContentValues().apply {

@@ -10,12 +10,17 @@ import com.juul.kable.AndroidPeripheral
 import com.juul.kable.ConnectionLostException
 import com.juul.kable.peripheral
 import com.lifesparktech.lsphysio.PeripheralManager
+import com.lifesparktech.lsphysio.PeripheralManager.charRead
 import com.lifesparktech.lsphysio.PeripheralManager.mainScope
 import com.lifesparktech.lsphysio.PeripheralManager.peripheral
 import com.unity3d.player.UnityPlayer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlin.math.PI
+import kotlin.math.atan
+import kotlin.math.sqrt
+
 val BATTERY_PERCENTAGE_CLIENT_UUID = uuidFrom("0000aef3-0000-1000-8000-00805f9b34fb")
 val BATTERY_PERCENTAGE_SERVER_UUID = uuidFrom("0000adf3-0000-1000-8000-00805f9b34fb")
 val MAGNITUDE_SERVER = uuidFrom("0000adf8-0000-1000-8000-00805f9b34fb")
@@ -105,6 +110,65 @@ suspend fun testCommand(command: String): Flow<Pair<String, String>> = flow {
                 emit(clientReadable to serverReadable) // Emit the values as a pair
                 println("observationClient: $clientReadable and observationServer: $serverReadable")
                 kotlinx.coroutines.delay(500)
+            }
+        } catch (e: Exception) {
+            println("Error writing command: ${e.message}")
+        }
+    } else {
+        println("Peripheral or characteristic not initialized.")
+    }
+}
+suspend fun sitstantcommand(command: String): Flow<Pair<String, String>> = flow {
+    val peripheral = PeripheralManager.peripheral
+    val charWrite = PeripheralManager.charWrite
+    val service = peripheral?.services?.find {
+        it.serviceUuid == uuidFrom("0000abf0-0000-1000-8000-00805f9b34fb")
+    } ?: throw Exception("Service not found for device")
+    var clientReadable = ""
+    var serverReadable = ""
+    if (peripheral != null && charWrite != null) {
+        try {
+            peripheral.write(charWrite, command.encodeToByteArray())
+            val observation = peripheral.observe(charRead!!)
+            observation?.collect { data ->
+                val utfString = data.decodeToString()
+                println("Received data: $utfString")
+                val dataArr = utfString.split(" ")
+                if (dataArr.isNotEmpty() && (dataArr[0] == "L" || dataArr[0] == "R")) {
+                    try {
+                        val isLeft = dataArr[0]
+                        println("isLeft: $isLeft")
+                        val ax = dataArr[2].toDoubleOrNull() ?: 0.0
+                        val ay = dataArr[3].toDoubleOrNull() ?: 0.0
+                        val az = dataArr[4].toDoubleOrNull() ?: 0.0
+                        println("This is ax: $ax, ay: $ay, and az: $az")
+                        if(dataArr[0] == "L"){
+                            val angleLeft = (((180 / 3.14) * atan(ax / sqrt(ay * ay + az * az)) / 90) - 1) * -1
+                            println("this is angleLeft: ${angleLeft}")
+                            if(angleLeft > 1){
+                                serverReadable = "1"
+                            }
+                            else{
+                                serverReadable = "0"
+                            }
+                        }
+                       if(dataArr[0] == "R"){
+                           val angleRight = 1 - (((((180 / 3.14) * atan(ax / sqrt(ay * ay + az * az))) / -90)))
+                           println("this is angleRight: ${angleRight}")
+                           if(angleRight > 1){
+                               clientReadable = "1"
+                           }
+                           else{
+                               clientReadable = "0"
+                           }
+                       }
+                        emit(clientReadable to serverReadable)
+                    } catch (e: Exception) {
+                        println("Error parsing data: ${e.message}")
+                    }
+                } else {
+                    println("Unexpected data format: $utfString")
+                }
             }
         } catch (e: Exception) {
             println("Error writing command: ${e.message}")

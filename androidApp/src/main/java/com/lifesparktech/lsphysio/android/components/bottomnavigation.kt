@@ -14,12 +14,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -45,11 +48,13 @@ import com.lifesparktech.lsphysio.android.pages.ReceiptScreen
 import com.lifesparktech.lsphysio.android.pages.ReportsScreen
 import com.lifesparktech.lsphysio.android.pages.ResourceScreen
 import com.lifesparktech.lsphysio.android.pages.ScheduleScreen
+import com.lifesparktech.lsphysio.android.pages.SharedViewModel
 import com.lifesparktech.lsphysio.android.pages.SittoStandScreen
 import com.lifesparktech.lsphysio.android.pages.TestScreen
 import com.lifesparktech.lsphysio.android.pages.TugScreen
 import com.lifesparktech.lsphysio.android.pages.UpdatedPatientScreen
 import com.lifesparktech.lsphysio.android.pages.sampleTest
+import com.lifesparktech.lsphysio.android.pages.sampleTest2
 import java.io.File
 
 @Composable
@@ -117,6 +122,7 @@ fun currentRoute(navController: NavHostController): String? {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifier) {
+    val sharedViewModel: SharedViewModel = viewModel()
     NavHost(navController = navController, startDestination = Screen.Home.route, modifier = modifier) {
         composable("addpatientscreen") { AddPatientScreen(navController) }
         composable("accountScreen"){AccountScreen()}
@@ -177,7 +183,12 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
             }
         }
         composable(Screen.Home.route) { HomeScreen() }
-        composable("sampleTest") { sampleTest() }
+        composable("sampleTest") {
+            sampleTest(navController, sharedViewModel)
+        }
+        composable("sampleTest2") {
+            sampleTest2(navController, sharedViewModel)
+        }
         composable(Screen.Games.route) { GamesScreen() }
         composable(Screen.Tests.route) { TestScreen(navController) }
         composable(Screen.DeviceConnectionScreen.route) {

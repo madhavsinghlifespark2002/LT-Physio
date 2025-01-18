@@ -77,7 +77,6 @@ import com.lifesparktech.lsphysio.android.data.Patient
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GasScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
