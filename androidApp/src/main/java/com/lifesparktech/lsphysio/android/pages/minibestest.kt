@@ -89,10 +89,11 @@ import java.util.Locale
 import kotlin.Int
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
+fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController, sharedViewModel: SharedViewModel) {
     val patients = remember { mutableStateOf<List<Patient>>(emptyList()) }
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("") }
+    val selectedOptionstored by sharedViewModel.selectedOption // Observe the shared state
     var patient by remember { mutableStateOf(Patient()) }
     var pdfFile by remember { mutableStateOf<File?>(null) }
     var isDeviceConnected by remember { mutableStateOf(false) }
@@ -128,8 +129,7 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
     var rightScore by remember { mutableStateOf(2) }
     var leftScore6 by remember { mutableStateOf(2) }
     var rightScore6 by remember { mutableStateOf(2) }
-    val totalScore = answers.filterIndexed { index, _ -> index != 2 && index != 5 }.sum() + minOf(leftScore, rightScore) + minOf(leftScore6, rightScore6)
-//    var totalScore = answers.sum() + minOf(leftScore, rightScore) + minOf(leftScore6, rightScore6)
+    val totalScore = answers.filterIndexed { index, _ -> index !=0 && index != 2 && index != 5 }.sum() + selectedOptionstored + minOf(leftScore, rightScore) + minOf(leftScore6, rightScore6)
     var selectedScore by remember { mutableStateOf(2) }
     var selectedScoreRight by remember { mutableStateOf(2) }
     var selectedScore6 by remember { mutableStateOf(2) }
@@ -150,8 +150,8 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
         when (startIndex) {
             0 -> {
                 val score = answers.subList(startIndex, startIndex + 3)
-                    .filterIndexed { index, _ -> index != 2 } // Exclude index 2
-                    .sum() + minOf(leftScore, rightScore)
+                    .filterIndexed { index, _ -> index !=0 && index != 2 } // Exclude index 2
+                    .sum() + minOf(leftScore, rightScore) + selectedOptionstored
                 anticipatory = score
                 score
             }
@@ -335,7 +335,6 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                                     Text("Start", color = Color.White)
                                 }
                             }
-
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = "Instruction: $instruction",
@@ -346,13 +345,13 @@ fun MiniBestScreen(onPreviewPdf: (File) -> Unit, navController: NavController) {
                         Column{
                             options.take(7).forEachIndexed { optionIndex, option ->
                                 Row(
-                                    // modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     RadioButton(
-                                        selected = answers[index] == optionIndex,
+                                        selected = selectedOptionstored == optionIndex,
                                         onClick = {
-                                            answers = answers.toMutableList().apply { set(index, optionIndex) }
+                                            sharedViewModel.selectedOption.value = optionIndex
+                                            answers = answers.toMutableList().apply { set(index, sharedViewModel.selectedOption.value) }
                                         },
                                         colors = RadioButtonDefaults.colors(
                                             selectedColor = Color(0xFF005749)

@@ -90,7 +90,6 @@ fun sampleTest(navController: NavController, sharedViewModel: SharedViewModel) {
         }
     }
 }
-
 @Composable
 fun sampleTest2(navController: NavController, sharedViewModel: SharedViewModel) {
     val selectedOption by sharedViewModel.selectedOption // Observe shared state

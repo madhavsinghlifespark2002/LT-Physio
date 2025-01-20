@@ -136,7 +136,7 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         composable("resourceScreen"){ ResourceScreen(navController) }
         composable("receiptScreen"){ ReceiptScreen(navController) }
         composable("DeviceControlScreen") { DeviceControlScreen(navController) }
-        composable("SittoStandScreen") { SittoStandScreen(navController) }
+        composable("SittoStandScreen") { SittoStandScreen(navController, sharedViewModel) }
         composable("tugscreen") { TugScreen(navController) }
         composable("gasScreen") {
             GasScreen(
@@ -157,7 +157,8 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
                         restoreState = true
                     }
                 },
-                navController
+                navController,
+                sharedViewModel
             )
         }
         composable("PreviewPdfScreen/{pdfPath}") { backStackEntry ->

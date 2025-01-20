@@ -31,7 +31,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
@@ -69,15 +72,15 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SittoStandScreen(navController: NavController){
+fun SittoStandScreen(navController: NavController, sharedViewModel: SharedViewModel){
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFf4f4f4)),
     ) {
-        SittoStandCard(navController)
+        SittoStandCard(navController, sharedViewModel)
     }
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SittoStandCard(navController: NavController) {
+fun SittoStandCard(navController: NavController, sharedViewModel: SharedViewModel) {
     val command = "mode 9;"
     val clientData = remember { mutableStateOf("") }
     val patients = remember { mutableStateOf<List<Patient>>(emptyList()) }
@@ -96,7 +99,6 @@ fun SittoStandCard(navController: NavController) {
     val scope = rememberCoroutineScope()
     var patient by remember { mutableStateOf(Patient()) }
     var context = LocalContext.current
-
     fun trackDeviceStatus() {
         peripheral?.state?.onEach { state ->
             println("Band State: $state")
@@ -210,6 +212,7 @@ fun SittoStandCard(navController: NavController) {
                 containerColor = Color.White // Set the card's background color
             )
         ){
+            val selectedOptionStored by sharedViewModel.selectedOption
             Column(modifier = Modifier.fillMaxSize().background(Color(0xFFf4f4f4)).padding(12.dp))
             {
                 Row(
@@ -219,7 +222,10 @@ fun SittoStandCard(navController: NavController) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
-                        modifier = Modifier.clickable { navController.popBackStack() }
+                        modifier = Modifier.clickable {
+                            sharedViewModel.selectedOption.value = selectedOptionStored
+                            navController.popBackStack()
+                        }
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
@@ -338,6 +344,107 @@ fun SittoStandCard(navController: NavController) {
                     val milliseconds = (it % 1000)
                     Text(text = "Time taken from Sitting to Standing: ${seconds}s ${milliseconds}ms")
                 }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Instruction: ",
+                    style = TextStyle(fontSize = 14.sp)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Cross your arms across your chest. Try not to use your hands unless you must. Do not let your legs lean against the back of the chair when you stand. Please stand up now.",
+                    style = TextStyle(fontSize = 14.sp)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            sharedViewModel.selectedOption.value = 0
+                        }
+                ) {
+                    RadioButton(
+                        selected = selectedOptionStored == 0,
+                        onClick = {
+                            sharedViewModel.selectedOption.value = 0
+                        },
+                        colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF005749))
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Severe (0): Unable to stand up from chair without assistance, OR needs several attempts with use of hands.",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            sharedViewModel.selectedOption.value = 1
+                        }
+                ) {
+                    RadioButton(
+                        selected = selectedOptionStored == 1,
+                        onClick = {
+                            sharedViewModel.selectedOption.value = 1
+                        },
+                        colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF005749))
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Moderate (1): Comes to stand WITH use of hands on first attempt.",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            sharedViewModel.selectedOption.value = 2
+                        }
+                ) {
+                    RadioButton(
+                        selected = selectedOptionStored == 2,
+                        onClick = {
+                            sharedViewModel.selectedOption.value = 2
+                        },
+                        colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF005749))
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Normal (2): Comes to stand without use of hands and stabilizes independently.",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        sharedViewModel.selectedOption.value = selectedOptionStored
+                        navController.popBackStack() // Navigate back to Screen 1
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = Color(0xFF005749),
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Submit and Go Back", color = Color.White)
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
             }
         }
    // }
